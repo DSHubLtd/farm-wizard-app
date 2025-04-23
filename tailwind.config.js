@@ -9,7 +9,7 @@ module.exports = {
         primary: "#3E8E41",
         // primary: "#161622",
         secondary: {
-          DEFAULT: "#FF9C01",
+          DEFAULT: "#E1CE67",
           100: "#FF9001",
           200: "#FF8E01",
         },
@@ -21,6 +21,7 @@ module.exports = {
         gray: {
           100: "#CDCDE0",
         },
+        buttonColor: "#E1CE67",
       },
       fontFamily: {
         pthin: ["Poppins-Thin", "sans-serif"],

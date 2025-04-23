@@ -1,58 +1,70 @@
-import { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Image, Text, View } from "react-native";
-
-import { icons } from "../../constants";
-import { useLoginContext } from "@/context/LoginProvider";
-import PlayState from "../../components/PlayState";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import { icons, images } from "../../constants";
+import { router } from "expo-router";
+import HeaderNavigation from "@/components/HeaderNavigation";
 
 const Home = () => {
 
-  const { user } = useLoginContext();
-
-
-  useEffect(() => {
-    if (!user) {
-      router.replace("/sign-in");
-    }
-  }, [])
-
-
   return (
-    <SafeAreaView className="bg-primary h-[100vh]">
-      <View className="flex my-6 px-4 space-y-6">
-        <View className="flex justify-between items-start flex-row mb-6">
-          <View>
-            {/* <Text className="font-pmedium text-sm text-gray-100">
-              Welcome Back
-            </Text>
-            <Text className="text-2xl font-psemibold text-white">
-              {user?.fullName}
-            </Text> */}
-            <Image
-              source={icons.profile}
-              className="w-6 h-6"
-              resizeMode="contain"
-            />
-          </View>
+    <View className="flex-1 relative bg-green-200 items-center justify-start">
 
-          <View className="mt-1.5">
-            <Image
-              src={'https://t4.ftcdn.net/jpg/01/08/24/99/360_F_108249947_UMBLfSCpTWU6AGiUz0F7a524koG3eO0z.jpg'}
-              // source={images.logoSmall}
-              className="w-6 h-6"
-              resizeMode="contain"
-            />
-          </View>
-        </View>
+      {/* Background Image */}
+      <Image
+        source={images.background1}
+        className="absolute w-[100vh] h-full"
+        resizeMode="contain"
+      // blurRadius={1}
+      />
 
-        <PlayState
-          title="Farm wizard"
-          subtitle="Farm wizard is a game where you can create your own farm and play with your friends. "
+      {/* Top Buttons */}
+      <HeaderNavigation
+        onLeftPress={() => router.push("/(screens)/settings")}
+        onRightPress={() => null}
+        leftIcon={icons.profile}
+        rightIcon={icons.bell}
+        showLeftButton={true}
+        showRightButton={true}
+      />
+
+      <View className="flex-1 justify-center items-center">
+        {/* Wizard Image */}
+        <Image
+          source={images.logo}
+          resizeMode="contain"
+          className="w-[250px] h-[250px]"
         />
 
+        {/* Play Button */}
+        <TouchableOpacity
+          className="mt-5 px-20 py-3 bg-yellow-400 rounded-md shadow-md border border-white/50"
+          onPress={() => router.push('/(screens)/selectSeed')}>
+          <Text className="text-white font-semibold text-base">Play</Text>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+
+      {/* Floating Top Icon (maybe top-left or top-right) */}
+      {/* <View className="absolute bottom-40 center">
+        <TouchableOpacity className="w-12 h-12 bg-white/50 rounded-full items-center justify-center shadow-md">
+          <Image
+            source={icons.bell}
+            className="w-6 h-6 tint-white"
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View> */}
+
+      {/* Floating Bottom-Right Icon */}
+      {/* <View className="absolute bottom-16 right-4">
+        <TouchableOpacity className="w-12 h-12 bg-white/50 rounded-full items-center justify-center shadow-md">
+          <Image
+            source={icons.bell}
+            className="w-6 h-6 tint-white"
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </View> */}
+
+    </View>
   );
 };
 

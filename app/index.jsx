@@ -7,71 +7,63 @@ import CustomButton from "../components/CustomButton";
 
 import { images } from "../constants";
 import { useLoginContext } from "../context/LoginProvider";
+import BackgroundImage from "../components/BackgroundImage";
 
 export default function Index() {
   const { isLoading, isLogged } = useLoginContext();
 
   if (!isLoading && isLogged) return <Redirect href={"/home"} />;
 
+  return <Redirect href={"/(tabs)/home"} />;
+
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full" edges={['left', 'right', 'bottom']} style={{ flex: 1 }}>
+      {/* Background Image */}
+      <BackgroundImage source={images.background} />
       <ScrollView contentContainerStyle={{ height: "100%" }}>
+
         <View className="w-full flex justify-center items-center min-h-[85vh] px-4">
-          {/* <Image
-            source={images.logo}
-            className="w-[130px] h-[84px]"
-            resizeMode="contain"
-          />
-          <Image
-            source={images.cards}
-            className="max-w-[380px] w-full h-[298px]"
-            resizeMode="contain"
-          /> */}
 
           <View className="relative mt-5">
-            {/* <Text className="text-3xl text-white font-bold text-center">
-              Discover Endless{"\n"}
-              Possibilities with{" "}
-              <Text className="text-secondary-200">Farm wizard</Text>
-            </Text>
 
-            <Image
-              source={images.path}
-              className="w-[136px] h-[15px] absolute -bottom-2 -right-8"
-              resizeMode="contain"
-            /> */}
-            <Text className="text-3xl text-white font-bold text-center my-5">
-              Terms And Condition
+            <Text className="text-3xl text-white font-bold text-center my-20">
+              Term And Conditions
             </Text>
 
           </View>
 
-          <Text className="text-sm font-pregular text-gray-100 mt-5 text-center">
-            Several games offer a wizard experience that includes farming magical materials and building a wizard's tower:
-
-            Aether: Wizard Life: A magical farm sim game that combines action-adventure elements. It allows players to farm materials for spells and customize their wizard tower.
-            Ultima Online: This classic MMORPG requires players to farm reagents for spellcasting and offers opportunities for castle and house customization.
-            Overlord: While not a pure wizard experience, the original Overlord games offer a unique blend of gameplay elements that align with magical aspirations, including resource management and base building.
-            Minecraft Mods: By combining various mods, players can create a gameplay experience that incorporates elements of spell crafting and resource management.
-
-            Several games offer a wizard experience that includes farming magical materials and building a wizard's tower:
-
-            Aether: Wizard Life: A magical farm sim game that combines action-adventure elements. It allows players to farm materials for spells and customize their wizard tower.
-            Ultima Online: This classic MMORPG requires players to farm reagents for spellcasting and offers opportunities for castle and house customization.
-            Overlord: While not a pure wizard experience, the original Overlord games offer a unique blend of gameplay elements that align with magical aspirations, including resource management and base building.
-            Minecraft Mods: By combining various mods, players can create a gameplay experience that incorporates elements of spell crafting and resource management.
-          </Text>
+          <ScrollView
+            // showsVerticalScrollIndicator={false}
+            style={{ height: 500 }}
+            className="max-h-50">
+            {/* <Text className="text-xl font-semibold text-gray-50 my-5 text-center border-r-4 border-r-[#E1CE67]"> */}
+            <Text className="text-xl font-semibold text-gray-50 text-center border-r-4 border-r-[#E1CE67]">
+              By using Farm Wizard, you agree to our Terms and Conditions. This app is designed for fun and educational
+              use only. Users are expected to use the app responsibly and not engage in harmful or illegal behavior.
+              All game content, including graphics and sounds, is owned by the Farm Wizard team and may not be copied or
+              shared without permission. We are committed to protecting your privacy and will not collect personal information
+              without your consent. These terms may be updated as the app grows, and continued use means you accept any changes.
+              For questions, contact us at support@farmwizard.com.
+              By using Farm Wizard, you agree to our Terms and Conditions. This app is designed for fun and educational
+              use only. Users are expected to use the app responsibly and not engage in harmful or illegal behavior.
+              All game content, including graphics and sounds, is owned by the Farm Wizard team and may not be copied or
+              shared without permission. We are committed to protecting your privacy and will not collect personal information
+              without your consent. These terms may be updated as the app grows, and continued use means you accept any changes.
+              For questions, contact us at support@farmwizard.com.
+            </Text>
+          </ScrollView>
 
           <CustomButton
             title="Agree & Continue "
             handlePress={() => router.push("/sign-in")}
             containerStyles="w-full mt-7"
-            textStyles={"font-pbold text-base"}
+            textStyles={"font-pbold text-white"}
             isLoading={isLoading}
           />
         </View>
-      </ScrollView>
+      </ScrollView >
       <StatusBar backgroundColor="#161622" style="light" />
-    </SafeAreaView>
+
+    </SafeAreaView >
   );
 }

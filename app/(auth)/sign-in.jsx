@@ -8,6 +8,7 @@ import { CustomButton, FormField } from "../../components";
 
 import { useLoginContext } from "@/context/LoginProvider";
 import { signInUser } from "../../services/auth";
+import BackgroundImage from "../../components/BackgroundImage";
 
 const SignIn = () => {
   const { setUser, setIsLogged } = useLoginContext();
@@ -16,7 +17,6 @@ const SignIn = () => {
     email: "",
     password: "",
   });
-
 
   const submit = async () => {
     if (form.email === "" || form.password === "") {
@@ -44,9 +44,9 @@ const SignIn = () => {
     }
   };
 
-
   return (
     <SafeAreaView className="bg-primary h-full">
+      <BackgroundImage source={images.background} />
       <ScrollView>
         <View
           className="w-full flex justify-center h-full px-4 my-6"
@@ -54,15 +54,17 @@ const SignIn = () => {
             minHeight: Dimensions.get("window").height - 100,
           }}
         >
-          {/* <Image
-            source={images.logo}
-            resizeMode="contain"
-            className="w-[115px] h-[34px]"
-          /> */}
+          <View className="flex flex-row justify-center">
+            <Image
+              source={images.logo}
+              resizeMode="contain"
+              className="w-[200px] h-[200px]"
+            />
+          </View>
 
-          <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
+          {/* <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
             Log in to Farm Wizard
-          </Text>
+          </Text> */}
 
           <FormField
             title="Email"
@@ -86,6 +88,13 @@ const SignIn = () => {
             isLoading={isSubmitting}
           />
 
+          <View className="flex justify-end pt-5 flex-row gap-2">
+
+            <Link href="/forgot-password" className="text-lg text-gray-100 font-pregular">
+              Forget password?
+            </Link>
+          </View>
+
           <View className="flex justify-center pt-5 flex-row gap-2">
             <Text className="text-lg text-gray-100 font-pregular">
               Don't have an account?
@@ -94,7 +103,7 @@ const SignIn = () => {
               href="/sign-up"
               className="text-lg font-psemibold text-secondary"
             >
-              Signup
+              Sign up
             </Link>
           </View>
         </View>

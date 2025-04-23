@@ -4,10 +4,15 @@
     "slug": "farm-wizard-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/logo.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#fff"
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -28,10 +33,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#232323", 
+          "resizeMode": "cover",
+          "enableFullScreenImage_legacy": true
         }
       ]
     ],

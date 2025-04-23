@@ -1,10 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { StatusBar } from "expo-status-bar";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import "../global.css";
 import LoginProvider from "@/context/LoginProvider";
+import CutomSplashScreen from "@/components/CutomSplashScreen";
 
-SplashScreen.preventAutoHideAsync();
+// Keep the native splash until we're ready
+// SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
@@ -18,20 +21,41 @@ const RootLayout = () => {
     "Poppins-SemiBold": require("../assets/fonts/Poppins-SemiBold.ttf"),
     "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
   });
+  const [isAppReady, setAppReady] = useState(false);
 
   useEffect(() => {
     if (error) throw error;
-    if (fontsLoaded) SplashScreen.hideAsync();
+
+    if (fontsLoaded) {
+      setTimeout(() => {
+        setAppReady(true);
+        // SplashScreen.hideAsync();
+      }, 1000);
+    }
   }, [fontsLoaded, error]);
-  if (!fontsLoaded && !error) return null;
+
+  if (!isAppReady) {
+    return <CutomSplashScreen />;
+  }
+
   return (
     <LoginProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(farm)" options={{ headerShown: false }} />
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: "white" },
+          animation: "slide_from_right",
+          header: () => null,
+          navigationBarHidden: true,
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(screens)" />
       </Stack>
+      {/* <StatusBar backgroundColor="#161622" style="light" /> */}
     </LoginProvider>
   );
 };

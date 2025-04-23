@@ -11,6 +11,12 @@ import logout from "../assets/icons/logout.png";
 import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
+import bell from "../assets/icons/bell.png";
+import settings from "../assets/icons/settings.png";
+import rightChevron from "../assets/icons/right-chevron.png";
+import back from "../assets/icons/back.png";
+import stats from "../assets/icons/stats.png";
+import hat from "../assets/icons/hat.png";
 
 export default {
   play,
@@ -26,4 +32,10 @@ export default {
   logout,
   eyeHide,
   eye,
+  bell,
+  settings,
+  rightChevron,
+  back,
+  stats,
+  hat,
 };
