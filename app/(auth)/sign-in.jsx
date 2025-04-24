@@ -10,6 +10,7 @@ import { useLoginContext } from "@/context/LoginProvider";
 import { signInUser } from "../../services/auth";
 import BackgroundImage from "../../components/BackgroundImage";
 
+
 const SignIn = () => {
   const { setUser, setIsLogged } = useLoginContext();
   const [isSubmitting, setSubmitting] = useState(false);
@@ -83,14 +84,15 @@ const SignIn = () => {
 
           <CustomButton
             title="Sign In"
-            handlePress={submit}
+            // handlePress={submit}
+            handlePress={() => router.push("/(tabs)/home")}
             containerStyles="mt-7"
             isLoading={isSubmitting}
           />
 
           <View className="flex justify-end pt-5 flex-row gap-2">
 
-            <Link href="/forgot-password" className="text-lg text-gray-100 font-pregular">
+            <Link href="/forgot-password" className="text-lg text-gray-100 font-secondary">
               Forget password?
             </Link>
           </View>
@@ -101,7 +103,7 @@ const SignIn = () => {
             </Text>
             <Link
               href="/sign-up"
-              className="text-lg font-psemibold text-secondary"
+              className="text-lg font-secondary text-secondary"
             >
               Sign up
             </Link>

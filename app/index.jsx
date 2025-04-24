@@ -14,7 +14,7 @@ export default function Index() {
 
   if (!isLoading && isLogged) return <Redirect href={"/home"} />;
 
-  return <Redirect href={"/(tabs)/home"} />;
+  // return <Redirect href={"/(tabs)/home"} />;
 
   return (
     <SafeAreaView className="bg-primary h-full" edges={['left', 'right', 'bottom']} style={{ flex: 1 }}>
@@ -25,11 +25,9 @@ export default function Index() {
         <View className="w-full flex justify-center items-center min-h-[85vh] px-4">
 
           <View className="relative mt-5">
-
-            <Text className="text-3xl text-white font-bold text-center my-20">
+            <Text className="text-3xl text-white font-primary text-center my-20">
               Term And Conditions
             </Text>
-
           </View>
 
           <ScrollView
@@ -37,7 +35,7 @@ export default function Index() {
             style={{ height: 500 }}
             className="max-h-50">
             {/* <Text className="text-xl font-semibold text-gray-50 my-5 text-center border-r-4 border-r-[#E1CE67]"> */}
-            <Text className="text-xl font-semibold text-gray-50 text-center border-r-4 border-r-[#E1CE67]">
+            <Text className="text-xl font-secondary text-gray-50 text-center border-r-4 border-r-[#E1CE67]">
               By using Farm Wizard, you agree to our Terms and Conditions. This app is designed for fun and educational
               use only. Users are expected to use the app responsibly and not engage in harmful or illegal behavior.
               All game content, including graphics and sounds, is owned by the Farm Wizard team and may not be copied or

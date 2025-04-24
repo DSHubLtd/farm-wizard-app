@@ -48,14 +48,14 @@ const Settings = () => {
       />
 
       {/* Title */}
-      <Text className="text-white text-3xl font-bold">Settings</Text>
+      <Text className="text-white text-3xl font-secondary">Settings</Text>
 
       {/* Glass Panel */}
       <BlurView
         // intensity={60}
         intensity={0}
         tint="default"
-        className="px-5 py-2 w-[95%] rounded-2xl bg-white/10"
+        className="px-5 py-4 w-[95%] rounded-2xl bg-white/10"
       >
         <ScrollView className="max-h-[80vh]">
           {settingsOptions.map((item, index) => (
@@ -75,7 +75,7 @@ const Settings = () => {
                   />
                 )}
                 <Text
-                  className={`text-white mb-1 ${
+                  className={`text-white font-secondary mb-1 ${
                     item.danger ? "text-red-400" : ""
                   }`}
                 >

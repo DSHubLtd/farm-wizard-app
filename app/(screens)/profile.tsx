@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Image, Animated } from "react-native";
-import { BlurView } from "expo-blur";
 import { icons, images } from "@/constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
@@ -19,7 +18,6 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<TabType>("Daily");
   const [animatedValues, setAnimatedValues] = useState<Animated.Value[]>([]);
 
-  // Animate bar chart on tab switch
   useEffect(() => {
     const newData = chartData[activeTab];
     const newAnimatedValues = newData.map(() => new Animated.Value(0));
@@ -38,7 +36,7 @@ const Profile = () => {
   }, [activeTab]);
 
   return (
-    <View className="flex-1 bg-green-200 items-center justify-start">
+    <View className="flex-1 bg-green-200 items-center">
       <BackgroundImage
         source={images.background}
         style={{ width: "100%", height: "100%", position: "absolute" }}
@@ -54,66 +52,99 @@ const Profile = () => {
         showRightButton={true}
       />
 
-      <Text className="text-white text-3xl font-bold">Profile</Text>
+      <Text className="text-white text-3xl font-secondary mt-4">Profile</Text>
 
       {/* Avatar + Info */}
-      <View className="items-center my-6">
-        <View className="w-20 h-20 rounded-full border-2 border-white/70 items-center justify-center">
-          <Image
-            source={icons.profile}
-            className="w-10 h-10 tint-white"
-            resizeMode="contain"
-          />
-        </View>
-        <Text className="text-white font-semibold mt-2 text-base">
+      <View className="items-center my-2">
+        <Image
+          source={icons.profile}
+          resizeMode="contain"
+          // className="w-[50%] aspect-square max-w-[200px] "
+          className="w-[200px] h-[200px] md:w-48 md:h-48"
+        />
+        <Text className="text-white font-secondary text-2xl mt-1">
           Player Name
         </Text>
-        <Text className="text-yellow-300 text-sm mt-1">$0.0007</Text>
+        <Text className="text-yellow-300 font-secondary text-base mt-1">
+          $0.0007
+        </Text>
       </View>
 
-      {/* Chart Panel */}
-      <BlurView
-        intensity={60}
-        // tint="light"
-        className="mt-6 rounded-2xl w-[90%] px-4 py-5 bg-white/30"
-      >
-        {/* Tabs */}
-        <View className="flex-row justify-around mb-4">
-          {tabs.map((tab) => (
-            <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
-              <Text
-                className={`font-semibold ${
-                  tab === activeTab ? "text-white underline" : "text-white/60"
-                }`}
-              >
-                {tab}
-              </Text>
-            </TouchableOpacity>
-          ))}
+      {/* Tabs */}
+      <View className="w-[90%] flex-row justify-around mt-4 mb-2">
+        {tabs.map((tab) => (
+          <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
+            <Text
+              className={`font-secondary ${
+                tab === activeTab
+                  ? "text-white font-bold underline"
+                  : "text-white/60"
+              }`}
+            >
+              {tab}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Chart with Axes */}
+      {/* Chart Container */}
+      <View className="mt-4 rounded-2xl w-[90%] px-4 py-5 bg-[#D4B75873]">
+        <View className="flex-row items-end">
+          {/* Y-Axis */}
+          <View className="justify-between h-30 p-2">
+            {/* Generate Y-axis numbers */}
+            {[4, 3, 2, 1, 0].map((n) => {
+              const max = Math.max(...chartData[activeTab]);
+              const label = Math.round((n * max) / 4);
+              return (
+                <Text
+                  key={n}
+                  className="text-white text-xs"
+                  style={{ height: 32, textAlign: "right" }}
+                >
+                  {label}
+                </Text>
+              );
+            })}
+          </View>
+
+          {/* Bars */}
+          <View className="flex-1 flex-row items-end justify-between space-x-1 h-40">
+            {chartData[activeTab].map((value, i) => (
+              <Animated.View
+                key={i}
+                className="bg-white rounded-full w-2"
+                style={{
+                  height: animatedValues[i]
+                    ? animatedValues[i].interpolate({
+                        inputRange: [0, Math.max(...chartData[activeTab])],
+                        outputRange: [0, 160],
+                      })
+                    : 0,
+                }}
+              />
+            ))}
+          </View>
         </View>
 
-        {/* Animated Bars */}
-        <View className="flex-row items-end justify-between space-x-1 h-40">
-          {chartData[activeTab].map((value, i) => (
-            <Animated.View
-              key={i}
-              className="bg-white rounded-full w-2"
-              style={{
-                height: animatedValues[i]
-                  ? animatedValues[i].interpolate({
-                      inputRange: [0, Math.max(...chartData[activeTab])],
-                      outputRange: [0, 160],
-                    })
-                  : 0,
-              }}
-            />
+        {/* X-Axis */}
+        <View className="flex-row justify-between px-2 mt-2">
+          {chartData[activeTab].map((_, i) => (
+            <Text key={i} className="text-white text-[10px] text-center w-2">
+              {activeTab === "Daily"
+                ? i + 1
+                : activeTab === "Weekly"
+                ? `W${i + 1}`
+                : `M${i + 1}`}
+            </Text>
           ))}
         </View>
-      </BlurView>
+      </View>
 
       {/* Withdraw */}
       <TouchableOpacity
-        className="mt-6 bg-yellow-400 px-12 py-3 rounded-lg shadow-lg"
+        className="mt-6 bg-yellow-400 px-10 py-3 rounded-lg shadow-md"
         onPress={() => router.push("/(screens)/claimScreen")}
       >
         <Text className="text-white font-bold text-base">WITHDRAW</Text>

@@ -61,7 +61,7 @@ const ForgotPassword = () => {
                         />
                     </View>
 
-                    <Text className="text-sm text-center font-semibold text-white mt-10 font-psemibold">
+                    <Text className="text-[18px] text-center font-semibold text-white mt-10 font-secondary">
                         Enter the email associated with your account, and we’ll send you a link to reset your password.
                     </Text>
 
@@ -87,7 +87,7 @@ const ForgotPassword = () => {
                         </Text>
                         <Link
                             href="/sign-up"
-                            className="text-lg font-psemibold text-secondary"
+                            className="text-lg font-secondary text-secondary"
                         >
                             Sign up
                         </Link>

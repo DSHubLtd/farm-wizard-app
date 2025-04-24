@@ -32,7 +32,6 @@
     "expo-splash-screen": "~0.29.22",
     "expo-status-bar": "~2.0.1",
     "expo-symbols": "~0.2.2",
-    "expo-system-ui": "~4.0.9",
     "expo-web-browser": "~14.0.2",
     "lucide-react-native": "^0.488.0",
     "nativewind": "^4.1.23",

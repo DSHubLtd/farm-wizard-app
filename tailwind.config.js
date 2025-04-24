@@ -21,9 +21,12 @@ module.exports = {
         gray: {
           100: "#CDCDE0",
         },
-        buttonColor: "#E1CE67",
+        // buttonColor: "#E1CE67",
+        buttonColor: "#FFDB1B",
       },
       fontFamily: {
+        primary: ["BubblegumSans-Regular", "sans-serif"],
+        secondary: ["NunitoSans-Regular", "sans-serif"],
         pthin: ["Poppins-Thin", "sans-serif"],
         pextralight: ["Poppins-ExtraLight", "sans-serif"],
         plight: ["Poppins-Light", "sans-serif"],
