@@ -1,5 +1,5 @@
 import BackgroundImage from "@/components/BackgroundImage";
-import { images } from "@/constants";
+import { icons, images } from "@/constants";
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -80,19 +80,19 @@ const SelectSeed = () => {
       />
 
       {/* Title */}
-      <Text className="text-white text-2xl font-bold mb-2">Select Seed</Text>
+      <Text className="text-white text-3xl font-primary my-6">Select Seed</Text>
 
       {/* Scrollable Icons */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="mb-2 px-2 max-h-[30vh]"
+        className="bg-[#78693963] px-2 py-4 max-h-[10vh] mb-4 rounded-2xl"
       >
         {seeds.map((seed, index) => (
           <TouchableOpacity
             key={index}
             onPress={() => handleSeedChange(index)}
-            className={`w-16 h-12  mx-2 items-center justify-center border-2 ${
+            className={`w-16 h-14  mx-2 items-center justify-center rounded-xl border-2 ${
               selectedIndex === index
                 ? "border-yellow-400 bg-white"
                 : "border-transparent bg-white/40"
@@ -109,22 +109,26 @@ const SelectSeed = () => {
 
       {/* Seed Info Card with Animation */}
       <Animated.View
-        className="w-[80%] bg-white/20 rounded-2xl border border-yellow-400 px-6 mb-4 items-center relative"
+        className="w-[80%] bg-[#78693982] rounded-2xl border border-yellow-400 px-6 mb-8 items-center relative"
         style={{ opacity: fadeAnim }}
       >
         {/* Navigation Arrows */}
         <TouchableOpacity
           onPress={prevSeed}
-          className="absolute left-[-20] top-1/2 -translate-y-1/2 z-10"
+          className="absolute left-[-25] top-1/2 -translate-y-1/2 z-10"
         >
-          <View className="w-8 h-8 rounded-full bg-yellow-400 justify-center items-center">
-            <Text className="text-white text-xl">‹</Text>
+          <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
+            <Image
+              source={icons.leftChevron}
+              className="w-18 h-14"
+              resizeMode="contain"
+            />
           </View>
         </TouchableOpacity>
 
         {/* Seed Name + Icon */}
         <View className="items-center mb-10 mt-10 bg-white rounded-3xl p-6">
-          <Text className="text-yellow-300 text-xl font-bold mb-10">
+          <Text className="text-[#DFC666] text-xl font-primary mb-10">
             {selectedSeed.name}
           </Text>
           <Image
@@ -160,17 +164,21 @@ const SelectSeed = () => {
         {/* Right Nav */}
         <TouchableOpacity
           onPress={nextSeed}
-          className="absolute right-[-20] top-1/2 -translate-y-1/2 z-10"
+          className="absolute right-[-25] top-1/2 -translate-y-1/2 z-10"
         >
-          <View className="w-8 h-8 rounded-full bg-yellow-400 justify-center items-center">
-            <Text className="text-white text-xl">›</Text>
+          <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
+            <Image
+              source={icons.rightChevron}
+              className="w-18 h-14"
+              resizeMode="contain"
+            />
           </View>
         </TouchableOpacity>
       </Animated.View>
 
       {/* Select Button */}
-      <TouchableOpacity className="mt-1 px-10 py-3 bg-yellow-400 rounded-xl shadow">
-        <Text className="text-white font-bold text-base">Select</Text>
+      <TouchableOpacity className="mt-1 px-10 py-3 bg-buttonColor rounded-xl shadow">
+        <Text className="text-white font-secondary font-bold">Select</Text>
       </TouchableOpacity>
     </View>
   );

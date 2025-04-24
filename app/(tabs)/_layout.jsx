@@ -26,7 +26,7 @@ const TabsLayout = () => {
           headerShown: false,
           tabBarButton: (props) => (
             <FloatingTabButton
-              icon={icons.home}
+              icon={icons.hat}
               onPress={() => router.push("/home")}
               style={{
                 position: "absolute",
@@ -45,7 +45,7 @@ const TabsLayout = () => {
           headerShown: false,
           tabBarButton: (props) => (
             <FloatingTabButton
-              icon={icons.profile}
+              icon={icons.stats}
               //onPress={() => router.push("/profile")}
               style={{
                 position: "absolute",

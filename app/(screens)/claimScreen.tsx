@@ -11,6 +11,8 @@ import {
 import { BlurView } from "expo-blur";
 import { icons, images } from "@/constants";
 import BackgroundImage from "@/components/BackgroundImage";
+import HeaderNavigation from "@/components/HeaderNavigation";
+import { router } from "expo-router";
 
 const tabs = ["Token", "Airtime", "Data bundle"] as const;
 
@@ -103,7 +105,15 @@ const ClaimScreen = () => {
       />
 
       {/* Header */}
-      <Text className="text-white text-3xl font-bold mt-20">Claim</Text>
+      <HeaderNavigation
+        onLeftPress={() => router.push("/(screens)/settings")}
+        onRightPress={() => null}
+        leftIcon={icons.back}
+        rightIcon={icons.settings}
+        showLeftButton={true}
+        showRightButton={false}
+      />
+      <Text className="text-white text-3xl font-primary mt-4">Claim</Text>
 
       {/* Balance Box */}
       <View className="mt-2 px-6 py-3 bg-[#E0C145B8] rounded-xl shadow-lg border border-white/30">
@@ -135,7 +145,7 @@ const ClaimScreen = () => {
       </View>
 
       {/* Choose Provider */}
-      <Text className="text-white mb-2 text-base font-semibold">
+      <Text className="text-white mb-8 text-base font-primary ">
         Choose provider
       </Text>
 
@@ -145,7 +155,7 @@ const ClaimScreen = () => {
           <TouchableOpacity
             key={index}
             onPress={() => openModal(provider)}
-            className={`flex-row justify-between items-center px-6 py-4 mb-3 rounded-xl shadow-md ${provider.bg}`}
+            className={`flex-row justify-between items-center px-6 py-4 mb-6 rounded-xl shadow-md ${provider.bg}`}
           >
             <Text className="text-white font-semibold text-base">
               {provider.name}

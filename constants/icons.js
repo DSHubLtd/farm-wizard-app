@@ -14,6 +14,7 @@ import play from "../assets/icons/play.png";
 import bell from "../assets/icons/bell.png";
 import settings from "../assets/icons/settings.png";
 import rightChevron from "../assets/icons/right-chevron.png";
+import leftChevron from "../assets/icons/left-chevron.png";
 import back from "../assets/icons/back.png";
 import stats from "../assets/icons/stats.png";
 import hat from "../assets/icons/hat.png";
@@ -35,6 +36,7 @@ export default {
   bell,
   settings,
   rightChevron,
+  leftChevron,
   back,
   stats,
   hat,

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "farm-wizard-app",
+    "name": "Farm Wwizard App",
     "slug": "farm-wizard-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,17 +8,12 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/images/logo.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#fff"
-    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/splashscreen_logo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.avvas.farmwizardapp"
@@ -33,7 +28,8 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#232323", 
+          "image": "./assets/images/splashscreen_logo.png",
+          "backgroundColor": "#ffffff",
           "resizeMode": "cover",
           "enableFullScreenImage_legacy": true
         }

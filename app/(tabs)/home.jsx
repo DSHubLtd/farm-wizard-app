@@ -19,7 +19,7 @@ const Home = () => {
       {/* Top Buttons */}
       <HeaderNavigation
         onLeftPress={() => router.push("/(screens)/settings")}
-        onRightPress={() => null}
+        onRightPress={() => router.push("/(screens)/inventory")}
         leftIcon={icons.profile}
         rightIcon={icons.bell}
         showLeftButton={true}
@@ -36,7 +36,7 @@ const Home = () => {
 
         {/* Play Button */}
         <TouchableOpacity
-          className="mt-5 px-20 py-3 bg-yellow-400 rounded-md shadow-md border border-white/50"
+          className="mt-5 px-20 py-3 bg-buttonColor rounded-md shadow-md border border-white/50"
           onPress={() => router.push('/(screens)/selectSeed')}>
           <Text className="text-white font-semibold text-base">Play</Text>
         </TouchableOpacity>

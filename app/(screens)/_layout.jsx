@@ -9,6 +9,7 @@ export default function ScreenLayout() {
       <Stack.Screen name="profile" />
       <Stack.Screen name="claimScreen" />
       <Stack.Screen name="selectSeed" />
+      <Stack.Screen name="inventory" />
     </Stack>
   );
 }
