@@ -4,7 +4,9 @@ import client from "@/config/client";
 export const signUpUser = async (
   fullName,
   email,
-  password
+  password,
+  selectedLanguage,
+  selectedCountry
   // notification_token
 ) => {
   try {
@@ -14,6 +16,8 @@ export const signUpUser = async (
         fullName,
         email,
         password,
+        country: selectedCountry,
+        language: selectedLanguage,
         notification_token: "totif-token",
       },
       {
@@ -80,5 +84,25 @@ export const signOut = async () => {
   } catch (error) {
     console.log("Error inside signout method", error.message);
     return false;
+  }
+};
+
+export const forgetPassword = async (email) => {
+  try {
+    const response = await client.post(
+      "/auth/forget-password",
+      {
+        email,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    console.log("Error inside forget password method", error.message);
   }
 };

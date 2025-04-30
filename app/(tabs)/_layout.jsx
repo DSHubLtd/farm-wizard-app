@@ -6,62 +6,120 @@ const TabsLayout = () => {
   const router = useRouter();
 
   return (
+    // <Tabs
+    //   screenOptions={{
+    //     tabBarShowLabel: false,
+    //     tabBarStyle: {
+    //       position: "absolute",
+    //       bottom: 0,
+    //       backgroundColor: "transparent",
+    //       elevation: 0,
+    //       borderTopWidth: 0,
+    //       height: 0, // hide actual tab bar visuals
+    //     },
+    //   }}
+    // >
+    //   {/* Center Floating FAB */}
+    //   <Tabs.Screen
+    //     name="home"
+    //     options={{
+    //       headerShown: false,
+    //       tabBarButton: (props) => (
+    //         <FloatingTabButton
+    //           icon={icons.hat}
+    //           onPress={() => router.push("/home")}
+    //           style={{
+    //             position: "absolute",
+    //             bottom: 40,
+    //             left: "90%", // Centered
+    //           }}
+    //         />
+    //       ),
+    //     }}
+    //   />
+
+    //   {/* Right Floating Button */}
+    //   <Tabs.Screen
+    //     name="profile"
+    //     options={{
+    //       headerShown: false,
+    //       tabBarButton: (props) => (
+    //         <FloatingTabButton
+    //           icon={icons.stats}
+    //           //onPress={() => router.push("/profile")}
+    //           style={{
+    //             position: "absolute",
+    //             bottom: 20, // a bit lower
+    //             right: 25, // right side
+    //           }}
+    //         />
+    //       ),
+    //     }}
+    //   />
+    // </Tabs>
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
-          bottom: 0,
           backgroundColor: "transparent",
           elevation: 0,
+          height: 0, // hide native tab bar
           borderTopWidth: 0,
-          height: 0, // hide actual tab bar visuals
         },
       }}
     >
-      {/* Center Floating FAB */}
+      {/* Center Floating Home FAB */}
       <Tabs.Screen
         name="home"
         options={{
           headerShown: false,
-          tabBarButton: (props) => (
+          tabBarButton: () => (
             <FloatingTabButton
-              icon={icons.hat}
+              icon={icons.home}
               onPress={() => router.push("/home")}
-              style={{
-                position: "absolute",
-                bottom: 40,
-                left: "90%", // Centered
-              }}
+              style={{ position: "absolute", bottom: 40, left: 170 }}
             />
           ),
         }}
       />
 
-      {/* Right Floating Button */}
+      {/* Right-side Floating FAB */}
       <Tabs.Screen
         name="profile"
         options={{
           headerShown: false,
-          tabBarButton: (props) => (
+          tabBarButton: () => (
             <FloatingTabButton
               icon={icons.stats}
-              //onPress={() => router.push("/profile")}
-              style={{
-                position: "absolute",
-                bottom: 20, // a bit lower
-                right: 25, // right side
-              }}
+              onPress={() => router.push("/(screens)/profile")}
+              style={{ position: "absolute", bottom: 25, right: 190 }}
+            />
+          ),
+        }}
+      />
+
+      {/* Left-side Floating FAB (New!) */}
+      <Tabs.Screen
+        name="claimScreen"
+        options={{
+          headerShown: false,
+          tabBarButton: () => (
+            <FloatingTabButton
+              icon={icons.stats}
+              onPress={() => router.push("/settings")}
+              style={{ position: "absolute", bottom: 65, left: 65 }}
             />
           ),
         }}
       />
     </Tabs>
+
   );
 };
 
 export default TabsLayout;
-/*
+/* 
 import { Image, Text, View } from "react-native";
 import { Tabs } from "expo-router";
 import { icons } from "../../constants";

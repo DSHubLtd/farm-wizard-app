@@ -18,6 +18,11 @@ import leftChevron from "../assets/icons/left-chevron.png";
 import back from "../assets/icons/back.png";
 import stats from "../assets/icons/stats.png";
 import hat from "../assets/icons/hat.png";
+import close from "../assets/icons/close.png";
+
+import paypal from "../assets/icons/paypal.png";
+import telegram from "../assets/icons/telegram.png";
+import binance from "../assets/icons/binance.png";
 
 export default {
   play,
@@ -40,4 +45,9 @@ export default {
   back,
   stats,
   hat,
+  close,
+
+  paypal,
+  telegram,
+  binance,
 };

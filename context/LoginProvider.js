@@ -15,7 +15,7 @@ const LoginProvider = ({ children }) => {
     setLoading(true);
     token = await AsyncStorage.getItem("token");
     if (token !== null) {
-      const res = await client.get("/profile", {
+      const res = await client.get("/user", {
         headers: {
           Authorization: `Bearer ${token}`,
           // Authorization: `JWT ${token}`,
@@ -23,7 +23,7 @@ const LoginProvider = ({ children }) => {
       });
 
       if (res.data.success) {
-        setUser(res.data.profile);
+        setUser(res.data.user);
         setIsLogged(true);
       } else {
         setUser({});

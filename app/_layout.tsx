@@ -42,7 +42,7 @@ const RootLayout = () => {
 
   return (
     <LoginProvider>
-      <StatusBar style="light" />
+      <StatusBar style="light" hidden />
       <Stack
         screenOptions={{
           headerShown: false,

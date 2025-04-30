@@ -9,41 +9,13 @@ import {
   Image,
   Animated,
 } from "react-native";
-
-const seeds = [
-  {
-    name: "Eggplant",
-    icon: images.maize,
-    levels: 2,
-    progress: 0.2,
-  },
-  {
-    name: "Maize",
-    icon: images.maize,
-    levels: 4,
-    progress: 0.65,
-  },
-  {
-    name: "Cocoa",
-    icon: images.maize,
-    levels: 3,
-    progress: 0.5,
-  },
-  {
-    name: "Tomato",
-    icon: images.maize,
-    levels: 1,
-    progress: 0.1,
-  },
-  {
-    name: "Olive",
-    icon: images.maize,
-    levels: 4,
-    progress: 0.9,
-  },
-];
+import { CustomButton } from "../../components";
+import { useRouter } from "expo-router";
+import { plantGrowth as seeds } from "@/constants/plants";
 
 const SelectSeed = () => {
+  const router = useRouter();
+
   const [selectedIndex, setSelectedIndex] = useState(1); // Default: Maize
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -115,7 +87,7 @@ const SelectSeed = () => {
         {/* Navigation Arrows */}
         <TouchableOpacity
           onPress={prevSeed}
-          className="absolute left-[-25] top-1/2 -translate-y-1/2 z-10"
+          className="absolute left-[-4] top-1/2 -translate-y-1/2 z-10"
         >
           <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
             <Image
@@ -127,13 +99,13 @@ const SelectSeed = () => {
         </TouchableOpacity>
 
         {/* Seed Name + Icon */}
-        <View className="items-center mb-10 mt-10 bg-white rounded-3xl p-6">
+        <View className="items-center my-10 bg-white rounded-3xl p-6">
           <Text className="text-[#DFC666] text-xl font-primary mb-10">
             {selectedSeed.name}
           </Text>
           <Image
-            source={selectedSeed.icon}
-            className="w-20 h-20 mb-6"
+            source={selectedSeed.iconLg}
+            className="w-40 h-40 mb-6"
             resizeMode="contain"
           />
           <Text className="text-[#7B6C32] text-center px-2 mb-6">
@@ -164,7 +136,7 @@ const SelectSeed = () => {
         {/* Right Nav */}
         <TouchableOpacity
           onPress={nextSeed}
-          className="absolute right-[-25] top-1/2 -translate-y-1/2 z-10"
+          className="absolute right-[-4] top-1/2 -translate-y-1/2 z-10"
         >
           <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
             <Image
@@ -176,10 +148,18 @@ const SelectSeed = () => {
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Select Button */}
-      <TouchableOpacity className="mt-1 px-10 py-3 bg-buttonColor rounded-xl shadow">
-        <Text className="text-white font-secondary font-bold">Select</Text>
-      </TouchableOpacity>
+      <CustomButton
+        title="Select Seed"
+        handlePress={() =>
+          router.push({
+            pathname: "/(screens)/plantScreen",
+            params: { name: selectedSeed.name },
+          })
+        }
+        containerStyles="w-[200px]"
+        textStyles={"font-pbold text-white"}
+        isLoading={false}
+      />
     </View>
   );
 };

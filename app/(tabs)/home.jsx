@@ -1,9 +1,45 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { View, Text, Image, BackHandler, ToastAndroid, Platform } from "react-native";
 import { icons, images } from "../../constants";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
+import { CustomButton } from "../../components";
+import BackgroundImage from "../../components/BackgroundImage";
 
 const Home = () => {
+
+  const [backPressedOnce, setBackPressedOnce] = useState(false);
+  // const timeoutRef = useRef < NodeJS.Timeout | null > (null);
+  const timeoutRef = useRef(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== 'android') return;
+
+      const onBackPress = () => {
+        if (backPressedOnce) {
+          BackHandler.exitApp();
+          return true;
+        }
+
+        setBackPressedOnce(true);
+        ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+
+        timeoutRef.current = setTimeout(() => {
+          setBackPressedOnce(false);
+        }, 2000);
+
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        backHandler.remove();
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      };
+    }, [backPressedOnce])
+  )
 
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">
@@ -11,10 +47,14 @@ const Home = () => {
       {/* Background Image */}
       <Image
         source={images.background1}
-        className="absolute w-[100vh] h-full"
-        resizeMode="contain"
-      // blurRadius={1}
+        className="absolute w-full h-full"
+        resizeMode="cover"
+        blurRadius={0.5}
       />
+      {/* <BackgroundImage
+        source={images.background1}
+        style={{ width: "100%", height: "100%", position: "absolute" }}
+      /> */}
 
       {/* Top Buttons */}
       <HeaderNavigation
@@ -35,34 +75,15 @@ const Home = () => {
         />
 
         {/* Play Button */}
-        <TouchableOpacity
-          className="mt-5 px-20 py-3 bg-buttonColor rounded-md shadow-md border border-white/50"
-          onPress={() => router.push('/(screens)/selectSeed')}>
-          <Text className="text-white font-semibold text-base">Play</Text>
-        </TouchableOpacity>
+
+        <CustomButton
+          title="Play"
+          handlePress={() => router.push('/(screens)/selectSeed')}
+          containerStyles="w-[200px]"
+          textStyles={"font-pbold text-white"}
+          isLoading={false}
+        />
       </View>
-
-      {/* Floating Top Icon (maybe top-left or top-right) */}
-      {/* <View className="absolute bottom-40 center">
-        <TouchableOpacity className="w-12 h-12 bg-white/50 rounded-full items-center justify-center shadow-md">
-          <Image
-            source={icons.bell}
-            className="w-6 h-6 tint-white"
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View> */}
-
-      {/* Floating Bottom-Right Icon */}
-      {/* <View className="absolute bottom-16 right-4">
-        <TouchableOpacity className="w-12 h-12 bg-white/50 rounded-full items-center justify-center shadow-md">
-          <Image
-            source={icons.bell}
-            className="w-6 h-6 tint-white"
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View> */}
 
     </View>
   );

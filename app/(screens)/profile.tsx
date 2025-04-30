@@ -4,6 +4,7 @@ import { icons, images } from "@/constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
+import { CustomButton } from "@/components";
 
 const chartData = {
   Daily: [250, 180, 300, 120, 260, 190, 230, 210, 150, 200, 170, 240],
@@ -52,7 +53,9 @@ const Profile = () => {
         showRightButton={true}
       />
 
-      <Text className="text-white text-3xl font-secondary mt-4">Profile</Text>
+      <Text className="text-white text-3xl font-primary font-bold mt-4">
+        PROFILE
+      </Text>
 
       {/* Avatar + Info */}
       <View className="items-center my-2">
@@ -71,7 +74,7 @@ const Profile = () => {
       </View>
 
       {/* Tabs */}
-      <View className="w-[90%] flex-row justify-around mt-4 mb-2">
+      <View className="w-[90%] flex-row justify-around mt-2 mb-2">
         {tabs.map((tab) => (
           <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
             <Text
@@ -143,12 +146,14 @@ const Profile = () => {
       </View>
 
       {/* Withdraw */}
-      <TouchableOpacity
-        className="mt-6 bg-yellow-400 px-10 py-3 rounded-lg shadow-md"
-        onPress={() => router.push("/(screens)/claimScreen")}
-      >
-        <Text className="text-white font-bold text-base">WITHDRAW</Text>
-      </TouchableOpacity>
+
+      <CustomButton
+        title="Claim"
+        handlePress={() => router.push("/(tabs)/claimScreen")}
+        containerStyles="w-[200px]"
+        textStyles={"font-pbold text-white"}
+        isLoading={false}
+      />
     </View>
   );
 };

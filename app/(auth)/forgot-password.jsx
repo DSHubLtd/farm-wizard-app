@@ -8,34 +8,34 @@ import { CustomButton, FormField } from "../../components";
 
 import { useLoginContext } from "@/context/LoginProvider";
 import BackgroundImage from "../../components/BackgroundImage";
+import { forgetPassword } from "../../services/auth";
 
 const ForgotPassword = () => {
     const { setUser, setIsLogged } = useLoginContext();
     const [isSubmitting, setSubmitting] = useState(false);
     const [form, setForm] = useState({
         email: "",
-        password: "",
     });
 
     const submit = async () => {
-        if (form.email === "" || form.password === "") {
+        if (form.email === "") {
             Alert.alert("Error", "Please fill in all fields");
             return;
         }
         setSubmitting(true);
 
         try {
+            const result = await forgetPassword(form.email);
+            console.log("result ", result)
+            // if (result.data.success === false) {
+            //     Alert.alert("Error", result.data.message)
+            //     return;
+            // }
+            // setUser(result);
+            // setIsLogged(true);
 
-            const result = await signInUser(form.email, form.password);
-            if (result.data.success === false) {
-                Alert.alert("Error", result.data.message)
-                return;
-            }
-            setUser(result);
-            setIsLogged(true);
-
-            Alert.alert("Success", "User signed in successfully");
-            router.replace("/home");
+            // Alert.alert("Success", "User signed in successfully");
+            // router.replace("/home");
         } catch (error) {
             Alert.alert("Error", error.message);
         } finally {
@@ -76,10 +76,9 @@ const ForgotPassword = () => {
                     <CustomButton
                         title="Submit"
                         handlePress={submit}
-                        containerStyles="mt-7"
+                        containerStyles="w-full"
                         isLoading={isSubmitting}
                     />
-
 
                     <View className="flex justify-center pt-5 flex-row gap-2">
                         <Text className="text-lg text-gray-100 font-pregular">

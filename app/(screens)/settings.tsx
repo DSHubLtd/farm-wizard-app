@@ -11,7 +11,7 @@ const settingsOptions = [
     icon: icons.settings,
     link: "special-reward",
   },
-  { label: "Edit Profile", icon: icons.settings, link: "profile" },
+  { label: "Edit Profile", icon: icons.settings, link: "editProfile" },
   { label: "Privacy Policy", icon: icons.settings, link: "privacy" },
   { label: "Terms and Condition", icon: icons.settings, link: "terms" },
   { label: "Contact Us", icon: icons.settings, link: "contact-us" },
@@ -24,7 +24,7 @@ const settingsOptions = [
   },
 ];
 const handleItemClick = (itemLink: string) => {
-  if (itemLink === "profile") {
+  if (itemLink === "editProfile") {
     router.push(`/${itemLink}`);
   }
 };
@@ -48,7 +48,9 @@ const Settings = () => {
       />
 
       {/* Title */}
-      <Text className="text-white text-3xl font-secondary">Settings</Text>
+      <Text className="text-white text-3xl font-primary font-bold">
+        SETTINGS
+      </Text>
 
       {/* Glass Panel */}
       <BlurView
@@ -75,7 +77,7 @@ const Settings = () => {
                   />
                 )}
                 <Text
-                  className={`text-white font-secondary mb-1 ${
+                  className={`text-white font-primary mb-1 ${
                     item.danger ? "text-red-400" : ""
                   }`}
                 >

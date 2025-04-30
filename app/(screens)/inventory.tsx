@@ -92,7 +92,7 @@ const Inventory = () => {
 
 const InventoryRow = ({ data }: any) => {
   return (
-    <View className="flex-row items-center bg-[#D2B556] rounded-2xl p-2 mb-2">
+    <View className="flex-row items-center bg-[#93771B] rounded-2xl my-3">
       <Image
         source={data.icon}
         className="w-10 h-10 mr-3"

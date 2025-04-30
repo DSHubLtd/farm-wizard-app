@@ -22,7 +22,8 @@ module.exports = {
           100: "#CDCDE0",
         },
         // buttonColor: "#E1CE67",
-        buttonColor: "#FFDB1B",
+        // buttonColor: "#FFDB1B",
+        buttonColor: "#FCC200",
       },
       fontFamily: {
         primary: ["BubblegumSans-Regular", "sans-serif"],

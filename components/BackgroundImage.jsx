@@ -3,7 +3,8 @@ import { View, Image, StyleSheet } from 'react-native';
 
 const BackgroundImage = ({
     source,
-    blurRadius = 6,
+    blurRadius = 0.5,
+    // blurRadius = 6,
     style,
     overlayColor = 'rgba(0, 0, 0, 0.4)',
 }) => {

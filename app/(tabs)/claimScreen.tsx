@@ -26,17 +26,17 @@ const providers = {
   Token: [
     {
       name: "Telegram",
-      icon: icons.settings,
+      icon: icons.telegram,
       bg: "bg-blue-500",
     },
     {
       name: "Binance",
-      icon: icons.settings,
+      icon: icons.binance,
       bg: "bg-yellow-500",
     },
     {
       name: "Paypal",
-      icon: icons.settings,
+      icon: icons.paypal,
       bg: "bg-blue-900",
     },
   ],
@@ -113,14 +113,16 @@ const ClaimScreen = () => {
         showLeftButton={true}
         showRightButton={false}
       />
-      <Text className="text-white text-3xl font-primary mt-4">Claim</Text>
+      <Text className="text-white text-3xl font-primary mt-4">CLAIM</Text>
 
       {/* Balance Box */}
-      <View className="mt-2 px-6 py-3 bg-[#E0C145B8] rounded-xl shadow-lg border border-white/30">
-        <Text className="text-white text-sm text-center">USD 0.00</Text>
-        <Text className="text-white/80 text-xs text-center">
-          1000 = 0.01 USD
-        </Text>
+      <View className="bg-black/20 opacity-90 flex flex-row justify-center items-center p-2 rounded-lg">
+        <View className="px-6 py-3 bg-[#E0C145B8] rounded-xl">
+          <Text className="text-white text-sm text-center">USD 0.00</Text>
+          <Text className="text-white/80 text-xs text-center">
+            1000 = 0.01 USD
+          </Text>
+        </View>
       </View>
 
       {/* Tabs */}
@@ -150,22 +152,27 @@ const ClaimScreen = () => {
       </Text>
 
       {/* Provider Buttons */}
-      <View className="w-[85%] space-y-2">
+      <View className="w-[85%]">
         {providers[activeTab].map((provider, index) => (
-          <TouchableOpacity
+          <View
+            className="bg-black/20 opacity-90 p-2 mt-1 mb-2 rounded-lg"
             key={index}
-            onPress={() => openModal(provider)}
-            className={`flex-row justify-between items-center px-6 py-4 mb-6 rounded-xl shadow-md ${provider.bg}`}
           >
-            <Text className="text-white font-semibold text-base">
-              {provider.name}
-            </Text>
-            <Image
-              source={provider.icon}
-              className="w-16 h-16 tint-white"
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+              key={index}
+              onPress={() => openModal(provider)}
+              className={`flex-row justify-between items-center px-6 py-4 rounded-xl ${provider.bg}`}
+            >
+              <Text className="text-white font-semibold text-base">
+                {provider.name}
+              </Text>
+              <Image
+                source={provider.icon}
+                className="w-16 h-16 tint-white"
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
 

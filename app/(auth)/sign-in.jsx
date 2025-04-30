@@ -28,7 +28,7 @@ const SignIn = () => {
 
     try {
 
-      const result = await signInUser(form.email, form.password);
+      const result = await signInUser(form.email.toLowerCase(), form.password);
       if (result.data.success === false) {
         Alert.alert("Error", result.data.message)
         return;
@@ -37,7 +37,7 @@ const SignIn = () => {
       setIsLogged(true);
 
       Alert.alert("Success", "User signed in successfully");
-      router.replace("/home");
+      router.replace("/(tabs)/home");
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
@@ -84,9 +84,9 @@ const SignIn = () => {
 
           <CustomButton
             title="Sign In"
-            // handlePress={submit}
-            handlePress={() => router.push("/(tabs)/home")}
-            containerStyles="mt-7"
+            handlePress={submit}
+            // handlePress={() => router.push("/(tabs)/home")}
+            containerStyles="w-full"
             isLoading={isSubmitting}
           />
 
