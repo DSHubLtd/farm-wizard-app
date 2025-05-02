@@ -9,7 +9,6 @@ import BackgroundImage from "../../components/BackgroundImage";
 const Home = () => {
 
   const [backPressedOnce, setBackPressedOnce] = useState(false);
-  // const timeoutRef = useRef < NodeJS.Timeout | null > (null);
   const timeoutRef = useRef(null);
 
   useFocusEffect(

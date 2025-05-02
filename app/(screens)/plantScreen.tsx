@@ -10,7 +10,9 @@ import {
 } from "react-native";
 import { icons, images } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { Audio } from "expo-av";
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const TEN_MINUTES = 10 * 60;
@@ -41,6 +43,10 @@ const PlantScreen = () => {
   const [lastBugPhase, setLastBugPhase] = useState<number | null>(null);
   const [bugSpawnTime, setBugSpawnTime] = useState<number | null>(null);
   const [plantDamaged, setPlantDamaged] = useState(false);
+  const [spraySound, setSpraySound] = useState<Audio.Sound | null>(null);
+
+  const [spraying, setSpraying] = useState(false);
+  const sprayAnim = useRef(new Animated.Value(0)).current;
 
   const getPhaseInfo = () => {
     const elapsed = TEN_MINUTES - timeLeft;
@@ -54,7 +60,6 @@ const PlantScreen = () => {
   // PLANT ANIMATION
   useEffect(() => {
     animatePlantGrowing();
-    // spawnBugsLoop();
   }, []);
 
   // COUNTDOWN + THREAT TRACKING
@@ -70,6 +75,12 @@ const PlantScreen = () => {
         return prev - 1;
       });
     }, 1000);
+
+    // if (prev <= 1) {
+    //   clearInterval(interval);
+    //   setShowSummary(true);
+    //   return TEN_MINUTES;
+    // }
 
     return () => clearInterval(interval);
   }, [isTimerActive]);
@@ -115,15 +126,35 @@ const PlantScreen = () => {
         setScore((s) => Math.max(s - 5, 0));
         setBugSpawnTime(null);
         setPlantDamaged(true); // trigger damage effect
+        //setTimeLeft((prev) => prev + 10); // delay growth by 10s (optional)
+        //setPlantLevel((prev)=> prev -1); // reduce plant level (optional)
 
-        handleToolUse("Bugs damaged your plant! -5 pts");
+        //handleToolUse("Bugs damaged your plant! -5 pts");
 
         // Reset damage effect after short delay
-        setTimeout(() => setPlantDamaged(false), 40000);
-        // setTimeout(() => setPlantDamaged(false), 1200);
+        //setTimeout(() => setPlantDamaged(false), 40000);
+        //setBugsIgnored((count) => count + bugs.length);
       }
     }
   }, [timeLeft]);
+
+  useEffect(() => {
+    const loadSound = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        {
+          uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
+        },
+        { shouldPlay: false }
+      );
+      setSpraySound(sound);
+    };
+
+    loadSound();
+
+    return () => {
+      spraySound?.unloadAsync(); // cleanup
+    };
+  }, []);
 
   // ANIMATION
   const animatePlantGrowing = () => {
@@ -159,16 +190,21 @@ const PlantScreen = () => {
 
       setTimeout(() => {
         const id = Math.random().toString();
-        const angle = new Animated.Value(0);
-        const radius = 100 + Math.random() * 20; // Orbit radius
-        const scale = new Animated.Value(0.5); // Start small for pop-in
 
-        // Animate the orbit angle (no native driver due to interpolate)
+        const angle = new Animated.Value(0);
+        const radius = 100 + Math.random() * 20;
+
+        const scale = new Animated.Value(0.5);
+        const opacity = new Animated.Value(1);
+
+        const scatterX = new Animated.Value(0);
+        const scatterY = new Animated.Value(0);
+
         Animated.loop(
           Animated.timing(angle, {
             toValue: 2 * Math.PI,
             duration: 8000 + Math.random() * 2000,
-            useNativeDriver: false, // Must be false due to interpolation
+            useNativeDriver: false,
           })
         ).start();
 
@@ -178,13 +214,21 @@ const PlantScreen = () => {
           friction: 5,
         }).start();
 
-        const offset = (index * 360) / MAX_BUGS; // unique angle per bug
-        newBugs.push({ id, angle, radius, scale, offset });
+        const offset = (index * 360) / MAX_BUGS;
+        newBugs.push({
+          id,
+          angle,
+          radius,
+          scale,
+          offset,
+          opacity,
+          scatterX,
+          scatterY,
+        });
 
         if (newBugs.length === MAX_BUGS) {
           setBugs(newBugs);
 
-          // Remove bugs after 90 seconds
           setTimeout(() => {
             setBugs([]);
           }, 90000);
@@ -209,11 +253,73 @@ const PlantScreen = () => {
   const getPlantSize = () => {
     const plantStage = getPlantStage();
 
-    if (plantStage === 0) return 200;
-    if (plantStage === 1) return 300;
-    if (plantStage === 2) return 400;
-    if (plantStage === 3) return 600;
-    return 100;
+    if (plantStage === 0) return 150;
+    if (plantStage === 1) return 200;
+    if (plantStage === 2) return 300;
+    if (plantStage === 3) return 400;
+    return 150;
+  };
+  const resetGame = () => {
+    setTimeLeft(TEN_MINUTES);
+    setIsTimerActive(false);
+    setBugs([]);
+    setBugSpawnTime(null);
+    setActiveThreat(null);
+    setPlantLevel(0);
+    setScore(0);
+    setPlantDamaged(false);
+  };
+
+  const triggerSpray = () => {
+    if (bugs.length === 0) {
+      handleToolUse("No bugs right now");
+      return;
+    }
+    setSpraying(true);
+    sprayAnim.setValue(0);
+
+    // 🔊 Play spray sound
+    if (spraySound) {
+      spraySound.replayAsync();
+    }
+
+    setSpraying(true);
+    sprayAnim.setValue(0);
+
+    bugs.forEach((bug) => {
+      const directionX = (Math.random() - 0.5) * 300;
+      const directionY = (Math.random() - 0.5) * 300;
+
+      Animated.parallel([
+        Animated.timing(bug.scatterX, {
+          toValue: directionX,
+          duration: 600,
+          useNativeDriver: false,
+        }),
+        Animated.timing(bug.scatterY, {
+          toValue: directionY,
+          duration: 600,
+          useNativeDriver: false,
+        }),
+        Animated.timing(bug.opacity, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    });
+
+    // Start spray animation
+    Animated.timing(sprayAnim, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: true,
+    }).start(() => {
+      // After spray finishes, remove bugs
+      setSpraying(false);
+      setBugs([]);
+      handleToolUse("Pesticide used! Bugs removed.");
+    });
   };
 
   return (
@@ -260,6 +366,7 @@ const PlantScreen = () => {
               left: SCREEN_WIDTH / 2 - 40,
               width: 100,
               height: 100,
+              opacity: bug.opacity,
               transform: [
                 // { translateX: x },
                 // { translateY: y },
@@ -275,7 +382,7 @@ const PlantScreen = () => {
           >
             <Image
               source={images.bugs}
-              style={{ width: 100, height: 100 }} // Increased size
+              style={{ width: 60, height: 60 }} // Increased size
               resizeMode="cover"
             />
           </Animated.View>
@@ -323,10 +430,37 @@ const PlantScreen = () => {
         </View>
       )}
 
+      {spraying && (
+        <Animated.View
+          style={{
+            position: "absolute",
+            top: SCREEN_HEIGHT / 2 - 80,
+            left: SCREEN_WIDTH / 2 - 80,
+            width: 160,
+            height: 160,
+            backgroundColor: "rgba(200,255,200,0.3)",
+            borderRadius: 80,
+            transform: [
+              {
+                scale: sprayAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.2, 1.2],
+                }),
+              },
+            ],
+            opacity: sprayAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.8, 0],
+            }),
+          }}
+        />
+      )}
+
       {/* Plant */}
       <View
         className={`flex-1 justify-center items-center mt-80 mb-10`}
         style={{
+          // transform: [{ translateX: shakeAnim }],
           borderRadius: 100,
           padding: 4,
           // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
@@ -342,7 +476,7 @@ const PlantScreen = () => {
           resizeMode="contain"
           style={{
             height: getPlantSize(),
-            transform: [{ scale: plantScale }],
+            // transform: [{ scale: plantScale }],
           }}
         />
       </View>
@@ -357,9 +491,11 @@ const PlantScreen = () => {
           icon={images.pesticied}
           onPress={() => {
             if (bugs.length > 0) {
-              setBugs([]);
-              setBugSpawnTime(null); // reset
-              handleToolUse("Pesticide used! Bugs removed.");
+              // setBugsCleared((count) => count + bugs.length);
+              // setBugs([]);
+              // setBugSpawnTime(null); // reset
+              triggerSpray();
+              // handleToolUse("Pesticide used! Bugs removed.");
             } else {
               handleToolUse("No bugs right now");
             }
@@ -378,7 +514,7 @@ const PlantScreen = () => {
         <View className="h-3 bg-white/30 rounded-full">
           <View
             className="h-3 bg-yellow-400 rounded-full"
-            style={{ width: `${(getPlantStage() / 3) * 100}%` }}
+            style={{ width: `${(getPlantStage() / 4) * 100}%` }}
           />
         </View>
         <Text className="text-center text-white mt-1">
@@ -414,35 +550,9 @@ const PlantScreen = () => {
         <ActionButton
           icon={images.inventory}
           label=""
-          onPress={() => handleToolUse("Inventory opened")}
+          onPress={() => router.push("/(screens)/inventory")}
         />
       </View>
-
-      {/* <ToolIcon
-        icon={images.medicine}
-        onPress={() => {
-          if (activeThreat?.type === "disease" && !activeThreat.resolved) {
-            setScore((s) => s + 10);
-            handleToolUse("Medicine applied! +10 pts");
-            setActiveThreat({ ...activeThreat, resolved: true });
-          } else {
-            handleToolUse("No disease to cure");
-          }
-        }}
-      />
-
-      <ToolIcon
-        icon={images.umbrella}
-        onPress={() => {
-          if (activeThreat?.type === "storm" && !activeThreat.resolved) {
-            setScore((s) => s + 10);
-            handleToolUse("Storm blocked! +10 pts");
-            setActiveThreat({ ...activeThreat, resolved: true });
-          } else {
-            handleToolUse("No storm to block");
-          }
-        }}
-      /> */}
 
       {/* Harvest */}
       {plantLevel === 3 && (
@@ -450,9 +560,7 @@ const PlantScreen = () => {
           className="absolute bottom-20 self-center bg-yellow-400 px-4 py-2 rounded-full"
           onPress={() => {
             handleToolUse("Crop harvested!");
-            setPlantLevel(0);
-            setTimeLeft(TEN_MINUTES);
-            setIsTimerActive(false);
+            resetGame();
           }}
         >
           <Text className="text-white font-bold">🌾 Harvest</Text>
