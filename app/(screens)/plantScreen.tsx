@@ -7,21 +7,24 @@ import {
   Animated,
   Modal,
   Dimensions,
+  ImageBackground,
+  StyleSheet,
 } from "react-native";
-import { icons, images } from "@/constants";
+import { icons, images, levelmages } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
 import { router, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
+import LottieView from "lottie-react-native";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const TEN_MINUTES = 10 * 60;
 const PHASE_DURATION = 150; // 2.5 minutes
-const MAX_BUGS = 2;
 
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
-
+  const userLevel: number = 1;
+  const MAX_BUGS = userLevel + 1; //2;
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   const plantImages = plant.plantImages;
   const plantSickImages = plant.plantSickImages;
@@ -30,7 +33,6 @@ const PlantScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupText, setPopupText] = useState("");
   const [bugs, setBugs] = useState<any[]>([]);
-  const [plantLevel, setPlantLevel] = useState(0);
 
   const [timeLeft, setTimeLeft] = useState(TEN_MINUTES); // in seconds
   const [isTimerActive, setIsTimerActive] = useState(false);
@@ -43,10 +45,19 @@ const PlantScreen = () => {
   const [lastBugPhase, setLastBugPhase] = useState<number | null>(null);
   const [bugSpawnTime, setBugSpawnTime] = useState<number | null>(null);
   const [plantDamaged, setPlantDamaged] = useState(false);
+  const [plantDamagedTime, setPlantDamagedTime] = useState<number | null>(null);
   const [spraySound, setSpraySound] = useState<Audio.Sound | null>(null);
-
+  const [fertilizerSound, setFertilizerSound] = useState<Audio.Sound | null>(
+    null
+  );
+  const [waterSound, setWaterSound] = useState<Audio.Sound | null>(null);
   const [spraying, setSpraying] = useState(false);
   const sprayAnim = useRef(new Animated.Value(0)).current;
+  const [watering, setWatering] = useState(false);
+  const waterAnim = useRef(new Animated.Value(0)).current;
+  const [fertilizing, setFertilizing] = useState(false);
+  const fertAnim = useRef(new Animated.Value(0)).current;
+  const [harvest, setHarvest] = useState(false);
 
   const getPhaseInfo = () => {
     const elapsed = TEN_MINUTES - timeLeft;
@@ -56,11 +67,6 @@ const PlantScreen = () => {
   };
 
   const getPlantStage = () => getPhaseInfo().currentStage;
-
-  // PLANT ANIMATION
-  useEffect(() => {
-    animatePlantGrowing();
-  }, []);
 
   // COUNTDOWN + THREAT TRACKING
   useEffect(() => {
@@ -128,31 +134,54 @@ const PlantScreen = () => {
         setPlantDamaged(true); // trigger damage effect
         //setTimeLeft((prev) => prev + 10); // delay growth by 10s (optional)
         //setPlantLevel((prev)=> prev -1); // reduce plant level (optional)
-
-        //handleToolUse("Bugs damaged your plant! -5 pts");
+        setPlantDamagedTime(Date.now());
+        handleToolUse("Bugs damaged your plant! -5 pts");
 
         // Reset damage effect after short delay
         //setTimeout(() => setPlantDamaged(false), 40000);
-        //setBugsIgnored((count) => count + bugs.length);
       }
+    }
+    if (plantDamagedTime && Date.now() - plantDamagedTime > 40000) {
+      router.replace("/(screens)/gameOver");
+    }
+    // harvest time
+    if (timeLeft === 0) {
+      setHarvest(true);
+      handleToolUse("Harvest time");
+      setBugs([]);
     }
   }, [timeLeft]);
 
   useEffect(() => {
-    const loadSound = async () => {
-      const { sound } = await Audio.Sound.createAsync(
-        {
-          uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
-        },
-        { shouldPlay: false }
-      );
-      setSpraySound(sound);
+    const loadSounds = async () => {
+      try {
+        const [pesticide, fertilizer, water] = await Promise.all([
+          Audio.Sound.createAsync({
+            uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
+          }),
+          Audio.Sound.createAsync({
+            uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
+          }),
+          Audio.Sound.createAsync({
+            uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
+          }),
+          // Audio.Sound.createAsync(require("@/assets/sounds/zapper.mp3")),
+        ]);
+        setSpraySound(pesticide.sound);
+        setFertilizerSound(fertilizer.sound);
+        setWaterSound(water.sound);
+      } catch (e) {
+        console.warn("Failed to load one or more sounds:", e);
+      }
     };
-
-    loadSound();
+    loadSounds();
+    // PLANT ANIMATION
+    animatePlantGrowing();
 
     return () => {
-      spraySound?.unloadAsync(); // cleanup
+      spraySound?.unloadAsync();
+      fertilizerSound?.unloadAsync();
+      waterSound?.unloadAsync();
     };
   }, []);
 
@@ -265,7 +294,6 @@ const PlantScreen = () => {
     setBugs([]);
     setBugSpawnTime(null);
     setActiveThreat(null);
-    setPlantLevel(0);
     setScore(0);
     setPlantDamaged(false);
   };
@@ -275,6 +303,9 @@ const PlantScreen = () => {
       handleToolUse("No bugs right now");
       return;
     }
+    setPlantDamaged(false);
+    setPlantDamagedTime(null);
+    setBugSpawnTime(null);
     setSpraying(true);
     sprayAnim.setValue(0);
 
@@ -282,9 +313,6 @@ const PlantScreen = () => {
     if (spraySound) {
       spraySound.replayAsync();
     }
-
-    setSpraying(true);
-    sprayAnim.setValue(0);
 
     bugs.forEach((bug) => {
       const directionX = (Math.random() - 0.5) * 300;
@@ -312,7 +340,7 @@ const PlantScreen = () => {
     // Start spray animation
     Animated.timing(sprayAnim, {
       toValue: 1,
-      duration: 1200,
+      duration: 2000,
       useNativeDriver: true,
     }).start(() => {
       // After spray finishes, remove bugs
@@ -320,6 +348,45 @@ const PlantScreen = () => {
       setBugs([]);
       handleToolUse("Pesticide used! Bugs removed.");
     });
+  };
+  const triggerFertilizer = () => {
+    setFertilizing(true);
+    fertAnim.setValue(0);
+
+    // 🔊 Play sound
+    fertilizerSound?.replayAsync();
+
+    Animated.timing(fertAnim, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true,
+    }).start(() => {
+      setFertilizing(false);
+      handleToolUse("Fertilizer used!");
+    });
+  };
+  const triggerWater = () => {
+    setWatering(true);
+    waterAnim.setValue(0);
+
+    // 🔊 Play water sound
+    waterSound?.replayAsync();
+
+    Animated.timing(waterAnim, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true,
+    }).start(() => {
+      setWatering(false);
+      handleToolUse("Water used!");
+    });
+  };
+  const getLevelImage = () => {
+    if (userLevel === 1) return levelmages.lv1;
+    if (userLevel === 2) return levelmages.lv2;
+    if (userLevel === 3) return levelmages.lv3;
+    if (userLevel === 4) return levelmages.lv4;
+    return levelmages.lv1;
   };
 
   return (
@@ -333,11 +400,24 @@ const PlantScreen = () => {
         />
       )}
       {activeThreat && (
-        <Image
-          source={images.rainingBg}
-          className="absolute w-full h-full"
+        <ImageBackground
+          source={images.bgRainfall} // your background image
+          style={styles.background}
           resizeMode="cover"
-        />
+          className="absolute w-full h-full"
+        >
+          {/* <LottieView
+            source={require("../../assets/rain.json")}
+            autoPlay
+            loop
+            style={[styles.rain, { opacity: 0.5 }]}
+          /> */}
+          <Image
+            source={images.storm} // your rainfall GIF
+            style={styles.rain}
+            resizeMode="cover"
+          />
+        </ImageBackground>
       )}
 
       {/* Bugs */}
@@ -351,9 +431,10 @@ const PlantScreen = () => {
           inputRange: [0, 2 * Math.PI],
           outputRange: [-bug.radius, bug.radius],
         });
+        //  inputRange: [0, 0.2 * Math.PI, 2 * Math.PI],
 
         const y = angleWithOffset.interpolate({
-          inputRange: [0, Math.PI, 2 * Math.PI],
+          inputRange: [0, 0.5 * Math.PI, 0.5 * Math.PI],
           outputRange: [0, bug.radius, 0],
         });
 
@@ -369,7 +450,7 @@ const PlantScreen = () => {
               opacity: bug.opacity,
               transform: [
                 // { translateX: x },
-                // { translateY: y },
+                { translateY: y },
                 { scale: bug.scale },
                 {
                   rotate: angleWithOffset.interpolate({
@@ -404,19 +485,6 @@ const PlantScreen = () => {
         <Text className="text-white text-3xl font-bold">1,472</Text>
         <Text className="text-white text-xl font-bold">Score: {score}</Text>
       </View>
-
-      {/* Threat alert */}
-      {/* {activeThreat && !activeThreat.resolved && (
-        <View className="absolute top-36 left-0 right-0 items-center">
-          <Text className="text-red-600 text-lg font-bold">
-            ⚠️{" "}
-            {activeThreat.type === "disease"
-              ? "Disease Detected!"
-              : "Storm Incoming!"}
-          </Text>
-          <Text className="text-white text-sm">(Protect your plant!)</Text>
-        </View>
-      )} */}
 
       {bugs.length > 0 && (
         <View className="absolute top-48 left-0 right-0 items-center">
@@ -456,11 +524,62 @@ const PlantScreen = () => {
         />
       )}
 
+      {watering && (
+        <Animated.View
+          style={{
+            position: "absolute",
+            top: SCREEN_HEIGHT / 2,
+            left: SCREEN_WIDTH / 2 - 30,
+            width: 60,
+            height: 100,
+            opacity: waterAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [1, 0],
+            }),
+            transform: [
+              {
+                translateY: waterAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 100],
+                }),
+              },
+            ],
+            backgroundColor: "rgba(0,150,255,0.4)",
+            borderRadius: 20,
+          }}
+        />
+      )}
+
+      {fertilizing && (
+        <Animated.View
+          style={{
+            position: "absolute",
+            top: SCREEN_HEIGHT / 2 - 80,
+            left: SCREEN_WIDTH / 2 - 80,
+            width: 160,
+            height: 160,
+            backgroundColor: "rgba(100,200,100,0.3)",
+            borderRadius: 80,
+            opacity: fertAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.8, 0],
+            }),
+            transform: [
+              {
+                scale: fertAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.5, 1.5],
+                }),
+              },
+            ],
+          }}
+        />
+      )}
+
       {/* Plant */}
       <View
-        className={`flex-1 justify-center items-center mt-80 mb-10`}
+        className={`flex-1 justify-center items-center mt-80 mb-20`}
         style={{
-          // transform: [{ translateX: shakeAnim }],
           borderRadius: 100,
           padding: 4,
           // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
@@ -482,35 +601,25 @@ const PlantScreen = () => {
       </View>
 
       {/* Tool buttons */}
-      <View className="absolute left-4 top-40 space-y-4 py-80">
-        <ToolIcon
-          icon={images.fertilizer}
-          onPress={() => handleToolUse("Fertilizer used!")}
-        />
+      <View className="absolute left-4 top-[15%] space-y-4 py-80">
+        <ToolIcon icon={images.fertilizer} onPress={triggerFertilizer} />
         <ToolIcon
           icon={images.pesticied}
           onPress={() => {
             if (bugs.length > 0) {
-              // setBugsCleared((count) => count + bugs.length);
-              // setBugs([]);
-              // setBugSpawnTime(null); // reset
               triggerSpray();
-              // handleToolUse("Pesticide used! Bugs removed.");
             } else {
               handleToolUse("No bugs right now");
             }
           }}
         />
 
-        <ToolIcon
-          icon={images.kettle}
-          onPress={() => handleToolUse("Water used!")}
-        />
+        <ToolIcon icon={images.kettle} onPress={triggerWater} />
       </View>
 
       {/* Progress bar */}
 
-      <View className="px-6">
+      <View className="px-6 mt-5">
         <View className="h-3 bg-white/30 rounded-full">
           <View
             className="h-3 bg-yellow-400 rounded-full"
@@ -523,30 +632,34 @@ const PlantScreen = () => {
       </View>
 
       {/* Timer */}
-      <Text className="text-center text-white text-2xl mt-6">
+      <Text className="text-center text-white text-xl">
         {formatTime(timeLeft)}
       </Text>
 
       {/* Action buttons */}
-      <View className="flex-row justify-around items-center mt-4 mb-6">
+      <View className="flex-row justify-around items-center ">
         <ActionButton
-          icon={images.levelDoc}
-          label="LV"
+          icon={getLevelImage()}
+          // icon={images/levelDoc}
+          label={`LV ${userLevel}`}
           onPress={() => handleToolUse("Level info")}
         />
-        <ActionButton
-          icon={images.timer}
-          label=""
-          onPress={() => {
-            if (!isTimerActive) {
-              setIsTimerActive(true);
-              handleToolUse("Growth cycle started");
-              setTimeout(() => {
-                spawnBugs();
-              }, 5000);
-            }
-          }}
-        />
+
+        {timeLeft > 0 && (
+          <ActionButton
+            icon={images.timer}
+            label=""
+            onPress={() => {
+              if (!isTimerActive) {
+                setIsTimerActive(true);
+                handleToolUse("Growth cycle started");
+                setTimeout(() => {
+                  spawnBugs();
+                }, 5000);
+              }
+            }}
+          />
+        )}
         <ActionButton
           icon={images.inventory}
           label=""
@@ -555,7 +668,7 @@ const PlantScreen = () => {
       </View>
 
       {/* Harvest */}
-      {plantLevel === 3 && (
+      {harvest && (
         <TouchableOpacity
           className="absolute bottom-20 self-center bg-yellow-400 px-4 py-2 rounded-full"
           onPress={() => {
@@ -603,3 +716,25 @@ const ActionButton = ({
 );
 
 export default PlantScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  background: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  // rain: {
+  //   position: "absolute",
+  //   top: 0,
+  //   left: 0,
+  //   right: 0,
+  //   height: 400, // adjust height as needed
+  //   zIndex: 2,
+  //   opacity: 0.6,
+  // },
+  rain: {
+    ...StyleSheet.absoluteFillObject, // fills the parent
+  },
+});

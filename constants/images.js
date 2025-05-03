@@ -30,7 +30,9 @@ import fertilizer from "../assets/images/inventory/fertilizers.png";
 import kettle from "../assets/images/inventory/kettle.png";
 import pesticied from "../assets/images/inventory/pesticied.png";
 import bugs from "../assets/plant-growth/bugs.gif";
-import rainingBg from "../assets/images/raining-background.png";
+
+import bgRainfall from "../assets/plant-growth/bg-rainfall.png";
+import storm from "../assets/plant-growth/storm.gif";
 
 export default {
   profile,
@@ -64,5 +66,6 @@ export default {
   pesticied,
   plantGrowing,
   bugs,
-  rainingBg,
+  bgRainfall,
+  storm,
 };

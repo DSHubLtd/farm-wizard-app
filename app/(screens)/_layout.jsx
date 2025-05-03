@@ -11,6 +11,7 @@ export default function ScreenLayout() {
       <Stack.Screen name="inventory" />
       <Stack.Screen name="editProfile" />
       <Stack.Screen name="plantScreen" />
+      <Stack.Screen name="gameOver" />
     </Stack>
   );
 }
