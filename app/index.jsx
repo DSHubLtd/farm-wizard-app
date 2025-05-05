@@ -10,11 +10,12 @@ import { useLoginContext } from "../context/LoginProvider";
 import BackgroundImage from "../components/BackgroundImage";
 
 export default function Index() {
-  const { isLoading, isLogged } = useLoginContext();
 
-  if (!isLoading && isLogged) return <Redirect href={"/(tabs)/home"} />;
+  const { loading, isLogged } = useLoginContext();
 
-  return <Redirect href={"/(tabs)/home"} />;
+  if (!loading && isLogged) return <Redirect href={"/(tabs)/home"} />;
+
+  // return <Redirect href={"/(tabs)/home"} />;
 
   return (
     <SafeAreaView className="bg-primary h-full" edges={['left', 'right', 'bottom']} style={{ flex: 1 }}>
@@ -24,8 +25,8 @@ export default function Index() {
 
         <View className="w-full flex justify-center items-center min-h-[85vh] px-4">
 
-          <View className="relative mt-10">
-            <Text className="text-3xl text-white font-primary text-center my-20">
+          <View className="relative my-20">
+            <Text className="text-3xl text-white font-primary text-center my-10">
               TERM AND CONDITION
             </Text>
           </View>
@@ -54,9 +55,9 @@ export default function Index() {
           <CustomButton
             title="Agree & Continue "
             handlePress={() => router.push("/sign-in")}
-            containerStyles="w-full "
+            containerStyles="w-full"
             textStyles={"font-pbold text-white"}
-            isLoading={isLoading}
+          // isLoading={loading}
           />
         </View>
       </ScrollView >

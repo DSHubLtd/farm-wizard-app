@@ -12,6 +12,7 @@ export default function ScreenLayout() {
       <Stack.Screen name="editProfile" />
       <Stack.Screen name="plantScreen" />
       <Stack.Screen name="gameOver" />
+      <Stack.Screen name="harvest" />
     </Stack>
   );
 }

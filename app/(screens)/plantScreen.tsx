@@ -8,22 +8,23 @@ import {
   Modal,
   Dimensions,
   ImageBackground,
-  StyleSheet,
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
+import RainEffect from "@/components/RainEffect";
 import { router, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
-import LottieView from "lottie-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getUserPlantLevel } from "@/services/user";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
 const TEN_MINUTES = 10 * 60;
 const PHASE_DURATION = 150; // 2.5 minutes
 
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
-  const userLevel: number = 1;
+
+  const [userLevel, setUserLevel] = useState(1);
   const MAX_BUGS = userLevel + 1; //2;
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   const plantImages = plant.plantImages;
@@ -58,6 +59,7 @@ const PlantScreen = () => {
   const [fertilizing, setFertilizing] = useState(false);
   const fertAnim = useRef(new Animated.Value(0)).current;
   const [harvest, setHarvest] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const getPhaseInfo = () => {
     const elapsed = TEN_MINUTES - timeLeft;
@@ -67,6 +69,23 @@ const PlantScreen = () => {
   };
 
   const getPlantStage = () => getPhaseInfo().currentStage;
+
+  const fetchUserPlantLevelData = async () => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      const res = await getUserPlantLevel(token, plant.name);
+      if (res.data) {
+        setUserLevel(res.data.plantLevel.level);
+      } else {
+        setUserLevel(1);
+      }
+      setLoading(false);
+    } else {
+      console.log("no token");
+      setLoading(false);
+    }
+  };
 
   // COUNTDOWN + THREAT TRACKING
   useEffect(() => {
@@ -136,7 +155,6 @@ const PlantScreen = () => {
         //setPlantLevel((prev)=> prev -1); // reduce plant level (optional)
         setPlantDamagedTime(Date.now());
         handleToolUse("Bugs damaged your plant! -5 pts");
-
         // Reset damage effect after short delay
         //setTimeout(() => setPlantDamaged(false), 40000);
       }
@@ -145,10 +163,15 @@ const PlantScreen = () => {
       router.replace("/(screens)/gameOver");
     }
     // harvest time
-    if (timeLeft === 0) {
+    if (timeLeft === 1 || getPlantStage() > 3) {
+      setIsTimerActive(false);
       setHarvest(true);
       handleToolUse("Harvest time");
       setBugs([]);
+      router.replace({
+        pathname: "/(screens)/harvest",
+        params: { name, score, userLevel },
+      });
     }
   }, [timeLeft]);
 
@@ -176,15 +199,15 @@ const PlantScreen = () => {
     };
     loadSounds();
     // PLANT ANIMATION
-    animatePlantGrowing();
-
+    // animatePlantGrowing();
+    fetchUserPlantLevelData();
     return () => {
       spraySound?.unloadAsync();
       fertilizerSound?.unloadAsync();
       waterSound?.unloadAsync();
     };
   }, []);
-
+  if (loading) return <Text>Loading...</Text>;
   // ANIMATION
   const animatePlantGrowing = () => {
     Animated.loop(
@@ -214,7 +237,7 @@ const PlantScreen = () => {
     setBugSpawnTime(Date.now());
     const newBugs: any[] = [];
 
-    const createBug = (index: number) => {
+    /*const createBug = (index: number) => {
       const delay = index < 4 ? 0 : (index - 3) * 150;
 
       setTimeout(() => {
@@ -253,6 +276,63 @@ const PlantScreen = () => {
           opacity,
           scatterX,
           scatterY,
+        });
+
+        if (newBugs.length === MAX_BUGS) {
+          setBugs(newBugs);
+
+          setTimeout(() => {
+            setBugs([]);
+          }, 90000);
+        }
+      }, delay);
+    };*/
+    const createBug = (index: number) => {
+      const delay = index < 4 ? 0 : (index - 3) * 150;
+
+      setTimeout(() => {
+        const id = Math.random().toString();
+
+        const position = new Animated.ValueXY({
+          x: 0,
+          y: 0,
+        });
+
+        const scale = new Animated.Value(0.5);
+        const opacity = new Animated.Value(1);
+
+        const wander = () => {
+          const toX = (Math.random() - 0.5) * 150; // +/- 75 px
+          const toY = (Math.random() - 0.5) * 150;
+
+          Animated.sequence([
+            Animated.timing(position, {
+              toValue: { x: toX, y: toY },
+              duration: 3000 + Math.random() * 2000,
+              useNativeDriver: false,
+            }),
+            Animated.delay(500),
+          ]).start(() => {
+            wander(); // loop
+          });
+        };
+
+        wander();
+
+        Animated.spring(scale, {
+          toValue: 1,
+          useNativeDriver: false,
+          friction: 5,
+        }).start();
+
+        const offset = (index * 360) / MAX_BUGS;
+
+        newBugs.push({
+          id,
+          position,
+          scale,
+          offset,
+          opacity,
         });
 
         if (newBugs.length === MAX_BUGS) {
@@ -314,7 +394,7 @@ const PlantScreen = () => {
       spraySound.replayAsync();
     }
 
-    bugs.forEach((bug) => {
+    /*bugs.forEach((bug) => {
       const directionX = (Math.random() - 0.5) * 300;
       const directionY = (Math.random() - 0.5) * 300;
 
@@ -335,7 +415,7 @@ const PlantScreen = () => {
           useNativeDriver: false,
         }),
       ]).start();
-    });
+    });*/
 
     // Start spray animation
     Animated.timing(sprayAnim, {
@@ -352,7 +432,7 @@ const PlantScreen = () => {
   const triggerFertilizer = () => {
     setFertilizing(true);
     fertAnim.setValue(0);
-
+    animatePlantGrowing();
     // 🔊 Play sound
     fertilizerSound?.replayAsync();
 
@@ -368,6 +448,8 @@ const PlantScreen = () => {
   const triggerWater = () => {
     setWatering(true);
     waterAnim.setValue(0);
+
+    setScore((s) => Math.min(s + 5, 100));
 
     // 🔊 Play water sound
     waterSound?.replayAsync();
@@ -401,22 +483,11 @@ const PlantScreen = () => {
       )}
       {activeThreat && (
         <ImageBackground
-          source={images.bgRainfall} // your background image
-          style={styles.background}
-          resizeMode="cover"
           className="absolute w-full h-full"
+          source={images.bgRainfall}
+          resizeMode="cover"
         >
-          {/* <LottieView
-            source={require("../../assets/rain.json")}
-            autoPlay
-            loop
-            style={[styles.rain, { opacity: 0.5 }]}
-          /> */}
-          <Image
-            source={images.storm} // your rainfall GIF
-            style={styles.rain}
-            resizeMode="cover"
-          />
+          <RainEffect layers={5} enableThunder={false} />
         </ImageBackground>
       )}
 
@@ -439,31 +510,55 @@ const PlantScreen = () => {
         });
 
         return (
+          // <Animated.View
+          //   key={bug.id}
+          //   style={{
+          //     position: "absolute",
+          //     top: SCREEN_HEIGHT / 2 + 60, // Adjust to center plant
+          //     left: SCREEN_WIDTH / 2 - 40,
+          //     width: 100,
+          //     height: 100,
+          //     opacity: bug.opacity,
+          //     transform: [
+          //       // { translateX: x },
+          //       { translateY: y },
+          //       { scale: bug.scale },
+          //       {
+          //         rotate: angleWithOffset.interpolate({
+          //           inputRange: [0, 2 * Math.PI],
+          //           outputRange: ["0deg", "180deg"],
+          //         }),
+          //       },
+          //     ],
+          //   }}
+          // >
+          //   <Image
+          //     source={images.bugs}
+          //     style={{ width: 60, height: 60 }} // Increased size
+          //     resizeMode="cover"
+          //   />
+          // </Animated.View>
           <Animated.View
             key={bug.id}
-            style={{
-              position: "absolute",
-              top: SCREEN_HEIGHT / 2 + 60, // Adjust to center plant
-              left: SCREEN_WIDTH / 2 - 40,
-              width: 100,
-              height: 100,
-              opacity: bug.opacity,
-              transform: [
-                // { translateX: x },
-                { translateY: y },
-                { scale: bug.scale },
-                {
-                  rotate: angleWithOffset.interpolate({
-                    inputRange: [0, 2 * Math.PI],
-                    outputRange: ["0deg", "180deg"],
-                  }),
-                },
-              ],
-            }}
+            className={`mt-80 mb-20`}
+            style={[
+              {
+                position: "absolute",
+                // left: SCREEN_WIDTH / 2,
+                // top: SCREEN_HEIGHT / 2 + 160,
+                marginTop: 480,
+                marginLeft: 150,
+              },
+              bug.position.getLayout(),
+              {
+                transform: [{ scale: bug.scale }],
+                opacity: bug.opacity,
+              },
+            ]}
           >
             <Image
               source={images.bugs}
-              style={{ width: 60, height: 60 }} // Increased size
+              style={{ width: 30, height: 30 }}
               resizeMode="cover"
             />
           </Animated.View>
@@ -482,7 +577,6 @@ const PlantScreen = () => {
 
       {/* Points */}
       <View className="absolute top-28 left-0 right-0 items-center">
-        <Text className="text-white text-3xl font-bold">1,472</Text>
         <Text className="text-white text-xl font-bold">Score: {score}</Text>
       </View>
 
@@ -595,7 +689,7 @@ const PlantScreen = () => {
           resizeMode="contain"
           style={{
             height: getPlantSize(),
-            // transform: [{ scale: plantScale }],
+            transform: [{ scale: plantScale }],
           }}
         />
       </View>
@@ -642,7 +736,7 @@ const PlantScreen = () => {
           icon={getLevelImage()}
           // icon={images/levelDoc}
           label={`LV ${userLevel}`}
-          onPress={() => handleToolUse("Level info")}
+          onPress={() => handleToolUse(`Level info ${userLevel}`)}
         />
 
         {timeLeft > 0 && (
@@ -716,25 +810,3 @@ const ActionButton = ({
 );
 
 export default PlantScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  // rain: {
-  //   position: "absolute",
-  //   top: 0,
-  //   left: 0,
-  //   right: 0,
-  //   height: 400, // adjust height as needed
-  //   zIndex: 2,
-  //   opacity: 0.6,
-  // },
-  rain: {
-    ...StyleSheet.absoluteFillObject, // fills the parent
-  },
-});

@@ -9,16 +9,17 @@ export const useLoginContext = () => useContext(LoginContext);
 const LoginProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchUser = async () => {
     setLoading(true);
-    token = await AsyncStorage.getItem("token");
+    const token = await AsyncStorage.getItem("token");
+
     if (token !== null) {
-      const res = await client.get("/user", {
+      const res = await client.get("/user/user", {
         headers: {
-          Authorization: `Bearer ${token}`,
-          // Authorization: `JWT ${token}`,
+          // Authorization: `Bearer ${token}`,
+          Authorization: `JWT ${token}`,
         },
       });
 

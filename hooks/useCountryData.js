@@ -18,7 +18,19 @@ export const useCountryData = () => {
           return;
         }
 
-        const res = await axios.get("https://restcountries.com/v3.1/all");
+        // const res = await axios.get("https://restcountries.com/v3.1/all");
+        let res;
+        try {
+          // Primary attempt
+          res = await axios.get("https://restcountries.com/v3.1/all");
+        } catch (primaryError) {
+          console.warn(
+            "Primary API failed, trying fallback:",
+            primaryError.message
+          );
+          // Fallback attempt
+          res = await axios.get("https://restcountries.com/v2/all");
+        }
         const formatted = res.data
           .map((country) => ({
             label: country.name.common,
@@ -33,7 +45,7 @@ export const useCountryData = () => {
         );
         setCountries(formatted);
       } catch (error) {
-        console.error("Failed to fetch countries:", error);
+        console.error("Failed to fetch countries:", error, error.config);
       } finally {
         setLoading(false);
       }

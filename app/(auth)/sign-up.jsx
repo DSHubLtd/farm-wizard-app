@@ -78,7 +78,7 @@ const SignUp = () => {
           resizeMode="contain"
           className="w-[100px] h-[100px]"
         />
-        <Text className="text-2xl font-semibold text-white font-psemibold">
+        <Text className="text-lg font-semibold text-white font-psemibold">
           Sign Up to Farm Wizard
         </Text>
       </View>
@@ -96,7 +96,7 @@ const SignUp = () => {
             title="Full Name"
             value={form.fullName}
             handleChangeText={(e) => setForm({ ...form, fullName: e })}
-            otherStyles="mt-5"
+            otherStyles="mt-2"
           />
           {errors.fullName && <Text className="text-red-400 text-sm mt-1">{errors.fullName}</Text>}
 
@@ -104,7 +104,7 @@ const SignUp = () => {
             title="Email"
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
-            otherStyles="mt-5"
+            otherStyles="mt-2"
             keyboardType="email-address"
           />
           {errors.email && <Text className="text-red-400 text-sm mt-1">{errors.email}</Text>}
@@ -113,7 +113,7 @@ const SignUp = () => {
             title="Password"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
-            otherStyles="mt-5"
+            otherStyles="mt-2"
           />
           {errors.password && <Text className="text-red-400 text-sm mt-1">{errors.password}</Text>}
 
@@ -121,7 +121,7 @@ const SignUp = () => {
             title="Confirm Password"
             value={form.cpassword}
             handleChangeText={(e) => setForm({ ...form, cpassword: e })}
-            otherStyles="mt-5"
+            otherStyles="mt-2"
           />
           {errors.cpassword && <Text className="text-red-400 text-sm mt-1">{errors.cpassword}</Text>}
 
@@ -133,7 +133,7 @@ const SignUp = () => {
               selectedValue={selectedCountry}
               options={countries}
               handleValueChange={setSelectedCountry}
-              otherStyles="mt-5"
+              otherStyles="mt-2"
             />
           )}
           {errors.country && <Text className="text-red-400 text-sm mt-1">{errors.country}</Text>}
@@ -146,7 +146,7 @@ const SignUp = () => {
               selectedValue={selectedLanguage}
               options={languages}
               handleValueChange={setSelectedLanguage}
-              otherStyles="mt-5"
+              otherStyles="mt-2"
             />
           )}
           {errors.language && <Text className="text-red-400 text-sm mt-1">{errors.language}</Text>}

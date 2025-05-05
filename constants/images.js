@@ -22,9 +22,11 @@ import orangeLg from "../assets/images/seed/orange-lg.png";
 
 import plantGrowing from "../assets/images/gameplay/plant-growing.png";
 import inventory from "../assets/images/gameplay/inventory.png";
-import level from "../assets/images/gameplay/level.png";
 import levelDoc from "../assets/images/gameplay/level-doc.png";
 import timer from "../assets/images/gameplay/timer.png";
+
+import gameOver from "../assets/images/gameplay/game-over.png";
+import sessionComplete from "../assets/images/gameplay/session-complete.png";
 
 import fertilizer from "../assets/images/inventory/fertilizers.png";
 import kettle from "../assets/images/inventory/kettle.png";
@@ -57,7 +59,6 @@ export default {
   orangeLg,
 
   inventory,
-  level,
   levelDoc,
   timer,
 
@@ -68,4 +69,7 @@ export default {
   bugs,
   bgRainfall,
   storm,
+
+  gameOver,
+  sessionComplete,
 };

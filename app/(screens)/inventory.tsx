@@ -1,27 +1,30 @@
 import BackgroundImage from "@/components/BackgroundImage";
+import client from "@/config/client";
 import { images } from "@/constants";
-import React from "react";
+import { getUserPlantLevels } from "@/services/user";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 
 const inventory = {
   items: [
     {
       name: "Fertilizer",
-      icon: images.maize,
+      icon: images.fertilizer,
       level: 3,
       progress: 0.65,
       count: 1,
     },
     {
       name: "Pesticide",
-      icon: images.maize,
+      icon: images.pesticied,
       level: 2,
       progress: 0.4,
       count: 1,
     },
     {
       name: "Water",
-      icon: images.maize,
+      icon: images.kettle,
       level: 1,
       progress: 0.2,
       count: 1,
@@ -37,14 +40,14 @@ const inventory = {
     },
     {
       name: "Paw Paw",
-      icon: images.maize,
+      icon: images.pawpaw,
       level: 1,
       progress: 0.2,
       count: 1,
     },
     {
       name: "Apple",
-      icon: images.maize,
+      icon: images.apple,
       level: 2,
       progress: 0.4,
       count: 1,
@@ -53,6 +56,29 @@ const inventory = {
 };
 
 const Inventory = () => {
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserPlantLevel = async () => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      const res = await getUserPlantLevels(token);
+      console.log("Response ", res);
+      if (res.data.success) {
+        console.log("Response ", res.data);
+      } else {
+        console.log("REsponse");
+      }
+      setLoading(false);
+    } else {
+      console.log("no token");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserPlantLevel();
+  }, []);
   return (
     <View className="flex-1 bg-green-200 pt-12 px-4">
       {/* Background */}

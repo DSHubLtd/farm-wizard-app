@@ -57,17 +57,8 @@ const GameOver = () => {
           >
             Ooopps!!!
           </Text>
-          {/* <Image
-            source={images.levelDoc}
-            style={{
-              width: width * 0.5,
-              height: width * 0.5,
-              marginBottom: 10,
-            }}
-            resizeMode="contain"
-          /> */}
           <Image
-            src="https://media.gettyimages.com/id/1304720889/photo/dead-plant.jpg?s=612x612&w=0&k=20&c=s4YHDM2UcUyGL0QwEzCD-7FmeqiVOIG82fYB4Y3UqL8="
+            source={images.gameOver}
             style={{
               width: width * 0.5,
               height: width * 0.5,
@@ -75,6 +66,7 @@ const GameOver = () => {
             }}
             resizeMode="contain"
           />
+
           <Text
             //className="text-[#7B6C32] text-center px-2 mb-6"
             style={{
@@ -83,7 +75,9 @@ const GameOver = () => {
               paddingHorizontal: 10,
             }}
           >
-            Please check the game instructions and try again.
+            The magic fades… Your farm rests for now. But with a new dawn, fresh
+            hope will grow again. Please check the game instructions and try
+            again when you're ready!.
           </Text>
         </View>
 
