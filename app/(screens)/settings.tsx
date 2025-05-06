@@ -1,9 +1,19 @@
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { BlurView } from "expo-blur";
 import { icons, images } from "../../constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
+import { signOut } from "../../services/auth";
+import { useLoginContext } from "@/context/LoginProvider";
 
 const settingsOptions = [
   {
@@ -16,6 +26,7 @@ const settingsOptions = [
   { label: "Terms and Condition", icon: icons.settings, link: "terms" },
   { label: "Contact Us", icon: icons.settings, link: "contact-us" },
   { label: "Tutorial", icon: icons.settings, link: "tutorial" },
+  { label: "Logout", icon: icons.settings, link: "logout" },
   {
     label: "Delete Account",
     icon: icons.settings,
@@ -23,12 +34,38 @@ const settingsOptions = [
     link: "delete-account",
   },
 ];
-const handleItemClick = (itemLink: string) => {
-  if (itemLink === "editProfile") {
-    router.push(`/${itemLink}`);
-  }
-};
 const Settings = () => {
+  const [isSubmitting, setSubmitting] = useState(false);
+  const { setIsLogged } = useLoginContext();
+
+  const logOut = async () => {
+    setSubmitting(true);
+
+    try {
+      const result = await signOut();
+      if (!result) {
+        Alert.alert("Error", "Error while siging out");
+        return;
+      }
+      Alert.alert("Success", "User signout in successfully");
+      setIsLogged(false);
+      router.replace("/");
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleItemClick = (itemLink: string) => {
+    if (itemLink === "editProfile") {
+      router.push(`/${itemLink}`);
+    }
+    if (itemLink === "logout") {
+      logOut();
+    }
+  };
+
   return (
     <View className="flex-1 items-center justify-start bg-green-200">
       {/* Background */}
@@ -48,7 +85,7 @@ const Settings = () => {
       />
 
       {/* Title */}
-      <Text className="text-white text-3xl font-primary font-bold">
+      <Text className="text-white text-2xl font-primary font-bold">
         SETTINGS
       </Text>
 
@@ -57,7 +94,7 @@ const Settings = () => {
         // intensity={60}
         intensity={0}
         tint="default"
-        className="px-5 py-4 w-[95%] rounded-2xl bg-white/10"
+        className="px-5 py-3 w-[95%] rounded-xl bg-white/10"
       >
         <ScrollView className="max-h-[80vh]">
           {settingsOptions.map((item, index) => (

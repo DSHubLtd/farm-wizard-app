@@ -35,7 +35,7 @@ const EditProfile = () => {
       />
 
       {/* Title */}
-      <Text className="text-white text-3xl font-primary font-bold">
+      <Text className="text-white text-2xl font-primary font-bold">
         EDIT PROFILE
       </Text>
       <View className="w-full flex justify-center h-full px-4">
@@ -57,7 +57,7 @@ const EditProfile = () => {
             placeholder="Full name"
             value={form.fullName}
             handleChangeText={(e: any) => setForm({ ...form, fullName: e })}
-            otherStyles="mt-2"
+            otherStyles="mt-1"
           />
 
           <FormField
@@ -65,7 +65,7 @@ const EditProfile = () => {
             placeholder="Email"
             value={form.email}
             handleChangeText={(e: any) => setForm({ ...form, email: e })}
-            otherStyles="mt-2"
+            otherStyles="mt-1"
             keyboardType="email-address"
           />
 
@@ -74,14 +74,14 @@ const EditProfile = () => {
             placeholder="password"
             value={form.password}
             handleChangeText={(e: any) => setForm({ ...form, password: e })}
-            otherStyles="mt-2"
+            otherStyles="mt-1"
           />
           <FormField
             title="Confirm Password"
             placeholder="c password"
             value={form.cpassword}
             handleChangeText={(e: any) => setForm({ ...form, cpassword: e })}
-            otherStyles="mt-2"
+            otherStyles="mt-1"
           />
           <CustomButton
             title="Save"

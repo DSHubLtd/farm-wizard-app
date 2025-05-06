@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import client from "@/config/client";
+import { signOut } from "@/services/auth";
 
 const LoginContext = createContext();
 
@@ -27,6 +28,7 @@ const LoginProvider = ({ children }) => {
         setUser(res.data.user);
         setIsLogged(true);
       } else {
+        await signOut();
         setUser({});
         setIsLogged(false);
       }

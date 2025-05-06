@@ -14,14 +14,19 @@ const GameOver = () => {
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
       {/* Background */}
       <BackgroundImage
-        source={images.background}
-        style={{ width: "100%", height: "100vh", position: "absolute" }}
+        blurRadius={2}
+        source={images.bgRainfall}
+        style={{
+          width: "100%",
+          height: "100vh",
+          position: "absolute",
+        }}
       />
 
       {/* Title */}
-      <Text className="text-white text-3xl font-primary my-6">Game Over</Text>
+      <Text className="text-white text-3xl font-primary my-4">Game Over</Text>
 
-      <View
+      {/* <View
         style={{
           width: "85%",
           backgroundColor: "#78693982",
@@ -33,20 +38,19 @@ const GameOver = () => {
           marginBottom: 10,
           position: "relative",
         }}
+      > */}
+      <View
+        className="items-center my-8 rounded-3xl p-4"
+        // style={{
+        //   alignItems: "center",
+        //   backgroundColor: "white",
+        //   borderRadius: 24,
+        //   padding: 16,
+        //   marginVertical: 10,
+        //   width: "100%",
+        // }}
       >
-        {/* Seed Name + Icon */}
-        <View
-          // className="items-center my-10 bg-white rounded-3xl p-6"
-          style={{
-            alignItems: "center",
-            backgroundColor: "white",
-            borderRadius: 24,
-            padding: 16,
-            marginVertical: 10,
-            width: "100%",
-          }}
-        >
-          <Text
+        {/* <Text
             // className="text-[#DFC666] text-xl font-primary mb-10"
             style={{
               color: "#DFC666",
@@ -56,38 +60,36 @@ const GameOver = () => {
             }}
           >
             Ooopps!!!
-          </Text>
-          <Image
-            source={images.gameOver}
-            style={{
-              width: width * 0.5,
-              height: width * 0.5,
-              marginBottom: 10,
-            }}
-            resizeMode="contain"
-          />
+          </Text> */}
+        <Image
+          source={images.gameOver}
+          style={{
+            width: width * 0.5,
+            height: width * 0.5,
+          }}
+          resizeMode="contain"
+        />
 
-          <Text
-            //className="text-[#7B6C32] text-center px-2 mb-6"
-            style={{
-              color: "#7B6C32",
-              textAlign: "center",
-              paddingHorizontal: 10,
-            }}
-          >
-            The magic fades… Your farm rests for now. But with a new dawn, fresh
-            hope will grow again. Please check the game instructions and try
-            again when you're ready!.
-          </Text>
-        </View>
-
-        {/* Right Nav */}
+        <Text
+          className="text-center text-xl px-2"
+          style={{
+            color: "#fff",
+            textAlign: "center",
+            paddingHorizontal: 10,
+          }}
+        >
+          The magic fades… Your farm rests for now. But with a new dawn, fresh
+          hope will grow again. Please check the game instructions and try again
+          when you're ready!.
+        </Text>
       </View>
 
+      {/* </View> */}
+
       <CustomButton
-        title="Replay"
+        title="TRY AGAIN"
         handlePress={() => router.push("/(screens)/selectSeed")}
-        containerStyles="w-[200px] mb-1"
+        containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}
         isLoading={false}
       />

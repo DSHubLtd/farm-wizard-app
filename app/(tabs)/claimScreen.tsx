@@ -7,6 +7,7 @@ import {
   Modal,
   Animated,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { icons, images } from "@/constants";
@@ -113,11 +114,11 @@ const ClaimScreen = () => {
         showLeftButton={true}
         showRightButton={false}
       />
-      <Text className="text-white text-3xl font-primary mt-4">CLAIM</Text>
+      <Text className="text-white text-2xl font-primary">CLAIM</Text>
 
       {/* Balance Box */}
       <View className="bg-black/20 opacity-90 flex flex-row justify-center items-center p-2 rounded-lg">
-        <View className="px-6 py-3 bg-[#E0C145B8] rounded-xl">
+        <View className="px-6 py-2 bg-[#E0C145B8] rounded-xl">
           <Text className="text-white text-sm text-center">USD 0.00</Text>
           <Text className="text-white/80 text-xs text-center">
             1000 = 0.01 USD
@@ -131,7 +132,7 @@ const ClaimScreen = () => {
           <TouchableOpacity
             key={tab}
             onPress={() => handleTabChange(tab)}
-            className="flex-row items-center justify-between m-30 p-9 "
+            className="flex-row items-center justify-between m-30 p-8 "
           >
             <Text
               className={`text-sm ${
@@ -147,12 +148,12 @@ const ClaimScreen = () => {
       </View>
 
       {/* Choose Provider */}
-      <Text className="text-white mb-8 text-base font-primary ">
+      <Text className="text-white text-base font-primary ">
         Choose provider
       </Text>
 
       {/* Provider Buttons */}
-      <View className="w-[85%]">
+      <ScrollView className="w-[85%]" style={{ height: "auto" }}>
         {providers[activeTab].map((provider, index) => (
           <View
             className="bg-black/20 opacity-90 p-2 mt-1 mb-2 rounded-lg"
@@ -174,7 +175,7 @@ const ClaimScreen = () => {
             </TouchableOpacity>
           </View>
         ))}
-      </View>
+      </ScrollView>
 
       {/* Popup Modal */}
       <Modal transparent visible={modalVisible} animationType="fade">

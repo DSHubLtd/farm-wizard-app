@@ -53,28 +53,26 @@ const Profile = () => {
         showRightButton={true}
       />
 
-      <Text className="text-white text-3xl font-primary font-bold mt-4">
+      <Text className="text-white text-2xl font-primary font-bold mt-4">
         PROFILE
       </Text>
 
       {/* Avatar + Info */}
-      <View className="items-center my-2">
+      <View className="items-center">
         <Image
           source={icons.profile}
           resizeMode="contain"
           // className="w-[50%] aspect-square max-w-[200px] "
-          className="w-[200px] h-[200px] md:w-48 md:h-48"
+          className="w-[80px] h-[80px] md:w-48 md:h-48"
         />
-        <Text className="text-white font-secondary text-2xl mt-1">
-          Player Name
-        </Text>
-        <Text className="text-yellow-300 font-secondary text-base mt-1">
+        <Text className="text-white font-secondary text-lg">Player Name</Text>
+        <Text className="text-yellow-300 font-secondary text-base">
           $0.0007
         </Text>
       </View>
 
       {/* Tabs */}
-      <View className="w-[90%] flex-row justify-around mt-2 mb-2">
+      <View className="w-[90%] flex-row justify-around mt-2 ">
         {tabs.map((tab) => (
           <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
             <Text

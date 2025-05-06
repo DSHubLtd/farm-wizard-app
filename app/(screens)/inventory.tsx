@@ -63,9 +63,9 @@ const Inventory = () => {
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
       const res = await getUserPlantLevels(token);
-      console.log("Response ", res);
+
       if (res.data.success) {
-        console.log("Response ", res.data);
+        // console.log("Response ", res.data);
       } else {
         console.log("REsponse");
       }

@@ -69,9 +69,10 @@ export const signOut = async () => {
   try {
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
-      const res = await client.get("sign-out", {
+      const res = await client.get("/auth/sign-out", {
         headers: {
           Authorization: `JWT ${token}`,
+          "Content-Type": "application/json",
         },
       });
 

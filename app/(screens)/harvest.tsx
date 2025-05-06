@@ -56,80 +56,39 @@ const Harvest = () => {
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
       {/* Background */}
       <BackgroundImage
-        source={images.background}
+        source={images.bgRainfall}
         style={{ width: "100%", height: "100vh", position: "absolute" }}
       />
 
       {/* Title */}
-      <Text className="text-white text-3xl font-primary my-6">
-        Session Completed
-      </Text>
 
-      <View
-        style={{
-          width: "85%",
-          backgroundColor: "#78693982",
-          borderRadius: 20,
-          borderColor: "#FCD34D",
-          borderWidth: 1,
-          padding: 20,
-          alignItems: "center",
-          marginBottom: 10,
-          position: "relative",
-        }}
-      >
-        <View
+      <View className="items-center justify-center my-14">
+        <Text className="text-white text-3xl font-primary">Session</Text>
+        <Text className="text-white text-3xl font-primary">Completed</Text>
+
+        <Image
+          source={images.sessionComplete}
           style={{
-            alignItems: "center",
-            backgroundColor: "white",
-            borderRadius: 24,
-            padding: 16,
-            marginVertical: 10,
-            width: "100%",
+            width: width * 0.5,
+            height: width * 0.5,
+            marginBottom: 10,
           }}
-        >
-          <Text
-            style={{
-              color: "#DFC666",
-              fontSize: 18,
-              fontWeight: "600",
-              marginBottom: 10,
-            }}
-          >
-            Congratulations!!!!
-          </Text>
-          <Image
-            source={images.sessionComplete}
-            style={{
-              width: width * 0.5,
-              height: width * 0.5,
-              marginBottom: 10,
-            }}
-            resizeMode="contain"
-          />
+          resizeMode="contain"
+        />
 
-          <Text
-            style={{
-              color: "#7B6C32",
-              textAlign: "center",
-              paddingHorizontal: 10,
-            }}
-          >
-            Great work today! Your farm flourished under your care — take a
-            well-earned rest and return soon to keep the magic growing.
-          </Text>
-        </View>
+        <Text className="text-center text-xl p-4 my-2 text-white">
+          Great work today! Your farm flourished under your care — take a
+          well-earned rest and return soon to keep the magic growing.
+        </Text>
 
-        {/* Right Nav */}
+        <CustomButton
+          title="Harvest"
+          handlePress={updateLevel}
+          containerStyles="w-[200px] mb-1"
+          textStyles={"font-pbold text-white"}
+          isLoading={isSubmitting}
+        />
       </View>
-
-      <CustomButton
-        title="Harvest"
-        handlePress={updateLevel}
-        containerStyles="w-[200px] mb-1"
-        textStyles={"font-pbold text-white"}
-        isLoading={isSubmitting}
-      />
     </View>
   );
 };

@@ -25,7 +25,7 @@ const PlantScreen = () => {
   const { name } = useLocalSearchParams();
 
   const [userLevel, setUserLevel] = useState(1);
-  const MAX_BUGS = userLevel + 1; //2;
+  const MAX_BUGS = userLevel; //2;
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   const plantImages = plant.plantImages;
   const plantSickImages = plant.plantSickImages;
@@ -75,7 +75,8 @@ const PlantScreen = () => {
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
       const res = await getUserPlantLevel(token, plant.name);
-      if (res.data) {
+
+      if (res.data.plantLevel) {
         setUserLevel(res.data.plantLevel.level);
       } else {
         setUserLevel(1);
@@ -207,7 +208,10 @@ const PlantScreen = () => {
       waterSound?.unloadAsync();
     };
   }, []);
-  if (loading) return <Text>Loading...</Text>;
+  if (loading)
+    return (
+      <Text className="text-2xl justify-center text-center">Loading...</Text>
+    );
   // ANIMATION
   const animatePlantGrowing = () => {
     Animated.loop(
@@ -237,56 +241,6 @@ const PlantScreen = () => {
     setBugSpawnTime(Date.now());
     const newBugs: any[] = [];
 
-    /*const createBug = (index: number) => {
-      const delay = index < 4 ? 0 : (index - 3) * 150;
-
-      setTimeout(() => {
-        const id = Math.random().toString();
-
-        const angle = new Animated.Value(0);
-        const radius = 100 + Math.random() * 20;
-
-        const scale = new Animated.Value(0.5);
-        const opacity = new Animated.Value(1);
-
-        const scatterX = new Animated.Value(0);
-        const scatterY = new Animated.Value(0);
-
-        Animated.loop(
-          Animated.timing(angle, {
-            toValue: 2 * Math.PI,
-            duration: 8000 + Math.random() * 2000,
-            useNativeDriver: false,
-          })
-        ).start();
-
-        Animated.spring(scale, {
-          toValue: 1,
-          useNativeDriver: false,
-          friction: 5,
-        }).start();
-
-        const offset = (index * 360) / MAX_BUGS;
-        newBugs.push({
-          id,
-          angle,
-          radius,
-          scale,
-          offset,
-          opacity,
-          scatterX,
-          scatterY,
-        });
-
-        if (newBugs.length === MAX_BUGS) {
-          setBugs(newBugs);
-
-          setTimeout(() => {
-            setBugs([]);
-          }, 90000);
-        }
-      }, delay);
-    };*/
     const createBug = (index: number) => {
       const delay = index < 4 ? 0 : (index - 3) * 150;
 
@@ -333,6 +287,7 @@ const PlantScreen = () => {
           scale,
           offset,
           opacity,
+          tapCount: 1,
         });
 
         if (newBugs.length === MAX_BUGS) {
@@ -388,34 +343,29 @@ const PlantScreen = () => {
     setBugSpawnTime(null);
     setSpraying(true);
     sprayAnim.setValue(0);
-
     // 🔊 Play spray sound
     if (spraySound) {
       spraySound.replayAsync();
     }
 
-    /*bugs.forEach((bug) => {
-      const directionX = (Math.random() - 0.5) * 300;
-      const directionY = (Math.random() - 0.5) * 300;
+    setBugs((prevBugs) => {
+      // Increase tapCount for all bugs
+      const updatedBugs = prevBugs.map((bug) => {
+        return { ...bug, tapCount: bug.tapCount + 1 };
+      });
 
-      Animated.parallel([
-        Animated.timing(bug.scatterX, {
-          toValue: directionX,
-          duration: 600,
-          useNativeDriver: false,
-        }),
-        Animated.timing(bug.scatterY, {
-          toValue: directionY,
-          duration: 600,
-          useNativeDriver: false,
-        }),
-        Animated.timing(bug.opacity, {
-          toValue: 0,
-          duration: 600,
-          useNativeDriver: false,
-        }),
-      ]).start();
-    });*/
+      // Find the first bug that reaches MAX_BUGS and remove it
+      const bugToRemoveIndex = updatedBugs.findIndex(
+        (bug) => bug.tapCount >= MAX_BUGS
+      );
+
+      if (bugToRemoveIndex !== -1) {
+        // If we found a bug that reaches MAX_BUGS, remove it from the list
+        updatedBugs.splice(bugToRemoveIndex, 1);
+      }
+
+      return updatedBugs;
+    });
 
     // Start spray animation
     Animated.timing(sprayAnim, {
@@ -425,7 +375,7 @@ const PlantScreen = () => {
     }).start(() => {
       // After spray finishes, remove bugs
       setSpraying(false);
-      setBugs([]);
+      // setBugs([]);
       handleToolUse("Pesticide used! Bugs removed.");
     });
   };
@@ -487,7 +437,7 @@ const PlantScreen = () => {
           source={images.bgRainfall}
           resizeMode="cover"
         >
-          <RainEffect layers={5} enableThunder={false} />
+          <RainEffect layers={60} enableThunder={false} />
         </ImageBackground>
       )}
 
@@ -689,7 +639,7 @@ const PlantScreen = () => {
           resizeMode="contain"
           style={{
             height: getPlantSize(),
-            transform: [{ scale: plantScale }],
+            // transform: [{ scale: plantScale }],
           }}
         />
       </View>
