@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
-import RainEffect from "@/components/RainEffect";
+import HybridRainScene from "@/components/HybridRainScene";
 import { router, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -437,7 +437,7 @@ const PlantScreen = () => {
           source={images.bgRainfall}
           resizeMode="cover"
         >
-          <RainEffect layers={60} enableThunder={false} />
+          <HybridRainScene />
         </ImageBackground>
       )}
 

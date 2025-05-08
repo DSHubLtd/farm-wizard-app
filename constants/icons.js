@@ -19,6 +19,7 @@ import back from "../assets/icons/back.png";
 import stats from "../assets/icons/stats.png";
 import hat from "../assets/icons/hat.png";
 import close from "../assets/icons/close.png";
+import cart from "../assets/icons/cart.png";
 
 import paypal from "../assets/icons/paypal.png";
 import telegram from "../assets/icons/telegram.png";
@@ -46,6 +47,7 @@ export default {
   stats,
   hat,
   close,
+  cart,
 
   paypal,
   telegram,

@@ -5,8 +5,15 @@ import { router, useFocusEffect } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { CustomButton } from "../../components";
 import BackgroundImage from "../../components/BackgroundImage";
+import { useLoginContext } from "../../context/LoginProvider";
 
 const Home = () => {
+
+  const { user } = useLoginContext();
+
+  if (!user) {
+    router.replace('/');
+  }
 
   const [backPressedOnce, setBackPressedOnce] = useState(false);
   const timeoutRef = useRef(null);

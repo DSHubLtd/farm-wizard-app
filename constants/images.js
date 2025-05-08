@@ -7,6 +7,7 @@ import logoSmall from "../assets/images/logo-small.png";
 import background from "../assets/images/background.png";
 import background1 from "../assets/images/background1.png";
 import empty from "../assets/images/empty.png";
+import fewCoinsMessage from "../assets/images/few-coins-message.png";
 
 import maize from "../assets/images/seed/maize.png";
 import apple from "../assets/images/seed/apple.png";
@@ -46,6 +47,7 @@ export default {
   background,
   empty,
   background1,
+  fewCoinsMessage,
 
   maize,
   apple,
