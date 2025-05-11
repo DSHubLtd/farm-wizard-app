@@ -28,6 +28,7 @@ import timer from "../assets/images/gameplay/timer.png";
 
 import gameOver from "../assets/images/gameplay/game-over.png";
 import sessionComplete from "../assets/images/gameplay/session-complete.png";
+import sessionStarted from "../assets/images/gameplay/session-started.png";
 
 import fertilizer from "../assets/images/inventory/fertilizers.png";
 import kettle from "../assets/images/inventory/kettle.png";
@@ -74,4 +75,5 @@ export default {
 
   gameOver,
   sessionComplete,
+  sessionStarted,
 };

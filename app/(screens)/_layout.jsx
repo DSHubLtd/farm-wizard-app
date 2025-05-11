@@ -13,6 +13,9 @@ export default function ScreenLayout() {
       <Stack.Screen name="plantScreen" />
       <Stack.Screen name="gameOver" />
       <Stack.Screen name="harvest" />
+      <Stack.Screen name="payPalCheckout" />
+      <Stack.Screen name="sessionStarted" />
+      <Stack.Screen name="payStackCheckout" />
     </Stack>
   );
 }

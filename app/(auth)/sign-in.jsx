@@ -33,7 +33,8 @@ const SignIn = () => {
         Alert.alert("Error", result.data.message)
         return;
       }
-      setUser(result);
+      setUser(result.data.data.user);
+
       setIsLogged(true);
 
       Alert.alert("Success", "User signed in successfully");

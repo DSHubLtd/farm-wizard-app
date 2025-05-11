@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, Dimensions, Alert, Image } from "react-native";
+import { View, Text, Dimensions, Alert, Image, Pressable, TouchableOpacity } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-import { images } from "../../constants";
+import { avatars, icons, images } from "../../constants";
 import { CustomButton, FormField } from "../../components";
 import { useLoginContext } from "@/context/LoginProvider";
 import { signUpUser } from "@/services/auth";
@@ -13,6 +13,7 @@ import SelectField from "../../components/SelectField";
 import { validateForm } from "../../utils/validateForm";
 import { useCountryData } from "../../hooks/useCountryData";
 import { useLanguageData } from "../../hooks/useLanguageData";
+import { ArrowLeft, ArrowRight } from "lucide-react-native";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -28,6 +29,7 @@ const SignUp = () => {
     cpassword: ""
   });
   const [errors, setErrors] = useState({});
+  const [selectedIndex, setSelectedIndex] = useState(1);
 
   const { countries, loading: countryLoading } = useCountryData();
   const { languages, loading: langLoading } = useLanguageData();
@@ -54,7 +56,7 @@ const SignUp = () => {
           return;
         }
         Alert.alert("Success", result.data.message);
-        setUser(result);
+        setUser(result.data.user);
         setIsLogged(true);
         router.replace("/sign-in");
 
@@ -69,10 +71,24 @@ const SignUp = () => {
 
   };
 
+  const avatarsArr = [
+    avatars.africanMale,
+    avatars.africanFmale,
+    avatars.asianMale,
+    avatars.asianFmale,
+  ]
+  const handlePrev = () => {
+    setSelectedIndex((prev) => (prev - 1 + avatarsArr.length) % avatarsArr.length);
+  };
+
+  const handleNext = () => {
+    setSelectedIndex((prev) => (prev + 1) % avatarsArr.length);
+  };
+
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full flex justify-center items-center">
       <BackgroundImage source={images.background} />
-      <View className="flex justify-center items-center my-3">
+      {/* <View className="flex justify-center items-center my-3">
         <Image
           source={images.logo}
           resizeMode="contain"
@@ -81,7 +97,34 @@ const SignUp = () => {
         <Text className="text-lg font-semibold text-white font-psemibold">
           Sign Up to Farm Wizard
         </Text>
+      </View> */}
+      <Text className="text-white text-3xl font-primary mb-2">CREATE ACCOUNT</Text>
+
+      {/* Avatar Selector */}
+      <View className="flex-row items-center gap-14 mb-6 p-2">
+        <Image source={avatarsArr[(selectedIndex - 1 + avatarsArr.length) % avatarsArr.length]} className="w-10 h-10 opacity-60" />
+        <Pressable
+          onPress={handlePrev}
+        >
+          <Image
+            source={icons.leftChevron}
+            className="w-18 h-14"
+            resizeMode="contain"
+          />
+        </Pressable>
+        <Image source={avatarsArr[selectedIndex]} className="w-20 h-20" />
+        <Pressable
+          onPress={handleNext}
+        >
+          <Image
+            source={icons.rightChevron}
+            className="w-18 h-14"
+            resizeMode="contain"
+          />
+        </Pressable>
+        <Image source={avatarsArr[(selectedIndex + 1) % avatarsArr.length]} className="w-12 h-12 opacity-60" />
       </View>
+
       <KeyboardAwareScrollView
         enableOnAndroid
         keyboardShouldPersistTaps="handled"
@@ -90,7 +133,7 @@ const SignUp = () => {
         style={{ maxHeight: screenHeight * 0.6 }}
 
       >
-        <View className="border-r-4 border-r-[#E1CE67] p-2">
+        <View className="border-r-4 border-r-[#E1CE67] p-4">
 
           <FormField
             title="Full Name"

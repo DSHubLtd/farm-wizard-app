@@ -12,12 +12,12 @@ const { width, height } = Dimensions.get("window");
 
 const Harvest = () => {
   const [isSubmitting, setSubmitting] = useState(false);
-  const { name, userLevel } = useLocalSearchParams();
+  const { name, userLevel, score } = useLocalSearchParams();
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   let level = parseInt(userLevel as string) + 1;
 
   const updateLevel = async () => {
-    if (!plant || !level) {
+    if (!plant || !level || !score) {
       Alert.alert("Error", "Some error occurs");
       return;
     }
@@ -30,7 +30,12 @@ const Harvest = () => {
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
       try {
-        const result = await updatePlantLevels(token, plant.name, level);
+        const result = await updatePlantLevels(
+          token,
+          plant.name,
+          level,
+          Number(score)
+        );
 
         if (result.data.success === false) {
           Alert.alert("Error", result.data.message);
@@ -40,10 +45,10 @@ const Harvest = () => {
         Alert.alert("Success", "Level updated successfully");
         setTimeout(() => {
           router.replace({
-            pathname: "/(screens)/plantScreen",
+            pathname: "/(screens)/profile",
             params: { name },
           });
-        }, 2000);
+        }, 3000);
       } catch (error: any) {
         Alert.alert("Error", error.message);
       } finally {

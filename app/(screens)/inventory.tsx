@@ -8,16 +8,23 @@ import {
   Modal,
   Animated,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CustomButton } from "@/components";
 import BackgroundImage from "@/components/BackgroundImage";
+import FlutterwaveModal from "@/components/FlutterwaveModal";
 import { icons, images } from "@/constants";
 import { getUserPlantLevels } from "@/services/user";
 import { BlurView } from "expo-blur";
 import { HomeIcon } from "lucide-react-native";
-// import { plantGrowth } from "@/constants/plants";
+import { Picker } from "@react-native-picker/picker";
 import { plantGrowth as seedInventory } from "@/constants/plants";
+import { router } from "expo-router";
+import uuid from "react-native-uuid";
+import { useLoginContext } from "@/context/LoginProvider";
+import { getUserPIventory } from "@/services/userInventory";
+import checkCurrency from "@/utils/checkCurrency";
 
 type Inventory = {
   name: string;
@@ -52,13 +59,36 @@ const inventory = {
 };
 
 const Inventory = () => {
+  const { user } = useLoginContext();
+  if (!user) {
+    router.replace("/");
+  }
+  const [userInventory, setUserInventory] = useState({
+    fertilizerQty: 0,
+    pesticideQty: 0,
+    waterQty: 0,
+  });
   const [activeTab, setActiveTab] = useState<"items" | "seeds">("items");
   const [loading, setLoading] = useState(true);
+  const [invloading, setInvLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<Inventory>();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState(false);
   const [purchaseQty, setPurchaseQty] = useState(1);
+  const [purchaseAmountPerItem, setPurchaseAmountPerItem] = useState(0.5);
+  const [totalAmount, setTotalAmount] = useState(
+    purchaseQty * purchaseAmountPerItem
+  );
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const [showFlutterwave, setShowFlutterwave] = useState(false);
+  const [showConfirmModal, setConfirmShowModal] = useState(false);
+  const [currency, setCurrency] = useState("USD");
+  const [usdEquivalent, setUsdEquivalent] = useState<string | null>(null);
+  const [exchangeLoading, setExchangeLoading] = useState(false);
+
+  const txRef = `tx-${uuid.v4().split("-")[0]}`;
+  const purchaseDetails =
+    selectedItem?.name + "-" + purchaseQty + "-" + totalAmount;
 
   const renderTabButton = (label: string, value: "items" | "seeds") => (
     <TouchableOpacity
@@ -73,6 +103,7 @@ const Inventory = () => {
 
   const fetchUserPlantLevel = async () => {
     setLoading(true);
+
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
       const res = await getUserPlantLevels(token);
@@ -89,12 +120,80 @@ const Inventory = () => {
     }
   };
 
+  const fetchUserInventotyData = async () => {
+    setInvLoading(true);
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      const res = await getUserPIventory(token);
+      const { pesticideItems, fertilizerItems, waterItems } = res;
+
+      if (res) {
+        setUserInventory({
+          fertilizerQty: fertilizerItems?.quantity || 0,
+          pesticideQty: pesticideItems?.quantity || 0,
+          waterQty: waterItems?.quantity || 0,
+        });
+      } else {
+        setUserInventory({
+          fertilizerQty: 0,
+          pesticideQty: 0,
+          waterQty: 0,
+        });
+      }
+      setInvLoading(false);
+    } else {
+      console.log("no token");
+      setInvLoading(false);
+    }
+  };
+
   useEffect(() => {
+    if (totalAmount) {
+      (async () => {
+        setExchangeLoading(true);
+        const result = await checkCurrency(currency, totalAmount);
+        setUsdEquivalent(result.toFixed(2));
+        setExchangeLoading(false);
+      })();
+    }
+  }, [currency, totalAmount]);
+
+  useEffect(() => {
+    fetchUserInventotyData();
     fetchUserPlantLevel();
   }, []);
+  if (invloading)
+    return (
+      <Text className="text-2xl justify-center text-center">Loading...</Text>
+    );
+
+  const handleAmount = (type: string) => {
+    setPurchaseQty((prevQty) => {
+      let newQty = prevQty;
+
+      if (type === "add") {
+        newQty = Math.min(prevQty + 1, 50);
+      } else if (type === "sub") {
+        newQty = Math.max(prevQty - 1, 0);
+      } else {
+        return prevQty; // No update for invalid type
+      }
+
+      setTotalAmount(purchaseAmountPerItem * newQty);
+      return newQty;
+    });
+    // setPurchaseQty((prev) => Math.min(prev + 1, 10));
+    // setPurchaseQty((prev) =>
+    //   Math.max(0, Math.min(prev + 1, 10))
+    // );
+  };
 
   const openModal = (item: any) => {
     setSelectedItem(item);
+    setPurchaseQty(1);
+    setPurchaseAmountPerItem(0.5);
+    setTotalAmount(0.5);
+    // setPurchaseAmountPerItem(item.amount)
     setModalVisible(true);
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -114,10 +213,38 @@ const Inventory = () => {
     });
   };
 
+  const handleSuccess = async (data: any) => {
+    const { transaction_id } = data;
+
+    try {
+      const res = await fetch(
+        `https://farm-wizard-api.onrender.com/api/v1/payment/flutterwave/verify-payment/${transaction_id}/${purchaseDetails}`
+      );
+      const json = await res.json();
+
+      if (json.success) {
+        setConfirmShowModal(false);
+        Alert.alert(
+          "Payment Verified",
+          `Transaction Ref: ${json.data.tx_ref} and Transaction Id: ${transaction_id} `
+        );
+        await fetchUserInventotyData(); // fetch updated inventory
+      } else {
+        Alert.alert("Verification Failed", json.message);
+      }
+    } catch (e: any) {
+      Alert.alert("Error", e.message);
+    }
+  };
+
+  const handleCancel = () => {
+    Alert.alert("Cancelled", "Payment process was cancelled.");
+  };
+
   const handleBuyItem = () => {
-    console.log("selectedItem ", selectedItem);
     setModalVisible(false);
-    setModalMessage(true);
+    // setModalMessage(true);
+    setConfirmShowModal(true);
   };
   return (
     <View className="flex-1 bg-green-200 pt-12 px-4">
@@ -132,7 +259,7 @@ const Inventory = () => {
       </Text>
 
       <View className="flex-row gap-2 justify-end my-2">
-        <Text className="text-white text-lg font-semibold">1,677</Text>
+        <Text className="text-white text-lg font-semibold">{user?.score}</Text>
         <View className="bg-yellow-500 p-1 rounded-full">
           <HomeIcon size={16} color={"#fff"} />
         </View>
@@ -149,19 +276,10 @@ const Inventory = () => {
           <InventoryGrid
             data={activeTab === "items" ? inventory.items : seedInventory}
             onOpenModal={openModal}
+            userInventory={userInventory}
           />
         </View>
       </ScrollView>
-
-      <View className="justify-center items-end my-4">
-        <CustomButton
-          title="Buy more coins "
-          handlePress={() => console.log("me")}
-          containerStyles="w-[200px]"
-          textStyles={"font-pbold text-white"}
-          isLoading={false}
-        />
-      </View>
 
       {/* Popup Modal */}
       <Modal transparent visible={modalVisible} animationType="fade">
@@ -188,7 +306,7 @@ const Inventory = () => {
               <TouchableWithoutFeedback onPress={() => {}}>
                 <View className="bg-[#857f6e85] rounded-2xl p-8 flex justify-center items-center">
                   <Text className="text-gray-100 text-center mb-6">
-                    Select Amount
+                    Select Quantity
                   </Text>
                   <Image
                     source={
@@ -203,11 +321,7 @@ const Inventory = () => {
                   </Text>
 
                   <View className="flex-row my-1 gap-14">
-                    <TouchableOpacity
-                      onPress={() =>
-                        setPurchaseQty((prev) => Math.max(prev - 1, 0))
-                      }
-                    >
+                    <TouchableOpacity onPress={() => handleAmount("sub")}>
                       <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
                         <Image
                           source={icons.leftChevron}
@@ -219,14 +333,7 @@ const Inventory = () => {
                     <Text className="text-white font-semibold">
                       X {purchaseQty}
                     </Text>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setPurchaseQty((prev) => Math.min(prev + 1, 10));
-                        // setPurchaseQty((prev) =>
-                        //   Math.max(0, Math.min(prev + 1, 10))
-                        // );
-                      }}
-                    >
+                    <TouchableOpacity onPress={() => handleAmount("add")}>
                       <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
                         <Image
                           source={icons.rightChevron}
@@ -241,7 +348,7 @@ const Inventory = () => {
                       <HomeIcon size={18} color={"#fff"} />
                     </View>
                     <Text className="text-white text-2xl font-semibold">
-                      103
+                      {totalAmount}
                     </Text>
                   </View>
                 </View>
@@ -285,11 +392,110 @@ const Inventory = () => {
           </BlurView>
         </TouchableWithoutFeedback>
       </Modal>
+
+      <Modal transparent visible={showConfirmModal} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setConfirmShowModal(false)}>
+          <BlurView
+            intensity={50}
+            tint="dark"
+            className="flex-1 p-4 items-center justify-center"
+          >
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View className="bg-white rounded-2xl w-[90%] p-6 ">
+                <Text
+                  className="font-secondary font-bold italic"
+                  style={{ fontSize: 22 }}
+                >
+                  {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.name} `}
+                </Text>
+                <Text style={{ fontSize: 18 }} className="my-4">
+                  Select Currency To Continue
+                </Text>
+                <Picker
+                  selectedValue={currency}
+                  onValueChange={(itemValue) => setCurrency(itemValue)}
+                  style={{ marginVertical: 20 }}
+                >
+                  <Picker.Item label="🇳🇬 Naira (NGN)" value="NGN" />
+                  <Picker.Item label="🇺🇸 Dollar (USD)" value="USD" />
+                  <Picker.Item label="🇬🇭 Cedi (GHS)" value="GHS" />
+                  <Picker.Item label="🇰🇪 Shilling (KES)" value="KES" />
+                  <Picker.Item label="🇬🇧 Pound Sterling (GBP)" value="GBP" />
+                  <Picker.Item label="🇪🇺 Euro (EUR)" value="EUR" />
+                  <Picker.Item label="🇿🇦 Rand (ZAR)" value="ZAR" />
+                  <Picker.Item label="🇹🇿 Shilling (TZS)" value="TZS" />
+                  <Picker.Item label="🇺🇬 Shilling (UGX)" value="UGX" />
+                  <Picker.Item label="🇲🇼 Kwacha (MWK)" value="MWK" />
+                  <Picker.Item label="🇷🇼 Franc (RWF)" value="RWF" />
+                  <Picker.Item label="🇨🇲 CFA Franc (XAF)" value="XAF" />
+                  <Picker.Item label="🇨🇮 CFA Franc (XOF)" value="XOF" />
+                  <Picker.Item label="🇲🇦 Dirham (MAD)" value="MAD" />
+                  <Picker.Item label="🇿🇲 Kwacha (ZMW)" value="ZMW" />
+                  <Picker.Item label="🇨🇱 Peso (CLP)" value="CLP" />
+                  <Picker.Item label="🇨🇴 Peso (COP)" value="COP" />
+                  <Picker.Item label="🇪🇬 Pound (EGP)" value="EGP" />
+                  <Picker.Item label="🇬🇳 Franc (GNF)" value="GNF" />
+                  {/* <Picker.Item label="🇲🇺 Rupee (MUR)" value="MUR" />
+                  <Picker.Item label="🇲🇾 Ringgit (MYR)" value="MYR" />
+                  <Picker.Item label="🇳🇴 Krone (NOK)" value="NOK" />
+                  <Picker.Item label="🇳🇿 Dollar (NZD)" value="NZD" />
+                  <Picker.Item label="🇵🇱 Zloty (PLN)" value="PLN" />
+                  <Picker.Item label="🇷🇺 Rouble (RUB)" value="RUB" />
+                  <Picker.Item label="🇸🇦 Riyal (SAR)" value="SAR" />
+                  <Picker.Item label="🇸🇪 Krona (SEK)" value="SEK" />
+                  <Picker.Item label="🇸🇬 Dollar (SGD)" value="SGD" /> */}
+                  <Picker.Item label="🇸🇱 Leone (SLL)" value="SLL" />
+                </Picker>
+              </View>
+            </TouchableWithoutFeedback>
+            {!usdEquivalent ? (
+              <Text style={{ marginBottom: 10 }}>Loading...</Text>
+            ) : (
+              <>
+                <CustomButton
+                  title={`Pay ${usdEquivalent} ${currency}`}
+                  handlePress={() => setShowFlutterwave(true)}
+                  containerStyles="w-[90%]"
+                  textStyles={"font-pbold text-white"}
+                  isLoading={exchangeLoading}
+                />
+              </>
+            )}
+          </BlurView>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      <FlutterwaveModal
+        visible={showFlutterwave}
+        onRequestClose={() => setShowFlutterwave(false)}
+        email={user.email}
+        name={user.fullName}
+        amount={usdEquivalent}
+        txRef={txRef}
+        currency={currency}
+        publicKey="FLWPUBK_TEST-125e2223c946bd139ec43a273bf1f0f3-X"
+        onSuccess={handleSuccess}
+        onCancel={handleCancel}
+      />
     </View>
   );
 };
 
-const InventoryGrid = ({ data, onOpenModal }: any) => {
+const getItemsQty = (item: string, userInventory: any) => {
+  switch (item) {
+    case "Pesticide":
+      return userInventory.pesticideQty;
+    case "Fertilizer":
+      return userInventory.fertilizerQty;
+    case "Water":
+      return userInventory.waterQty;
+    case "Apple":
+      return userInventory.fertilizerQty;
+    default:
+      return 0;
+  }
+};
+const InventoryGrid = ({ data, onOpenModal, userInventory }: any) => {
   // Group items into rows of 2
   const rows = [];
   for (let i = 0; i < data.length; i += 2) {
@@ -305,7 +511,9 @@ const InventoryGrid = ({ data, onOpenModal }: any) => {
               key={index}
               className="flex-1 bg-[#9F8851] rounded-xl mx-1 p-3"
             >
-              <Text className="text-white text-right">x{item.count || 1}</Text>
+              <Text className="text-white text-right">
+                x{getItemsQty(item.name, userInventory)}
+              </Text>
               <View className="flex-row justify-between">
                 <Image
                   source={item.icon}

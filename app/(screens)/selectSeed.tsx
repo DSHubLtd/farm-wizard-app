@@ -235,7 +235,7 @@ const SelectSeed = () => {
         title="Select Seed"
         handlePress={() =>
           router.push({
-            pathname: "/(screens)/plantScreen",
+            pathname: "/(screens)/sessionStarted",
             params: { name: selectedSeed.name },
           })
         }

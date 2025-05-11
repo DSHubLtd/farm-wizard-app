@@ -8,6 +8,7 @@ import {
   Modal,
   Dimensions,
   ImageBackground,
+  StyleSheet,
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
@@ -16,6 +17,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserPlantLevel } from "@/services/user";
+import { Image as ExpoImage } from "expo-image";
+import { getUserPIventory, updateInventory } from "@/services/userInventory";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -24,6 +27,11 @@ const PHASE_DURATION = 150; // 2.5 minutes
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
 
+  const [userInventory, setUserInventory] = useState({
+    fertilizerQty: 0,
+    pesticideQty: 0,
+    waterQty: 0,
+  });
   const [userLevel, setUserLevel] = useState(1);
   const MAX_BUGS = userLevel; //2;
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
@@ -60,6 +68,7 @@ const PlantScreen = () => {
   const fertAnim = useRef(new Animated.Value(0)).current;
   const [harvest, setHarvest] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [invloading, setInvLoading] = useState(true);
 
   const getPhaseInfo = () => {
     const elapsed = TEN_MINUTES - timeLeft;
@@ -70,21 +79,66 @@ const PlantScreen = () => {
 
   const getPlantStage = () => getPhaseInfo().currentStage;
 
-  const fetchUserPlantLevelData = async () => {
+  const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (token !== null) {
+        const res = await getUserPlantLevel(token, plant.name);
+
+        if (res.data.plantLevel) {
+          setUserLevel(res.data.plantLevel.level);
+        } else {
+          setUserLevel(1);
+        }
+        setLoading(false);
+      } else {
+        console.log("no token");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("no error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchUserInventotyData = async () => {
+    setInvLoading(true);
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
-      const res = await getUserPlantLevel(token, plant.name);
-
-      if (res.data.plantLevel) {
-        setUserLevel(res.data.plantLevel.level);
+      const res = await getUserPIventory(token);
+      const { pesticideItems, fertilizerItems, waterItems } = res;
+      if (res) {
+        setUserInventory({
+          fertilizerQty: fertilizerItems?.quantity || 0,
+          pesticideQty: pesticideItems?.quantity || 0,
+          waterQty: waterItems?.quantity || 0,
+        });
       } else {
-        setUserLevel(1);
+        setUserInventory({
+          fertilizerQty: 0,
+          pesticideQty: 0,
+          waterQty: 0,
+        });
       }
-      setLoading(false);
+      setInvLoading(false);
     } else {
       console.log("no token");
-      setLoading(false);
+      setInvLoading(false);
+    }
+  };
+  const handleUpdateInventory = async (item: string, qty = 1) => {
+    //  setSubmitting(true);
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const result = await updateInventory(token, item, qty);
+        await fetchUserInventotyData();
+      } catch (error: any) {
+        //  Alert.alert("Error", error.message);
+      } finally {
+        //  setSubmitting(false);
+      }
     }
   };
 
@@ -123,6 +177,7 @@ const PlantScreen = () => {
       setTimeout(() => {
         spawnBugs();
       }, 5000);
+      setScore((s) => Math.min(s + 10, 100)); // give score after each stage
     }
 
     if (phaseElapsedTime === 60 && !activeThreat) {
@@ -202,13 +257,15 @@ const PlantScreen = () => {
     // PLANT ANIMATION
     // animatePlantGrowing();
     fetchUserPlantLevelData();
+    fetchUserInventotyData();
     return () => {
       spraySound?.unloadAsync();
       fertilizerSound?.unloadAsync();
       waterSound?.unloadAsync();
     };
   }, []);
-  if (loading)
+
+  if (loading || invloading)
     return (
       <Text className="text-2xl justify-center text-center">Loading...</Text>
     );
@@ -338,6 +395,13 @@ const PlantScreen = () => {
       handleToolUse("No bugs right now");
       return;
     }
+    if (userInventory.pesticideQty > 0) {
+      handleUpdateInventory("Pesticide");
+      handleToolUse("Pesticide used! Bugs removed.");
+    } else {
+      handleToolUse("Insufficient pesticide item, Please purchase");
+      return;
+    }
     setPlantDamaged(false);
     setPlantDamagedTime(null);
     setBugSpawnTime(null);
@@ -373,13 +437,16 @@ const PlantScreen = () => {
       duration: 2000,
       useNativeDriver: true,
     }).start(() => {
-      // After spray finishes, remove bugs
       setSpraying(false);
-      // setBugs([]);
-      handleToolUse("Pesticide used! Bugs removed.");
     });
   };
   const triggerFertilizer = () => {
+    if (userInventory.fertilizerQty > 0) {
+      handleUpdateInventory("Fertilizer");
+    } else {
+      handleToolUse("Insufficient fertilizer item, Please purchase");
+      return;
+    }
     setFertilizing(true);
     fertAnim.setValue(0);
     animatePlantGrowing();
@@ -396,10 +463,15 @@ const PlantScreen = () => {
     });
   };
   const triggerWater = () => {
+    if (userInventory.waterQty > 0) {
+      handleUpdateInventory("Water");
+    } else {
+      handleToolUse("Insufficient water item, Please purchase");
+      return;
+    }
     setWatering(true);
     waterAnim.setValue(0);
-
-    setScore((s) => Math.min(s + 5, 100));
+    //setScore((s) => Math.min(s + 5, 100));
 
     // 🔊 Play water sound
     waterSound?.replayAsync();
@@ -422,7 +494,7 @@ const PlantScreen = () => {
   };
 
   return (
-    <View className="flex-1 relative bg-green-200">
+    <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
       {/* Background  */}
       {!activeThreat && (
         <Image
@@ -433,11 +505,16 @@ const PlantScreen = () => {
       )}
       {activeThreat && (
         <ImageBackground
-          className="absolute w-full h-full"
           source={images.bgRainfall}
+          style={styles.background}
           resizeMode="cover"
+          className="absolute w-full h-full"
         >
-          <HybridRainScene />
+          <ExpoImage
+            source={images.storm}
+            style={styles.rain}
+            pointerEvents="none"
+          />
         </ImageBackground>
       )}
 
@@ -506,10 +583,10 @@ const PlantScreen = () => {
               },
             ]}
           >
-            <Image
+            <ExpoImage
               source={images.bugs}
               style={{ width: 30, height: 30 }}
-              resizeMode="cover"
+              // resizeMode="cover"
             />
           </Animated.View>
         );
@@ -527,7 +604,7 @@ const PlantScreen = () => {
 
       {/* Points */}
       <View className="absolute top-28 left-0 right-0 items-center">
-        <Text className="text-white text-xl font-bold">Score: {score}</Text>
+        <Text className="text-white text-3xl font-bold">{score}</Text>
       </View>
 
       {bugs.length > 0 && (
@@ -622,10 +699,10 @@ const PlantScreen = () => {
 
       {/* Plant */}
       <View
-        className={`flex-1 justify-center items-center mt-80 mb-20`}
+        className={`flex-1 justify-center items-center mt-80`}
         style={{
           borderRadius: 100,
-          padding: 4,
+          padding: 2,
           // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
         }}
       >
@@ -645,9 +722,22 @@ const PlantScreen = () => {
       </View>
 
       {/* Tool buttons */}
-      <View className="absolute left-4 top-[15%] space-y-4 py-80">
-        <ToolIcon icon={images.fertilizer} onPress={triggerFertilizer} />
+      {/* <View
+        // className={`absolute left-4`}
+        style={{
+          position: "absolute",
+          height: SCREEN_HEIGHT * 0.5,
+          top: -5,
+        }}
+      > */}
+      <View className="absolute left-4 top-[16%] gap-y-1 py-80">
         <ToolIcon
+          icon={images.fertilizer}
+          onPress={triggerFertilizer}
+          itemQty={userInventory.fertilizerQty}
+        />
+        <ToolIcon
+          itemQty={userInventory.pesticideQty}
           icon={images.pesticied}
           onPress={() => {
             if (bugs.length > 0) {
@@ -658,7 +748,11 @@ const PlantScreen = () => {
           }}
         />
 
-        <ToolIcon icon={images.kettle} onPress={triggerWater} />
+        <ToolIcon
+          itemQty={userInventory.waterQty}
+          icon={images.kettle}
+          onPress={triggerWater}
+        />
       </View>
 
       {/* Progress bar */}
@@ -736,9 +830,24 @@ const PlantScreen = () => {
   );
 };
 
-const ToolIcon = ({ icon, onPress }: { icon: any; onPress: () => void }) => (
-  <TouchableOpacity className="p-1 rounded-full" onPress={onPress}>
-    <Image source={icon} className="w-16 h-16" resizeMode="contain" />
+const ToolIcon = ({
+  itemQty,
+  icon,
+  onPress,
+}: {
+  itemQty: number;
+  icon: any;
+  onPress: () => void;
+}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    className="relative w-20 h-20 rounded-full bg-cream border-4 border-[#e6d6aa] flex items-center justify-center shadow-md"
+  >
+    <Image source={icon} className="w-26 h-26" resizeMode="contain" />
+
+    <Text className="absolute bottom-2 right-2 bg-[#9D863B] text-white text-sm font-bold w-6 h-6 rounded-full flex text-center items-center justify-center shadow">
+      {itemQty}
+    </Text>
   </TouchableOpacity>
 );
 
@@ -760,3 +869,33 @@ const ActionButton = ({
 );
 
 export default PlantScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  background: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  rain: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: SCREEN_HEIGHT * 0.8,
+    // zIndex: 2,
+    opacity: 0.6,
+  },
+  // rain: {
+  //   ...StyleSheet.absoluteFillObject, // fills the parent
+  // },
+});
+
+// ImageBackground
+//           className="absolute w-full h-full"
+//           source={images.bgRainfall}
+//           resizeMode="cover"
+//         >
+//           <HybridRainScene />
+//         </ImageBackground>

@@ -5,6 +5,8 @@ import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { CustomButton } from "@/components";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLoginContext } from "@/context/LoginProvider";
 
 const chartData = {
   Daily: [250, 180, 300, 120, 260, 190, 230, 210, 150, 200, 170, 240],
@@ -16,24 +18,63 @@ const tabs = ["Daily", "Weekly", "Monthly"] as const;
 type TabType = (typeof tabs)[number];
 
 const Profile = () => {
+  const { user } = useLoginContext();
+  if (!user) {
+    router.replace("/");
+  }
   const [activeTab, setActiveTab] = useState<TabType>("Daily");
   const [animatedValues, setAnimatedValues] = useState<Animated.Value[]>([]);
+  const [chartData, setChartData] = useState<{ [key in TabType]?: number[] }>(
+    {}
+  );
+  const [chartLabels, setChartLabels] = useState<{
+    [key in TabType]?: string[];
+  }>({});
 
   useEffect(() => {
-    const newData = chartData[activeTab];
-    const newAnimatedValues = newData.map(() => new Animated.Value(0));
-    setAnimatedValues(newAnimatedValues);
+    const fetchData = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (token !== null) {
+        try {
+          const res = await fetch(
+            `http://192.168.115.86:5000/api/v1/earning/chart/${activeTab}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${token}`,
+              },
+              //body: JSON.stringify({ amount: 25.5 }),
+            }
+          );
+          const json = await res.json();
+          //console.log("res ", json);
 
-    Animated.stagger(
-      50,
-      newAnimatedValues.map((val, i) =>
-        Animated.timing(val, {
-          toValue: newData[i],
-          duration: 500,
-          useNativeDriver: false,
-        })
-      )
-    ).start();
+          setChartData((prev) => ({ ...prev, [activeTab]: json.values }));
+          setChartLabels((prev) => ({ ...prev, [activeTab]: json.labels }));
+
+          const newAnimatedValues = json.values.map(
+            () => new Animated.Value(0)
+          );
+          setAnimatedValues(newAnimatedValues);
+
+          Animated.stagger(
+            50,
+            newAnimatedValues.map((val: any, i: any) =>
+              Animated.timing(val, {
+                toValue: json.values[i],
+                duration: 500,
+                useNativeDriver: false,
+              })
+            )
+          ).start();
+        } catch (err) {
+          console.error("Chart fetch error:", err);
+        }
+      }
+    };
+
+    fetchData();
   }, [activeTab]);
 
   return (
@@ -65,9 +106,11 @@ const Profile = () => {
           // className="w-[50%] aspect-square max-w-[200px] "
           className="w-[80px] h-[80px] md:w-48 md:h-48"
         />
-        <Text className="text-white font-secondary text-lg">Player Name</Text>
+        <Text className="text-white font-secondary text-lg">
+          {user.fullName}
+        </Text>
         <Text className="text-yellow-300 font-secondary text-base">
-          $0.0007
+          {user?.score || 0}
         </Text>
       </View>
 
@@ -94,15 +137,14 @@ const Profile = () => {
         <View className="flex-row items-end">
           {/* Y-Axis */}
           <View className="justify-between h-30 p-2">
-            {/* Generate Y-axis numbers */}
             {[4, 3, 2, 1, 0].map((n) => {
-              const max = Math.max(...chartData[activeTab]);
+              const max = Math.max(...(chartData[activeTab] || [1]));
               const label = Math.round((n * max) / 4);
               return (
                 <Text
                   key={n}
                   className="text-white text-xs"
-                  style={{ height: 32, textAlign: "right" }}
+                  style={{ height: 32 }}
                 >
                   {label}
                 </Text>
@@ -112,17 +154,19 @@ const Profile = () => {
 
           {/* Bars */}
           <View className="flex-1 flex-row items-end justify-between space-x-1 h-40">
-            {chartData[activeTab].map((value, i) => (
+            {(chartData[activeTab] || []).map((value, i) => (
               <Animated.View
                 key={i}
                 className="bg-white rounded-full w-2"
                 style={{
-                  height: animatedValues[i]
-                    ? animatedValues[i].interpolate({
-                        inputRange: [0, Math.max(...chartData[activeTab])],
-                        outputRange: [0, 160],
-                      })
-                    : 0,
+                  height:
+                    animatedValues[i]?.interpolate({
+                      inputRange: [
+                        0,
+                        Math.max(...(chartData[activeTab] || [1])),
+                      ],
+                      outputRange: [0, 160],
+                    }) || 0,
                 }}
               />
             ))}
@@ -131,13 +175,9 @@ const Profile = () => {
 
         {/* X-Axis */}
         <View className="flex-row justify-between px-2 mt-2">
-          {chartData[activeTab].map((_, i) => (
+          {(chartLabels[activeTab] || []).map((label, i) => (
             <Text key={i} className="text-white text-[10px] text-center w-2">
-              {activeTab === "Daily"
-                ? i + 1
-                : activeTab === "Weekly"
-                ? `W${i + 1}`
-                : `M${i + 1}`}
+              {label}
             </Text>
           ))}
         </View>

@@ -54,12 +54,13 @@ export const getUserPlantLevel = async (token: string, name: string) => {
 export const updatePlantLevels = async (
   token: string,
   plantName: string,
-  level: number
+  level: number,
+  score: number
 ) => {
   try {
     const res = await client.patch(
       `/user-level/update`,
-      { plantName, level },
+      { plantName, level, score },
       {
         headers: {
           Authorization: `JWT ${token}`,
@@ -69,7 +70,7 @@ export const updatePlantLevels = async (
     );
     return res.data;
   } catch (error: any) {
-    console.error("Get user plant Error:", error?.response?.data);
+    console.error("user plant Error:", error?.response?.data);
     throw error;
   }
 };
