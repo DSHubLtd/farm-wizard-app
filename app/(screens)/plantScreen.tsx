@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
-import HybridRainScene from "@/components/HybridRainScene";
 import { router, useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -579,7 +578,7 @@ const PlantScreen = () => {
               bug.position.getLayout(),
               {
                 transform: [{ scale: bug.scale }],
-                opacity: bug.opacity,
+                // opacity: bug.opacity,
               },
             ]}
           >

@@ -37,7 +37,7 @@ const Profile = () => {
       if (token !== null) {
         try {
           const res = await fetch(
-            `http://192.168.115.86:5000/api/v1/earning/chart/${activeTab}`,
+            `https://farm-wizard-api.onrender.com/api/v1/earning/chart/${activeTab}`,
             {
               method: "GET",
               headers: {
