@@ -21,9 +21,14 @@ import hat from "../assets/icons/hat.png";
 import close from "../assets/icons/close.png";
 import cart from "../assets/icons/cart.png";
 
-import paypal from "../assets/icons/paypal.png";
-import telegram from "../assets/icons/telegram.png";
-import binance from "../assets/icons/binance.png";
+import paypal from "../assets/icons/provider/paypal.png";
+import telegram from "../assets/icons/provider/telegram.png";
+import binance from "../assets/icons/provider/binance.png";
+
+import nineMobile from "../assets/icons/provider/9mobile.png";
+import glo from "../assets/icons/provider/glo.png";
+import airtel from "../assets/icons/provider/airtel.png";
+import mtn from "../assets/icons/provider/mtn.png";
 
 export default {
   play,
@@ -52,4 +57,8 @@ export default {
   paypal,
   telegram,
   binance,
+  nineMobile,
+  glo,
+  airtel,
+  mtn,
 };

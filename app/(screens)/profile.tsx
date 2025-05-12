@@ -133,7 +133,7 @@ const Profile = () => {
 
       {/* Chart with Axes */}
       {/* Chart Container */}
-      <View className="mt-4 rounded-2xl w-[90%] px-4 py-5 bg-[#D4B75873]">
+      <View className="mt-4 rounded-2xl w-[90%] px-4 bg-[#D4B75873]">
         <View className="flex-row items-end">
           {/* Y-Axis */}
           <View className="justify-between h-30 p-2">

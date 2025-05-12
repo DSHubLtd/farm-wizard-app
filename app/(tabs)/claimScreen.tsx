@@ -6,14 +6,16 @@ import {
   Image,
   Modal,
   Animated,
-  Pressable,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { icons, images } from "@/constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { router } from "expo-router";
+import { CustomButton, FormField } from "@/components";
+const { height } = Dimensions.get("window");
 
 const tabs = ["Token", "Airtime", "Data bundle"] as const;
 
@@ -44,33 +46,74 @@ const providers = {
   Airtime: [
     {
       name: "MTN",
-      icon: icons.settings,
+      icon: icons.mtn,
       bg: "bg-yellow-600",
     },
     {
       name: "Airtel",
-      icon: icons.settings,
+      icon: icons.airtel,
+      bg: "bg-red-500",
+    },
+    {
+      name: "9Mobile",
+      icon: icons.nineMobile,
+      bg: "bg-red-500",
+    },
+    {
+      name: "Glo",
+      icon: icons.glo,
       bg: "bg-red-500",
     },
   ],
   "Data bundle": [
     {
-      name: "Glo",
-      icon: icons.settings,
-      bg: "bg-green-700",
+      name: "MTN",
+      icon: icons.mtn,
+      bg: "bg-yellow-600",
+    },
+    {
+      name: "Airtel",
+      icon: icons.airtel,
+      bg: "bg-red-500",
     },
     {
       name: "9Mobile",
-      icon: icons.settings,
-      bg: "bg-green-500",
+      icon: icons.nineMobile,
+      bg: "bg-red-500",
+    },
+    {
+      name: "Glo",
+      icon: icons.glo,
+      bg: "bg-red-500",
     },
   ],
 };
+
+const airtimeAmount = [
+  { id: 1, value: 100 },
+  { id: 2, value: 200 },
+  { id: 3, value: 500 },
+  { id: 4, value: 1000 },
+];
+const dataBundle = [
+  { id: 1, value: 1 },
+  { id: 2, value: 2 },
+  { id: 3, value: 3 },
+  { id: 4, value: 4 },
+];
 
 const ClaimScreen = () => {
   const [activeTab, setActiveTab] = useState<keyof typeof providers>("Token");
   const [selectedProvider, setSelectedProvider] = useState<Provider>();
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState("");
+  const [selectedAmount, setSelectedAmount] = useState(0);
+  const [form, setForm] = useState({
+    amount: "",
+    phoneNo: "",
+    data: "",
+  });
+
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   const handleTabChange = (tab: "Token" | "Airtime" | "Data bundle") => {
@@ -96,6 +139,14 @@ const ClaimScreen = () => {
       setModalVisible(false);
       setSelectedProvider(undefined);
     });
+  };
+
+  const handleAmountSelect = (amount: number) => {
+    setSelectedAmount(amount);
+    setForm({ ...form, amount: amount.toString() });
+  };
+  const handleNetworkSelect = (network: string) => {
+    setSelectedNetwork(network);
   };
 
   return (
@@ -128,9 +179,9 @@ const ClaimScreen = () => {
 
       {/* Tabs */}
       <View className="flex-row justify-around space-x-6">
-        {tabs.map((tab) => (
+        {tabs.map((tab, index) => (
           <TouchableOpacity
-            key={tab}
+            key={index}
             onPress={() => handleTabChange(tab)}
             className="flex-row items-center justify-between m-30 p-8 "
           >
@@ -153,29 +204,106 @@ const ClaimScreen = () => {
       </Text>
 
       {/* Provider Buttons */}
-      <ScrollView className="w-[85%]" style={{ height: "auto" }}>
-        {providers[activeTab].map((provider, index) => (
-          <View
-            className="bg-black/20 opacity-90 p-2 mt-1 mb-2 rounded-lg"
-            key={index}
-          >
-            <TouchableOpacity
+      {activeTab === "Token" && (
+        <ScrollView className="w-[85%]" style={{ height: "auto" }}>
+          {providers[activeTab].map((provider, index) => (
+            <View
+              className="bg-black/20 opacity-90 p-2 mt-1 mb-2 rounded-lg"
               key={index}
-              onPress={() => openModal(provider)}
-              className={`flex-row justify-between items-center px-6 py-4 rounded-xl ${provider.bg}`}
             >
-              <Text className="text-white font-semibold text-base">
-                {provider.name}
-              </Text>
-              <Image
-                source={provider.icon}
-                className="w-16 h-16 tint-white"
-                resizeMode="contain"
+              <TouchableOpacity
+                key={index}
+                onPress={() => openModal(provider)}
+                className={`flex-row justify-between items-center px-6 py-4 rounded-xl ${provider.bg}`}
+              >
+                <Text className="text-white font-semibold text-base">
+                  {provider.name}
+                </Text>
+                <Image
+                  source={provider.icon}
+                  className="w-16 h-16 tint-white"
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+      )}
+
+      {(activeTab === "Airtime" || activeTab === "Data bundle") && (
+        <ScrollView className="max-h-80 p-2" style={{ height: height * 0.1 }}>
+          <View className="flex-row justify-around space-x-6">
+            {providers["Airtime"].map((provider, index) => (
+              <ProviderCard
+                key={provider.name || index}
+                provider={provider}
+                index={index}
+                selectedNetwork={selectedNetwork}
+                onNetworkSelect={handleNetworkSelect}
               />
-            </TouchableOpacity>
+            ))}
           </View>
-        ))}
-      </ScrollView>
+          <FormField
+            type="text"
+            placeholder="Enter phone number"
+            title=""
+            value={form.phoneNo}
+            handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+            otherStyles=""
+          />
+          <Text className="text-white text-base font-primary text-center m-2">
+            Amount
+          </Text>
+
+          <View className="flex-row justify-around space-x-6">
+            {activeTab === "Airtime" ? (
+              <>
+                {airtimeAmount.map((amount, index) => (
+                  <AmountCard
+                    type="airtime"
+                    key={amount.id || index}
+                    amount={amount}
+                    index={index}
+                    selectedAmount={selectedAmount}
+                    onAmountSelect={handleAmountSelect}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                {dataBundle.map((amount, index) => (
+                  <AmountCard
+                    type="data"
+                    key={amount.id || index}
+                    amount={amount}
+                    index={index}
+                    selectedAmount={selectedAmount}
+                    onAmountSelect={handleAmountSelect}
+                  />
+                ))}
+              </>
+            )}
+          </View>
+          <FormField
+            type="text"
+            placeholder="Enter amount"
+            title=""
+            value={form.amount}
+            handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+            otherStyles=""
+          />
+          <CustomButton
+            title="Submit "
+            handlePress={() => console.log("submit")}
+            containerStyles="w-full mb-2"
+            textStyles={"font-pbold text-white"}
+            isLoading={false}
+          />
+          <Text className="text-md font-secondary text-white my-2">
+            Airtime / data rewards are available in Nigeria only.
+          </Text>
+        </ScrollView>
+      )}
 
       {/* Popup Modal */}
       <Modal transparent visible={modalVisible} animationType="fade">
@@ -224,6 +352,64 @@ const ClaimScreen = () => {
         </BlurView>
       </Modal>
     </View>
+  );
+};
+
+const ProviderCard = ({
+  provider,
+  index,
+  selectedNetwork,
+  onNetworkSelect,
+}: {
+  provider: any;
+  index: number;
+  selectedNetwork: string;
+  onNetworkSelect: any;
+}) => {
+  return (
+    <TouchableOpacity
+      key={index}
+      onPress={() => onNetworkSelect(provider.name)}
+      className={`m-1 py-1 rounded-xl ${
+        selectedNetwork === provider.name ? "border border-white" : ""
+      }`}
+    >
+      <Image
+        source={provider.icon}
+        className="w-20 h-12"
+        resizeMode="contain"
+      />
+    </TouchableOpacity>
+  );
+};
+
+const AmountCard = ({
+  amount,
+  index,
+  selectedAmount,
+  onAmountSelect,
+  type,
+}: {
+  amount: any;
+  index: number;
+  selectedAmount: number;
+  onAmountSelect: any;
+  type: string;
+}) => {
+  return (
+    <TouchableOpacity
+      key={index}
+      onPress={() => onAmountSelect(amount.value)}
+      className={`bg-black/20 m-1 rounded-lg ${
+        selectedAmount === amount.value ? "border border-white" : ""
+      }`}
+    >
+      <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
+        <Text className="text-white text-md font-bold font-secondary text-center">
+          {type === "airtime" && "N"} {amount.value} {type === "data" && "GB"}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 };
 

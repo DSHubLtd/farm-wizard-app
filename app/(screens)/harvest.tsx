@@ -22,10 +22,12 @@ const Harvest = () => {
       return;
     }
 
-    if (level > 4) {
-      Alert.alert("Warning!!!", "Your level can't be greater than 4");
-      return;
-    }
+    const totalSocre = Number(score) + 500;
+
+    // if (level > 4) {
+    //   Alert.alert("Warning!!!", "Your level can't be greater than 4");
+    //   return;
+    // }
     setSubmitting(true);
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
@@ -34,7 +36,7 @@ const Harvest = () => {
           token,
           plant.name,
           level,
-          Number(score)
+          Number(totalSocre)
         );
 
         if (result.data.success === false) {

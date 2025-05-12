@@ -50,7 +50,7 @@ const SignUp = () => {
       // console.log("Submitting ✅", { ...form, selectedLanguage, selectedCountry });
       setSubmitting(true);
       try {
-        const result = await signUpUser(form.fullName, (form.email).toLowerCase(), form.password, selectedLanguage, selectedCountry);
+        const result = await signUpUser(form.fullName, (form.email).toLowerCase(), form.password, selectedLanguage, selectedCountry, selectedIndex);
         if (result.status !== 200 || result.data.success === false) {
           Alert.alert("Error", result.data.message)
           return;

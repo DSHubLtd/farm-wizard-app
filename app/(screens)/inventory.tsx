@@ -75,7 +75,7 @@ const Inventory = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState(false);
   const [purchaseQty, setPurchaseQty] = useState(1);
-  const [purchaseAmountPerItem, setPurchaseAmountPerItem] = useState(0.5);
+  const [purchaseAmountPerItem, setPurchaseAmountPerItem] = useState(0.99);
   const [totalAmount, setTotalAmount] = useState(
     purchaseQty * purchaseAmountPerItem
   );
@@ -191,8 +191,8 @@ const Inventory = () => {
   const openModal = (item: any) => {
     setSelectedItem(item);
     setPurchaseQty(1);
-    setPurchaseAmountPerItem(0.5);
-    setTotalAmount(0.5);
+    setPurchaseAmountPerItem(0.99);
+    setTotalAmount(0.99);
     // setPurchaseAmountPerItem(item.amount)
     setModalVisible(true);
     Animated.timing(fadeAnim, {
