@@ -16,7 +16,6 @@ const Harvest = () => {
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   let level = parseInt(userLevel as string) + 1;
 
-  console.log("Plant name ", name);
   const updateLevel = async () => {
     if (!plant || !level || !score) {
       Alert.alert("Error", "Some error occurs");
@@ -45,13 +44,17 @@ const Harvest = () => {
           return;
         }
 
-        Alert.alert("Success", "Level updated successfully");
-        setTimeout(() => {
-          router.replace({
-            pathname: "/(screens)/profile",
-            params: { name },
-          });
-        }, 3000);
+        Alert.alert(
+          "Success",
+          "Session completed & level upgraded successfully"
+        );
+        // setUser(json.updatedUser);
+        // setTimeout(() => {
+        //   router.replace({
+        //     pathname: "/(screens)/profile",
+        //     params: { name },
+        //   });
+        // }, 3000);
       } catch (error: any) {
         Alert.alert("Error", error.message);
       } finally {
@@ -75,8 +78,8 @@ const Harvest = () => {
       {/* Title */}
 
       <View className="items-center justify-center my-14">
-        <Text className="text-white text-3xl font-primary">Session</Text>
-        <Text className="text-white text-3xl font-primary">Completed</Text>
+        <Text className="text-white text-3xl font-primary">SESSION</Text>
+        <Text className="text-white text-3xl font-primary">COMPLETED</Text>
 
         <Image
           source={images.sessionComplete}
@@ -92,7 +95,9 @@ const Harvest = () => {
           Total points Earned
         </Text>
 
-        <Text className="text-center text-2xl p-4 text-[#FEDA42]">{score}</Text>
+        <Text className="text-center text-5xl font-bold font-secondary p-4 text-[#FEDA42]">
+          {score}
+        </Text>
         <Text className="text-center text-xl p-4 my-2 text-white">
           Great work today! Your farm flourished under your care — take a
           well-earned rest and return soon to keep the magic growing.
@@ -101,14 +106,14 @@ const Harvest = () => {
         <View className="flex-row justify-between m-3">
           <CustomButton
             title="Keep Going"
-            handlePress={() => router.push("/(screens)/selectSeed")}
+            handlePress={() => router.replace("/(screens)/selectSeed")}
             containerStyles="w-[150px]"
             textStyles={"font-pbold text-white"}
             isLoading={isSubmitting}
           />
           <CustomButton
             title="Exit To Menu"
-            handlePress={() => router.push("/(tabs)/home")}
+            handlePress={() => router.replace("/(tabs)/home")}
             containerStyles="w-[150px]"
             textStyles={"font-pbold text-white"}
             isLoading={isSubmitting}

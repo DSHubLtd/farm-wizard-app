@@ -47,7 +47,6 @@ const Profile = () => {
   }>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [showFlutterwave, setShowFlutterwave] = useState(false);
-  const [showConfirmModal, setConfirmShowModal] = useState(false);
   const [currency, setCurrency] = useState("USD");
   const [usdEquivalent, setUsdEquivalent] = useState<string | null>(null);
   const [exchangeLoading, setExchangeLoading] = useState(false);
@@ -130,7 +129,6 @@ const Profile = () => {
       const json = await res.json();
 
       if (json.success) {
-        setConfirmShowModal(false);
         Alert.alert(
           "Payment Verified",
           `Transaction Ref: ${json.data.tx_ref} and Transaction Id: ${transaction_id} Account upgraded successfully`
@@ -212,7 +210,9 @@ const Profile = () => {
         ) : (
           <CustomButton
             title="Premium Member!"
-            handlePress={() => null}
+            handlePress={() =>
+              Alert.alert("Congratulations", "Your account is premium member")
+            }
             containerStyles="w-[200px]"
             textStyles={"font-pbold text-white"}
             isLoading={false}
