@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, Image, BackHandler, ToastAndroid, Platform } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { View, Image, BackHandler, ToastAndroid, Platform } from "react-native";
 import { icons, images } from "../../constants";
 import { router, useFocusEffect } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { CustomButton } from "../../components";
-import BackgroundImage from "../../components/BackgroundImage";
 import { useLoginContext } from "../../context/LoginProvider";
-import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
-import InterstitialAdComponent from '../../utils/InterstitialAdComponent';
+// import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+// import InterstitialAdComponent from '../../utils/InterstitialAdComponent';
 
 
 export default Home = () => {
@@ -17,7 +16,7 @@ export default Home = () => {
     router.replace('/');
   }
 
-  const isPremiumUser = user?.isPremium === true;
+  // const isPremiumUser = user?.isPremium === true;
   // const isPremiumUser = ['pro', 'vip'].includes(user?.subscriptionLevel);
   // const isPremiumUser = new Date(user?.premiumUntil) > new Date();
   // const [showAd, setShowAd] = useState(true);
@@ -52,7 +51,6 @@ export default Home = () => {
       };
     }, [backPressedOnce])
   )
-
 
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">
@@ -105,7 +103,7 @@ export default Home = () => {
         />
       </View>
 
-      {!isPremiumUser &&
+      {/* {!isPremiumUser &&
         <BannerAd
           unitId={TestIds.BANNER}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
@@ -114,7 +112,7 @@ export default Home = () => {
           }}
           onAdFailedToLoad={(error) => console.error(error)}
         />
-      }
+      } */}
 
     </View>
   );

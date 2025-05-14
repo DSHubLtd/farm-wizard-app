@@ -193,6 +193,7 @@ const PlantScreen = () => {
         spawnBugs();
       }, 5000);
       setScore((s) => Math.min(s + 200, 100000)); // give score after each stage
+      setShowAd(true); //show ads
     }
     if (
       phaseElapsedTime % 25 === 0 && // Every 25 seconds
@@ -587,7 +588,7 @@ const PlantScreen = () => {
         <InterstitialAdComponent
           onClose={() => {
             setShowAd(false); // Hide the component after ad closes
-            console.log("Ad finished!");
+            //console.log("Ad finished!");
           }}
         />
       )}

@@ -56,9 +56,11 @@ const SignUp = () => {
           return;
         }
         Alert.alert("Success", result.data.message);
-        setUser(result.data.user);
-        setIsLogged(true);
-        router.replace("/sign-in");
+        // setUser(result.data.user);
+        // setIsLogged(true);
+        setTimeout(() => {
+          router.replace("/sign-in");
+        }, 2000);
 
       } catch (error) {
         Alert.alert("Error occured", error.message);

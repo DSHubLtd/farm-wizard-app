@@ -126,7 +126,6 @@ const Profile = () => {
     try {
       const res = await fetch(
         `https://farm-wizard-api.onrender.com/api/v1/payment/flutterwave/verify-upgrade-payment/${transaction_id}`
-        // `http://192.168.1.73:5000/api/v1/payment/flutterwave/verify-upgrade-payment/${transaction_id}`
       );
       const json = await res.json();
 
@@ -138,8 +137,10 @@ const Profile = () => {
         );
         //refresh here
         setUser(json.updatedUser);
-        //console.log("updatedUser ", json.updatedUser);
-        router.replace("/(screens)/transactionSuccess");
+        // console.log("updatedUser ", json.updatedUser);
+        setTimeout(() => {
+          router.replace("/(screens)/transactionSuccess");
+        }, 3000);
       } else {
         Alert.alert("Verification Failed", json.message);
       }

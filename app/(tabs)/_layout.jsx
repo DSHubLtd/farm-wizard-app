@@ -1,9 +1,18 @@
 import { Tabs, useRouter } from "expo-router";
 import { icons } from "../../constants";
 import FloatingTabButton from "@/components/FloatingTabButton";
+import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+import { useLoginContext } from "../../context/LoginProvider";
 
 const TabsLayout = () => {
   const router = useRouter();
+
+  const { user } = useLoginContext();
+  if (!user) {
+    router.replace('/');
+  }
+
+  const isPremiumUser = user?.isPremium === true;
 
   return (
     // <Tabs
@@ -57,63 +66,75 @@ const TabsLayout = () => {
     //     }}
     //   />
     // </Tabs>
-    <Tabs
-      screenOptions={{
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: "transparent",
-          elevation: 0,
-          height: 0, // hide native tab bar
-          borderTopWidth: 0,
-        },
-      }}
-    >
-      {/* Center Floating Home FAB */}
-      <Tabs.Screen
-        name="home"
-        options={{
-          headerShown: false,
-          tabBarButton: () => (
-            <FloatingTabButton
-              icon={icons.home}
-              onPress={() => router.push("/(tabs)/home")}
-              style={{ position: "absolute", bottom: 40, left: 170 }}
-            />
-          ),
+    <>
+      <Tabs
+        screenOptions={{
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            position: "absolute",
+            backgroundColor: "transparent",
+            elevation: 0,
+            height: 0, // hide native tab bar
+            borderTopWidth: 0,
+          },
         }}
-      />
+      >
+        {/* Center Floating Home FAB */}
+        <Tabs.Screen
+          name="home"
+          options={{
+            headerShown: false,
+            tabBarButton: () => (
+              <FloatingTabButton
+                icon={icons.home}
+                onPress={() => router.push("/(tabs)/home")}
+                style={{ position: "absolute", bottom: 5, left: 180 }}
+              />
+            ),
+          }}
+        />
 
-      {/* Right-side Floating FAB */}
-      <Tabs.Screen
-        name="profile"
-        options={{
-          headerShown: false,
-          tabBarButton: () => (
-            <FloatingTabButton
-              icon={icons.stats}
-              onPress={() => router.push("/(screens)/profile")}
-              style={{ position: "absolute", bottom: 25, right: 190 }}
-            />
-          ),
-        }}
-      />
+        {/* Right-side Floating FAB */}
+        <Tabs.Screen
+          name="profile"
+          options={{
+            headerShown: false,
+            tabBarButton: () => (
+              <FloatingTabButton
+                icon={icons.stats}
+                onPress={() => router.push("/(screens)/profile")}
+                style={{ position: "absolute", bottom: 25, right: 170 }}
+              />
+            ),
+          }}
+        />
 
-      {/* Left-side Floating FAB (New!) */}
-      <Tabs.Screen
-        name="claimScreen"
-        options={{
-          headerShown: false,
-          tabBarButton: () => (
-            <FloatingTabButton
-              icon={icons.stats}
-              onPress={() => router.push("/settings")}
-              style={{ position: "absolute", bottom: 65, left: 65 }}
-            />
-          ),
-        }}
-      />
-    </Tabs>
+        {/* Left-side Floating FAB (New!) */}
+        <Tabs.Screen
+          name="claimScreen"
+          options={{
+            headerShown: false,
+            tabBarButton: () => (
+              <FloatingTabButton
+                icon={icons.stats}
+                onPress={() => router.push("/settings")}
+                style={{ position: "absolute", bottom: 30, left: 55 }}
+              />
+            ),
+          }}
+        />
+      </Tabs>
+      {!isPremiumUser &&
+        <BannerAd
+          unitId={TestIds.BANNER}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+          onAdFailedToLoad={(error) => console.error(error)}
+        />
+      }
+    </>
 
   );
 };
