@@ -85,14 +85,22 @@ const GameOver = () => {
       </View>
 
       {/* </View> */}
-
-      <CustomButton
-        title="TRY AGAIN"
-        handlePress={() => router.push("/(screens)/selectSeed")}
-        containerStyles="w-[200px]"
-        textStyles={"font-pbold text-white"}
-        isLoading={false}
-      />
+      <View className="flex-row justify-between m-3">
+        <CustomButton
+          title="Go Again"
+          handlePress={() => router.push("/(screens)/selectSeed")}
+          containerStyles="w-[150px]"
+          textStyles={"font-pbold text-white"}
+          isLoading={false}
+        />
+        <CustomButton
+          title="Exit To Menu"
+          handlePress={() => router.push("/(tabs)/home")}
+          containerStyles="w-[150px]"
+          textStyles={"font-pbold text-white"}
+          isLoading={false}
+        />
+      </View>
     </View>
   );
 };

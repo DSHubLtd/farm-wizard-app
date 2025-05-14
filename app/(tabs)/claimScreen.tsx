@@ -8,6 +8,7 @@ import {
   Animated,
   ScrollView,
   Dimensions,
+  Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { icons, images } from "@/constants";
@@ -15,7 +16,10 @@ import BackgroundImage from "@/components/BackgroundImage";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { router } from "expo-router";
 import { CustomButton, FormField } from "@/components";
+import { submitWithdrwal } from "@/services/withdrawal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { height } = Dimensions.get("window");
+import uuid from "react-native-uuid";
 
 const tabs = ["Token", "Airtime", "Data bundle"] as const;
 
@@ -108,6 +112,7 @@ const ClaimScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [selectedAmount, setSelectedAmount] = useState(0);
+  const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     amount: "",
     phoneNo: "",
@@ -149,6 +154,70 @@ const ClaimScreen = () => {
     setSelectedNetwork(network);
   };
 
+  const submitWithdrawal = async () => {
+    const type = activeTab;
+    const reference = `withdraw-${uuid.v4().split("-")[0]}`;
+    const provider = selectedNetwork ? selectedNetwork : selectedProvider?.name;
+    if (
+      (type === "Token" || type === "Data bundle" || type === "Airtime") &&
+      !form.phoneNo
+    ) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    if (type === "Airtime" && !form.amount) {
+      Alert.alert("Error", "Please enter amount");
+      return;
+    }
+    if (type === "Data bundle" && !form.amount) {
+      Alert.alert("Error", "Please enter data balance");
+      return;
+    }
+    if (!provider) {
+      Alert.alert("Error", "Please select provider");
+      return;
+    }
+
+    setSubmitting(true);
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const result = await submitWithdrwal(
+          Number(form.amount),
+          form.phoneNo,
+          provider,
+          type,
+          reference,
+          token
+        );
+        if (result.status !== 200 || result.data.success === false) {
+          Alert.alert("Warning!", result.data.message);
+          // console.log("withdrawal", result.data.withdrawal);
+          setTimeout(() => {
+            router.push({
+              pathname: "/(screens)/requestReceived",
+              params: {
+                createdAt: result.data.withdrawal.createdAt,
+                amount: result.data.withdrawal.amount,
+                reference: result.data.withdrawal.reference,
+              },
+            });
+          }, 2000);
+          return;
+        }
+
+        Alert.alert("Success", result.data.message);
+        setTimeout(() => {
+          router.replace("/(screens)/transactionSuccess");
+        }, 2000);
+      } catch (error: any) {
+        Alert.alert("Error occured", error.message);
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  };
   return (
     <View className="flex-1 bg-green-200 items-center justify-start relative">
       <BackgroundImage
@@ -231,7 +300,7 @@ const ClaimScreen = () => {
       )}
 
       {(activeTab === "Airtime" || activeTab === "Data bundle") && (
-        <ScrollView className="max-h-80 p-2" style={{ height: height * 0.1 }}>
+        <ScrollView className="min-h-50 p-2" style={{ height: height * 0.5 }}>
           <View className="flex-row justify-around space-x-6">
             {providers["Airtime"].map((provider, index) => (
               <ProviderCard
@@ -294,10 +363,10 @@ const ClaimScreen = () => {
           />
           <CustomButton
             title="Submit "
-            handlePress={() => console.log("submit")}
+            handlePress={submitWithdrawal}
             containerStyles="w-full mb-2"
             textStyles={"font-pbold text-white"}
-            isLoading={false}
+            isLoading={isSubmitting}
           />
           <Text className="text-md font-secondary text-white my-2">
             Airtime / data rewards are available in Nigeria only.
@@ -324,25 +393,45 @@ const ClaimScreen = () => {
                 },
               ],
             }}
-            className="bg-white rounded-2xl w-[80%] p-6 items-center shadow-2xl"
+            className="bg-black-200 rounded-2xl w-[80%] p-6 items-center shadow-2xl"
           >
             <Image source={selectedProvider?.icon} className="w-12 h-12 mb-4" />
             <Text className="text-xl font-bold mb-2 text-center">
               {selectedProvider?.name}
             </Text>
-            <Text className="text-gray-600 text-center mb-6">
+            <Text className="text-gray-200 text-center mb-6">
               Are you sure you want to claim via {selectedProvider?.name}?
             </Text>
 
+            <FormField
+              type="text"
+              placeholder="Enter destination address"
+              title=""
+              value={form.phoneNo}
+              handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+              otherStyles=""
+            />
+            <FormField
+              type="number"
+              placeholder="Enter amount"
+              title=""
+              value={form.amount}
+              handleChangeText={(e: any) => setForm({ ...form, amount: e })}
+              otherStyles=""
+            />
+
             <View className="flex-row space-x-4">
+              <CustomButton
+                title="Submit "
+                handlePress={submitWithdrawal}
+                containerStyles="w-[200px]"
+                textStyles={"font-pbold text-white"}
+                isLoading={isSubmitting}
+              />
+            </View>
+            <View className="w-full items-end mt-4">
               <TouchableOpacity
-                className="px-4 py-2 bg-yellow-500 rounded-full"
-                onPress={closeModal}
-              >
-                <Text className="text-white font-semibold">Yes</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="px-4 py-2 bg-gray-300 rounded-full"
+                className="p-3 bg-gray-300 rounded"
                 onPress={closeModal}
               >
                 <Text className="text-black font-semibold">Cancel</Text>

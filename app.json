@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.avvas.farmwizardapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +37,14 @@
           "resizeMode": "cover",
           "enableFullScreenImage_legacy": true
         }
+      ],[
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1212119204655845~2403345596",
+          "iosAppId": "ca-app-pub-1212119204655845~8286227661"
+        }
       ]
+      
     ],
     "experiments": {
       "typedRoutes": true

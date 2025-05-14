@@ -348,7 +348,7 @@ const Inventory = () => {
                       <HomeIcon size={18} color={"#fff"} />
                     </View>
                     <Text className="text-white text-2xl font-semibold">
-                      {totalAmount}
+                      {totalAmount.toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -448,7 +448,7 @@ const Inventory = () => {
                 </Picker>
               </View>
             </TouchableWithoutFeedback>
-            {!usdEquivalent ? (
+            {!usdEquivalent || exchangeLoading ? (
               <Text style={{ marginBottom: 10 }}>Loading...</Text>
             ) : (
               <>

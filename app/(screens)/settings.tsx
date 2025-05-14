@@ -54,6 +54,7 @@ const Settings = () => {
       Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
+      router.replace("/");
     }
   };
 

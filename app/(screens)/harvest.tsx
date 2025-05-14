@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BackgroundImage from "@/components/BackgroundImage";
 import { images } from "@/constants";
 import { View, Text, Image, Dimensions, Alert } from "react-native";
@@ -16,6 +16,7 @@ const Harvest = () => {
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   let level = parseInt(userLevel as string) + 1;
 
+  console.log("Plant name ", name);
   const updateLevel = async () => {
     if (!plant || !level || !score) {
       Alert.alert("Error", "Some error occurs");
@@ -59,6 +60,10 @@ const Harvest = () => {
     }
   };
 
+  useEffect(() => {
+    updateLevel();
+  }, []);
+
   return (
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
       {/* Background */}
@@ -84,17 +89,39 @@ const Harvest = () => {
         />
 
         <Text className="text-center text-xl p-4 my-2 text-white">
+          Total points Earned
+        </Text>
+
+        <Text className="text-center text-2xl p-4 text-[#FEDA42]">{score}</Text>
+        <Text className="text-center text-xl p-4 my-2 text-white">
           Great work today! Your farm flourished under your care — take a
           well-earned rest and return soon to keep the magic growing.
         </Text>
 
-        <CustomButton
+        <View className="flex-row justify-between m-3">
+          <CustomButton
+            title="Keep Going"
+            handlePress={() => router.push("/(screens)/selectSeed")}
+            containerStyles="w-[150px]"
+            textStyles={"font-pbold text-white"}
+            isLoading={isSubmitting}
+          />
+          <CustomButton
+            title="Exit To Menu"
+            handlePress={() => router.push("/(tabs)/home")}
+            containerStyles="w-[150px]"
+            textStyles={"font-pbold text-white"}
+            isLoading={isSubmitting}
+          />
+        </View>
+
+        {/* <CustomButton
           title="Harvest"
           handlePress={updateLevel}
           containerStyles="w-[200px] mb-1"
           textStyles={"font-pbold text-white"}
           isLoading={isSubmitting}
-        />
+        /> */}
       </View>
     </View>
   );

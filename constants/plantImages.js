@@ -52,6 +52,32 @@ import pawpawSick2 from "../assets/plant-growth/sick/Orange/2.png";
 import pawpawSick3 from "../assets/plant-growth/sick/Orange/3.png";
 import pawpawSick4 from "../assets/plant-growth/sick/Orange/4.png";
 
+// Rain growing plants
+import appleRain1 from "../assets/plant-growth/Rain/Apple/1.png";
+import appleRain2 from "../assets/plant-growth/Rain/Apple/2.png";
+import appleRain3 from "../assets/plant-growth/Rain/Apple/3.png";
+import appleRain4 from "../assets/plant-growth/Rain/Apple/4.png";
+
+import maizeRain1 from "../assets/plant-growth/Rain/Maize/1.png";
+import maizeRain2 from "../assets/plant-growth/Rain/Maize/2.png";
+import maizeRain3 from "../assets/plant-growth/Rain/Maize/3.png";
+import maizeRain4 from "../assets/plant-growth/Rain/Maize/4.png";
+
+import mongoRain1 from "../assets/plant-growth/Rain/Mongo/1.png";
+import mongoRain2 from "../assets/plant-growth/Rain/Mongo/2.png";
+import mongoRain3 from "../assets/plant-growth/Rain/Mongo/3.png";
+import mongoRain4 from "../assets/plant-growth/Rain/Mongo/4.png";
+
+import orangeRain1 from "../assets/plant-growth/Rain/Orange/1.png";
+import orangeRain2 from "../assets/plant-growth/Rain/Orange/2.png";
+import orangeRain3 from "../assets/plant-growth/Rain/Orange/3.png";
+import orangeRain4 from "../assets/plant-growth/Rain/Orange/4.png";
+
+import pawpawRain1 from "../assets/plant-growth/Rain/PawPaw/1.png";
+import pawpawRain2 from "../assets/plant-growth/Rain/PawPaw/2.png";
+import pawpawRain3 from "../assets/plant-growth/Rain/PawPaw/3.png";
+import pawpawRain4 from "../assets/plant-growth/Rain/PawPaw/4.png";
+
 export default {
   apple1,
   apple2,
@@ -102,4 +128,29 @@ export default {
   pawpawSick2,
   pawpawSick3,
   pawpawSick4,
+
+  appleRain1,
+  appleRain2,
+  appleRain3,
+  appleRain4,
+
+  maizeRain1,
+  maizeRain2,
+  maizeRain3,
+  maizeRain4,
+
+  mongoRain1,
+  mongoRain2,
+  mongoRain3,
+  mongoRain4,
+
+  orangeRain1,
+  orangeRain2,
+  orangeRain3,
+  orangeRain4,
+
+  pawpawRain1,
+  pawpawRain2,
+  pawpawRain3,
+  pawpawRain4,
 };

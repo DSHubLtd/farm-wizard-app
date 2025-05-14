@@ -18,6 +18,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserPlantLevel } from "@/services/user";
 import { Image as ExpoImage } from "expo-image";
 import { getUserPIventory, updateInventory } from "@/services/userInventory";
+import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
+import { useLoginContext } from "@/context/LoginProvider";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -26,6 +28,11 @@ const SEASON_DURATION = 200; // seconds per season
 
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
+  const { user } = useLoginContext();
+  if (!user) {
+    router.replace("/");
+  }
+  const isPremiumUser = user?.isPremium === true;
 
   const [userInventory, setUserInventory] = useState({
     fertilizerQty: 0,
@@ -35,7 +42,8 @@ const PlantScreen = () => {
   const [userLevel, setUserLevel] = useState(1);
   const MAX_BUGS = userLevel; //2;
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
-  const plantImages = plant.plantImages;
+  const plantImages = plant.plantImages; // Healthy (Normal session)
+  const plantRainImages = plant.plantRainImages; // Rain (raining session)
   const plantSickImages = plant.plantSickImages;
 
   const plantScale = useRef(new Animated.Value(1)).current;
@@ -85,7 +93,10 @@ const PlantScreen = () => {
     const seasonIndex = Math.floor(elapsed / SEASON_DURATION); // 0, 1, or 2
     return SEASONS[seasonIndex] || "normal"; // fallback
   };
-  const [currentSeason, setCurrentSeason] = useState(getCurrentSeason());
+  const [currentSeason, setCurrentSeason] = useState<
+    "normal" | "dry" | "raining"
+  >(getCurrentSeason() as "normal" | "dry" | "raining");
+  const [showAd, setShowAd] = useState(true);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -244,14 +255,19 @@ const PlantScreen = () => {
     }
 
     const season = getCurrentSeason();
-    setCurrentSeason(season);
+    setCurrentSeason(season as "normal" | "dry" | "raining");
     const now = Date.now();
 
     if (season === "raining") {
       // Boost growth, maybe reduce need for watering
       // setGrowthMultiplier(1.5); // Optional state
       // if (!lastThreatTime || now - lastThreatTime > 40000) {
-      //setActiveThreat({ type: "storm", resolved: false, createdAt: Date.now() });
+      // setActiveThreat({
+      //   type: "storm",
+      //   resolved: false,
+      //   createdAt: Date.now(),
+      // });
+      // spawnBugs();
       //   setLastThreatTime(now);
     }
     //}
@@ -259,11 +275,6 @@ const PlantScreen = () => {
       // Slow growth, increase disease
       // setGrowthMultiplier(0.5);
       // if (!lastThreatTime || now - lastThreatTime > 30000) {
-      setActiveThreat({
-        type: "disease",
-        resolved: false,
-        createdAt: Date.now(),
-      });
       //   setLastThreatTime(now);
       // }
       // setWateringDisabled(true); // Optional
@@ -571,6 +582,16 @@ const PlantScreen = () => {
         />
       )}
 
+      {/* control show ads  */}
+      {showAd && !isPremiumUser && (
+        <InterstitialAdComponent
+          onClose={() => {
+            setShowAd(false); // Hide the component after ad closes
+            console.log("Ad finished!");
+          }}
+        />
+      )}
+
       {/* Bugs */}
       {bugs.map((bug) => {
         const angleWithOffset = Animated.add(
@@ -659,7 +680,7 @@ const PlantScreen = () => {
       <View className="absolute top-28 left-0 right-0 items-center">
         <Text className="text-white text-3xl font-bold">{score}</Text>
 
-        <Text className="text-2xl text-gray-500">
+        <Text className="text-2xl text-gray-700">
           Current Season: {currentSeason.toUpperCase()}
         </Text>
         <Text className="text-3xl text-yellow-500">
@@ -770,6 +791,8 @@ const PlantScreen = () => {
           source={
             plantDamaged
               ? plantSickImages[getPlantStage()]
+              : currentSeason === "raining"
+              ? plantRainImages[getPlantStage()]
               : plantImages[getPlantStage()]
           }
           className={`w-48 `}

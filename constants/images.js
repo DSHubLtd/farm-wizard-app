@@ -39,6 +39,9 @@ import bgDry from "../assets/plant-growth/background-dry.png";
 import bgRainfall from "../assets/plant-growth/bg-rainfall.png";
 import storm from "../assets/plant-growth/storm.gif";
 
+import success from "../assets/images/success.png";
+import requestPending from "../assets/images/request-pending.png";
+
 export default {
   profile,
   thumbnail,
@@ -78,4 +81,6 @@ export default {
   gameOver,
   sessionComplete,
   sessionStarted,
+  success,
+  requestPending,
 };

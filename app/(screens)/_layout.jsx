@@ -16,6 +16,8 @@ export default function ScreenLayout() {
       <Stack.Screen name="payPalCheckout" />
       <Stack.Screen name="sessionStarted" />
       <Stack.Screen name="payStackCheckout" />
+      <Stack.Screen name="transactionSuccess" />
+      <Stack.Screen name="requestReceived" />
     </Stack>
   );
 }

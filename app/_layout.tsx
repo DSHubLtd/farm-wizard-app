@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
-import "../global.css";
+import mobileAds from "react-native-google-mobile-ads";
 import LoginProvider from "@/context/LoginProvider";
 import CutomSplashScreen from "@/components/CutomSplashScreen";
+import "../global.css";
 
 // Keep the native splash until we're ready
 // SplashScreen.preventAutoHideAsync();
@@ -26,6 +27,11 @@ const RootLayout = () => {
   const [isAppReady, setAppReady] = useState(false);
 
   useEffect(() => {
+    // Initialize once at app startup
+    mobileAds()
+      .initialize()
+      .then(() => console.log("AdMob initialized"));
+
     if (error) throw error;
 
     if (fontsLoaded) {

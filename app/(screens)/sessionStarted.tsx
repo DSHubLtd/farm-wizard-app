@@ -47,9 +47,8 @@ const SessionStarted = () => {
             paddingHorizontal: 10,
           }}
         >
-          Welcome back, Wizard! The fields await your touch — sprouts are
-          stirring, and magic hums through the soil. Let’s grow something
-          wonderful today!
+          Welcome, Wizard! The fields await your touch — sprouts are stirring,
+          and magic hums through the soil. Let’s grow something wonderful today!
         </Text>
       </View>
 

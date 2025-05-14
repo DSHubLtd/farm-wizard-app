@@ -77,7 +77,7 @@ const TabsLayout = () => {
           tabBarButton: () => (
             <FloatingTabButton
               icon={icons.home}
-              onPress={() => router.push("/home")}
+              onPress={() => router.push("/(tabs)/home")}
               style={{ position: "absolute", bottom: 40, left: 170 }}
             />
           ),

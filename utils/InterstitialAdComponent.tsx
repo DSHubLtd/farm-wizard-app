@@ -1,0 +1,47 @@
+import { useEffect } from "react";
+import {
+  InterstitialAd as InterstitialAdModule,
+  AdEventType,
+  TestIds,
+} from "react-native-google-mobile-ads";
+
+interface Props {
+  onClose?: () => void;
+  adUnitId?: string;
+}
+
+const InterstitialAdComponent = ({
+  onClose,
+  adUnitId = TestIds.INTERSTITIAL,
+}: Props) => {
+  useEffect(() => {
+    const interstitial = InterstitialAdModule.createForAdRequest(adUnitId, {
+      requestNonPersonalizedAdsOnly: true,
+    });
+
+    const unsubscribeLoaded = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        interstitial.show();
+      }
+    );
+
+    const unsubscribeClosed = interstitial.addAdEventListener(
+      AdEventType.CLOSED,
+      () => {
+        if (onClose) onClose();
+      }
+    );
+
+    interstitial.load();
+
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeClosed();
+    };
+  }, []);
+
+  return null; // No UI needed
+};
+
+export default InterstitialAdComponent;
