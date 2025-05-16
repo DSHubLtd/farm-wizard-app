@@ -20,6 +20,7 @@ import { submitWithdrwal } from "@/services/withdrawal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const { height } = Dimensions.get("window");
 import uuid from "react-native-uuid";
+import { useLoginContext } from "@/context/LoginProvider";
 
 const tabs = ["Token", "Airtime", "Data bundle"] as const;
 
@@ -107,6 +108,10 @@ const dataBundle = [
 ];
 
 const ClaimScreen = () => {
+  const { user } = useLoginContext();
+  if (!user) {
+    router.replace("/");
+  }
   const [activeTab, setActiveTab] = useState<keyof typeof providers>("Token");
   const [selectedProvider, setSelectedProvider] = useState<Provider>();
   const [modalVisible, setModalVisible] = useState(false);
@@ -239,9 +244,11 @@ const ClaimScreen = () => {
       {/* Balance Box */}
       <View className="bg-black/20 opacity-90 flex flex-row justify-center items-center p-2 rounded-lg">
         <View className="px-6 py-2 bg-[#E0C145B8] rounded-xl">
-          <Text className="text-white text-sm text-center">USD 0.00</Text>
+          <Text className="text-white text-sm text-center">
+            USD {user.score}
+          </Text>
           <Text className="text-white/80 text-xs text-center">
-            1000 = 0.01 USD
+            1000 = 0.00001 USD
           </Text>
         </View>
       </View>
@@ -299,80 +306,85 @@ const ClaimScreen = () => {
         </ScrollView>
       )}
 
-      {(activeTab === "Airtime" || activeTab === "Data bundle") && (
-        <ScrollView className="min-h-50 p-2" style={{ height: height * 0.5 }}>
-          <View className="flex-row justify-around space-x-6">
-            {providers["Airtime"].map((provider, index) => (
-              <ProviderCard
-                key={provider.name || index}
-                provider={provider}
-                index={index}
-                selectedNetwork={selectedNetwork}
-                onNetworkSelect={handleNetworkSelect}
-              />
-            ))}
-          </View>
-          <FormField
-            type="text"
-            placeholder="Enter phone number"
-            title=""
-            value={form.phoneNo}
-            handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-            otherStyles=""
-          />
-          <Text className="text-white text-base font-primary text-center m-2">
-            Amount
-          </Text>
+      {(activeTab === "Airtime" || activeTab === "Data bundle") &&
+        (user?.country === "ng" ? (
+          <ScrollView className="min-h-50 p-2" style={{ height: height * 0.5 }}>
+            <View className="flex-row justify-around space-x-6">
+              {providers["Airtime"].map((provider, index) => (
+                <ProviderCard
+                  key={provider.name || index}
+                  provider={provider}
+                  index={index}
+                  selectedNetwork={selectedNetwork}
+                  onNetworkSelect={handleNetworkSelect}
+                />
+              ))}
+            </View>
+            <FormField
+              type="text"
+              placeholder="Enter phone number"
+              title=""
+              value={form.phoneNo}
+              handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+              otherStyles=""
+            />
+            <Text className="text-white text-base font-primary text-center m-2">
+              Amount
+            </Text>
 
-          <View className="flex-row justify-around space-x-6">
-            {activeTab === "Airtime" ? (
-              <>
-                {airtimeAmount.map((amount, index) => (
-                  <AmountCard
-                    type="airtime"
-                    key={amount.id || index}
-                    amount={amount}
-                    index={index}
-                    selectedAmount={selectedAmount}
-                    onAmountSelect={handleAmountSelect}
-                  />
-                ))}
-              </>
-            ) : (
-              <>
-                {dataBundle.map((amount, index) => (
-                  <AmountCard
-                    type="data"
-                    key={amount.id || index}
-                    amount={amount}
-                    index={index}
-                    selectedAmount={selectedAmount}
-                    onAmountSelect={handleAmountSelect}
-                  />
-                ))}
-              </>
-            )}
-          </View>
-          <FormField
-            type="text"
-            placeholder="Enter amount"
-            title=""
-            value={form.amount}
-            handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-            otherStyles=""
-          />
-          <CustomButton
-            title="Submit "
-            handlePress={submitWithdrawal}
-            containerStyles="w-full mb-2"
-            textStyles={"font-pbold text-white"}
-            isLoading={isSubmitting}
-          />
-          <Text className="text-md font-secondary text-white my-2">
-            Airtime / data rewards are available in Nigeria only.
+            <View className="flex-row justify-around space-x-6">
+              {activeTab === "Airtime" ? (
+                <>
+                  {airtimeAmount.map((amount, index) => (
+                    <AmountCard
+                      type="airtime"
+                      key={amount.id || index}
+                      amount={amount}
+                      index={index}
+                      selectedAmount={selectedAmount}
+                      onAmountSelect={handleAmountSelect}
+                    />
+                  ))}
+                </>
+              ) : (
+                <>
+                  {dataBundle.map((amount, index) => (
+                    <AmountCard
+                      type="data"
+                      key={amount.id || index}
+                      amount={amount}
+                      index={index}
+                      selectedAmount={selectedAmount}
+                      onAmountSelect={handleAmountSelect}
+                    />
+                  ))}
+                </>
+              )}
+            </View>
+            <FormField
+              type="text"
+              placeholder="Enter amount"
+              title=""
+              value={form.amount}
+              handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+              otherStyles=""
+            />
+            <CustomButton
+              title="Submit "
+              handlePress={submitWithdrawal}
+              containerStyles="w-full mb-2"
+              textStyles={"font-pbold text-white"}
+              isLoading={isSubmitting}
+            />
+            <Text className="text-md font-secondary text-white my-2">
+              Airtime / data rewards are available in Nigeria only.
+            </Text>
+          </ScrollView>
+        ) : (
+          <Text className="text-white text-base font-primary my-40 ">
+            This service is not avaialabel in your region
           </Text>
-        </ScrollView>
-      )}
+        ))}
 
       {/* Popup Modal */}
       <Modal transparent visible={modalVisible} animationType="fade">

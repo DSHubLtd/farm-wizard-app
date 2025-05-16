@@ -190,25 +190,50 @@ const Profile = () => {
           // className="w-[50%] aspect-square max-w-[200px] "
           className="w-[80px] h-[80px] md:w-48 md:h-48"
         />
-        <Text className="text-white font-secondary text-lg">
+        <Text className="text-white font-secondary text-xl text-center">
           {user.fullName}
-        </Text>
-        <Text className="text-yellow-300 font-secondary text-base">
-          {user?.score || 0}
         </Text>
       </View>
 
       <View>
         {!isPremiumUser ? (
-          <CustomButton
-            title="Upgrade To premium "
-            handlePress={openModal}
-            containerStyles="w-[200px]"
-            textStyles={"font-pbold text-white"}
-            isLoading={false}
-          />
+          <>
+            <View className="flex-row justify-center items-center">
+              <Image
+                source={images.nonPremimuUser}
+                resizeMode="contain"
+                style={{ height: 40, width: 40 }}
+              />
+              <Text className="text-white font-secondary text-lg">
+                Humble Farmstead
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => openModal()}>
+              <Text className="text-center text-buttonColor underline">
+                Upgrade To premium
+              </Text>
+            </TouchableOpacity>
+            {/* <CustomButton
+              title="Upgrade To premium "
+              handlePress={openModal}
+              containerStyles="w-[200px]"
+              textStyles={"font-pbold text-white"}
+              isLoading={false}
+            /> */}
+          </>
         ) : (
-          <CustomButton
+          <>
+            <View className="flex-row justify-center items-center">
+              <Image
+                source={images.premimUser}
+                resizeMode="contain"
+                style={{ height: 30, width: 40 }}
+              />
+              <Text className="text-white font-secondary text-lg">
+                Enchanted Farmer
+              </Text>
+            </View>
+            {/* <CustomButton
             title="Premium Member!"
             handlePress={() =>
               Alert.alert("Congratulations", "Your account is premium member")
@@ -216,9 +241,13 @@ const Profile = () => {
             containerStyles="w-[200px]"
             textStyles={"font-pbold text-white"}
             isLoading={false}
-          />
+          /> */}
+          </>
         )}
       </View>
+      <Text className="text-yellow-300 font-secondary text-base my-2">
+        {user?.score || 0}
+      </Text>
 
       {/* Tabs */}
       <View className="w-[90%] flex-row justify-around mt-2 ">

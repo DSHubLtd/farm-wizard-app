@@ -7,10 +7,15 @@ import { router, useLocalSearchParams } from "expo-router";
 import { plantGrowth } from "@/constants/plants";
 import { updatePlantLevels } from "@/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLoginContext } from "@/context/LoginProvider";
 
 const { width, height } = Dimensions.get("window");
 
 const Harvest = () => {
+  const { user, setUser } = useLoginContext();
+  if (!user) {
+    router.replace("/");
+  }
   const [isSubmitting, setSubmitting] = useState(false);
   const { name, userLevel, score } = useLocalSearchParams();
   const plant = plantGrowth.filter((plant) => plant.name === name)[0];
@@ -43,12 +48,12 @@ const Harvest = () => {
           Alert.alert("Error", result.data.message);
           return;
         }
-
-        Alert.alert(
-          "Success",
-          "Session completed & level upgraded successfully"
-        );
-        // setUser(json.updatedUser);
+        // Alert.alert(
+        //   "Success",
+        //   "Session completed & level upgraded successfully"
+        // );
+        setUser(result.data.updateUser);
+        console.log("Harvest result ", result.data);
         // setTimeout(() => {
         //   router.replace({
         //     pathname: "/(screens)/profile",

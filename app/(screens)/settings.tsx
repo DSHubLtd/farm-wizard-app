@@ -8,13 +8,13 @@ import {
   Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
+// import * as Updates from "expo-updates";
 import { icons, images } from "../../constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { signOut } from "../../services/auth";
 import { useLoginContext } from "@/context/LoginProvider";
-
 const settingsOptions = [
   {
     label: "Get special rewards",
@@ -40,7 +40,6 @@ const Settings = () => {
 
   const logOut = async () => {
     setSubmitting(true);
-
     try {
       const result = await signOut();
       if (!result) {
@@ -49,12 +48,12 @@ const Settings = () => {
       }
       Alert.alert("Success", "User signout in successfully");
       setIsLogged(false);
-      router.replace("/");
     } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
       router.replace("/");
+      // Updates.reloadAsync()r; // force app reload
     }
   };
 

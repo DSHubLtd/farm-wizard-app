@@ -57,7 +57,7 @@ export default function Index() {
           handlePress={() => router.push("/sign-in")}
           containerStyles="w-full"
           textStyles={"font-pbold text-white"}
-        // isLoading={loading}
+          isLoading={loading}
         />
       </View>
 

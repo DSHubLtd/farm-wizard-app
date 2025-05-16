@@ -24,8 +24,11 @@ import { useLoginContext } from "@/context/LoginProvider";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
 const PHASE_DURATION = 150; // 2.5 minutes
-const SEASON_DURATION = 200; // seconds per season
+//const SEASON_DURATION = 200; // seconds per season
+const SEASON_DURATION = TEN_MINUTES / 3;
 
+const SEASONS = ["normal", "dry", "raining"] as const;
+type SeasonType = (typeof SEASONS)[number];
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
   const { user } = useLoginContext();
@@ -49,7 +52,6 @@ const PlantScreen = () => {
   const plantScale = useRef(new Animated.Value(1)).current;
   const [showPopup, setShowPopup] = useState(false);
   const [popupText, setPopupText] = useState("");
-  const [bugs, setBugs] = useState<any[]>([]);
 
   const [timeLeft, setTimeLeft] = useState(TEN_MINUTES); // in seconds
   const [isTimerActive, setIsTimerActive] = useState(false);
@@ -59,12 +61,8 @@ const PlantScreen = () => {
     resolved: boolean;
     createdAt: number;
   }>(null);
-  const [lastBugPhase, setLastBugPhase] = useState<number | string | null>(
-    null
-  );
-  const [bugSpawnTime, setBugSpawnTime] = useState<number | null>(null);
+
   const [plantDamaged, setPlantDamaged] = useState(false);
-  const [plantDamagedTime, setPlantDamagedTime] = useState<number | null>(null);
   const [spraySound, setSpraySound] = useState<Audio.Sound | null>(null);
   const [fertilizerSound, setFertilizerSound] = useState<Audio.Sound | null>(
     null
@@ -76,26 +74,18 @@ const PlantScreen = () => {
   const waterAnim = useRef(new Animated.Value(0)).current;
   const [fertilizing, setFertilizing] = useState(false);
   const fertAnim = useRef(new Animated.Value(0)).current;
-  const [harvest, setHarvest] = useState(false);
   const [loading, setLoading] = useState(true);
   const [invloading, setInvLoading] = useState(true);
   const SEASONS = ["normal", "dry", "raining"];
 
-  const getPhaseInfo = () => {
-    const elapsed = TEN_MINUTES - timeLeft;
-    const currentStage = Math.floor(elapsed / PHASE_DURATION); // 0 to 3
-    const phaseElapsedTime = elapsed % PHASE_DURATION; // 0 to 150
-    return { currentStage, phaseElapsedTime };
-  };
-  const getPlantStage = () => getPhaseInfo().currentStage;
-  const getCurrentSeason = () => {
-    const elapsed = TEN_MINUTES - timeLeft;
-    const seasonIndex = Math.floor(elapsed / SEASON_DURATION); // 0, 1, or 2
-    return SEASONS[seasonIndex] || "normal"; // fallback
-  };
-  const [currentSeason, setCurrentSeason] = useState<
-    "normal" | "dry" | "raining"
-  >(getCurrentSeason() as "normal" | "dry" | "raining");
+  const [plantHealth, setPlantHealth] = useState(100);
+  const [waterLevel, setWaterLevel] = useState(100);
+  const [nutrientLevel, setNutrientLevel] = useState(100);
+
+  const [isDead, setIsDead] = useState(false);
+
+  const [currentSeason, setCurrentSeason] = useState<SeasonType>("normal");
+
   const [showAd, setShowAd] = useState(true);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
@@ -161,7 +151,26 @@ const PlantScreen = () => {
     }
   };
 
-  // COUNTDOWN + THREAT TRACKING
+  const getPhaseInfo = () => {
+    const elapsed = TEN_MINUTES - timeLeft;
+    const currentStage = Math.floor(elapsed / PHASE_DURATION); // 0 to 3
+    const phaseElapsedTime = elapsed % PHASE_DURATION; // 0 to 150
+    return { currentStage, phaseElapsedTime };
+  };
+  const getPlantStage = () => getPhaseInfo().currentStage;
+
+  const getCurrentSeason = (): SeasonType => {
+    const elapsed = TEN_MINUTES - timeLeft;
+    const seasonIndex = Math.floor(elapsed / SEASON_DURATION) % SEASONS.length;
+    return (SEASONS[seasonIndex] as SeasonType) || "normal";
+  };
+
+  const getThreatChance = (season: SeasonType) => {
+    if (season === "dry") return 0.2;
+    if (season === "raining") return 0.15;
+    return 0.1;
+  };
+
   useEffect(() => {
     if (!isTimerActive) return;
 
@@ -169,123 +178,108 @@ const PlantScreen = () => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          setIsTimerActive(false); // Stops future intervals
-          //setShowSummary(true); // Or trigger harvest
           return 0;
         }
         return prev - 1;
       });
+
+      setCurrentSeason(getCurrentSeason());
+      handlePlantLifeCycle();
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isTimerActive]);
+  }, [isTimerActive, waterLevel, nutrientLevel]);
 
-  // WEATHER THREAT + RESPONSE POINT TRACKER
-  useEffect(() => {
-    if (!isTimerActive) return;
-
-    const { currentStage, phaseElapsedTime } = getPhaseInfo();
-
-    // Trigger bugs at start of each phase (5s delay to look natural)
-    if (phaseElapsedTime === 0 && lastBugPhase !== currentStage) {
-      setLastBugPhase(currentStage); // Prevent re-spawning in same phase
-      setTimeout(() => {
-        spawnBugs();
-      }, 5000);
-      setScore((s) => Math.min(s + 200, 100000)); // give score after each stage
-      setShowAd(true); //show ads
-    }
-    if (
-      phaseElapsedTime % 25 === 0 && // Every 25 seconds
-      bugs.length === 0 &&
-      !bugSpawnTime &&
-      lastBugPhase !== `${currentStage}-${phaseElapsedTime}` // Ensure no double-spawn
-    ) {
-      setLastBugPhase(`${currentStage}-${phaseElapsedTime}`); // Store to prevent multiple spawns
-      spawnBugs();
-    }
-
-    if (phaseElapsedTime === 60 && !activeThreat) {
-      const threatType = Math.random() > 0.5 ? "disease" : "storm";
-      setActiveThreat({
-        type: threatType,
-        resolved: false,
-        createdAt: Date.now(),
-      });
-    }
-
-    // Threat expires if not resolved within 40s (no need now)
-    /*if (
-      activeThreat &&
-      !activeThreat.resolved &&
-      Date.now() - activeThreat.createdAt > 40000
-    ) {
-      setActiveThreat(null); // threat expired
-    }*/
-
-    // Check if bugs have lived too long
-    if (bugSpawnTime && bugs.length > 0) {
-      const bugAge = Date.now() - bugSpawnTime;
-
-      if (bugAge > 30000) {
-        // More than 30s → apply penalty once
-        setScore((s) => Math.max(s - 50, 0));
-        setBugSpawnTime(null);
-        setPlantDamaged(true); // trigger damage effect
-        //setTimeLeft((prev) => prev + 10); // delay growth by 10s (optional)
-        //setPlantLevel((prev)=> prev -1); // reduce plant level (optional)
-        setPlantDamagedTime(Date.now());
-        handleToolUse("Bugs damaged your plant! -50 pts");
-        // Reset damage effect after short delay
-        //setTimeout(() => setPlantDamaged(false), 40000);
-      }
-    }
-    if (plantDamagedTime && Date.now() - plantDamagedTime > 40000) {
-      router.replace("/(screens)/gameOver");
-    }
-    // harvest time
-    if (timeLeft === 1 || getPlantStage() > 3) {
-      setIsTimerActive(false);
-      setHarvest(true);
-      handleToolUse("Harvest time");
-      setBugs([]);
-      router.replace({
-        pathname: "/(screens)/harvest",
-        params: { name, score, userLevel },
-      });
-    }
-
-    const season = getCurrentSeason();
-    setCurrentSeason(season as "normal" | "dry" | "raining");
+  const handlePlantLifeCycle = () => {
     const now = Date.now();
 
-    if (season === "raining") {
-      // Boost growth, maybe reduce need for watering
-      // setGrowthMultiplier(1.5); // Optional state
-      // if (!lastThreatTime || now - lastThreatTime > 40000) {
-      // setActiveThreat({
-      //   type: "storm",
-      //   resolved: false,
-      //   createdAt: Date.now(),
-      // });
-      // spawnBugs();
-      //   setLastThreatTime(now);
-    }
-    //}
-    if (season === "dry") {
-      // Slow growth, increase disease
-      // setGrowthMultiplier(0.5);
-      // if (!lastThreatTime || now - lastThreatTime > 30000) {
-      //   setLastThreatTime(now);
-      // }
-      // setWateringDisabled(true); // Optional
+    // Decay logic
+    const waterDecay =
+      currentSeason === "dry" ? 5 : currentSeason === "normal" ? 3 : 1;
+    const nutrientDecay = currentSeason === "raining" ? 2 : 1;
+
+    setWaterLevel((prev) => Math.max(0, prev - waterDecay));
+    setNutrientLevel((prev) => Math.max(0, prev - nutrientDecay));
+
+    // Health penalties
+    if (waterLevel < 20) {
+      setPlantHealth((h) => Math.max(0, h - 5));
+      handleToolUse("⚠️ Your plant is drying out!");
+      setPlantDamaged(true);
     }
 
-    if (season === "normal") {
-      // setGrowthMultiplier(1);
-      // Standard threat logic
+    if (nutrientLevel < 20) {
+      setPlantHealth((h) => Math.max(0, h - 3));
+      handleToolUse("⚠️ Your plant lacks nutrients!");
+      setPlantDamaged(true);
     }
-  }, [timeLeft]);
+
+    // Threat logic
+    if (activeThreat) {
+      const timeSinceThreat = now - activeThreat.createdAt;
+
+      if (!activeThreat.resolved) {
+        if (activeThreat.type === "disease" && timeSinceThreat > 10000) {
+          // Ongoing health drain
+          setPlantHealth((h) => Math.max(0, h - 10));
+          handleToolUse("☠️ Disease is hurting your plant!");
+          setPlantDamaged(true);
+        }
+
+        if (activeThreat.type === "storm" && timeSinceThreat > 5000) {
+          // One-time hit
+          setPlantHealth((h) => Math.max(0, h - 25));
+          handleToolUse("🌩️ Storm hit your plant!");
+          //setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
+          setPlantDamaged(true);
+        }
+      }
+    } else {
+      // Maybe spawn new threat
+      if (Math.random() < getThreatChance(currentSeason)) {
+        const type = Math.random() > 0.5 ? "disease" : "storm";
+        setActiveThreat({
+          type,
+          resolved: false,
+          createdAt: now,
+        });
+        handleToolUse(`⚠️ A ${type} has appeared! Respond quickly!`);
+      }
+    }
+
+    // Check plant death
+    if (plantHealth <= 0) {
+      setIsDead(true);
+      setIsTimerActive(false);
+      router.replace("/(screens)/gameOver");
+    }
+  };
+
+  const waterPlant = () => {
+    setWaterLevel(100);
+    triggerWater();
+    // setScore((prev) => prev + 50);
+    // playWaterSound();
+    //handleToolUse("You watered the plant.");
+  };
+
+  const fertilizePlant = () => {
+    setNutrientLevel(100);
+    triggerFertilizer();
+    // setScore((prev) => prev + 30);
+    // playFertilizerSound();
+    //handleToolUse("You fertilized the plant.");
+  };
+
+  const respondToThreat = () => {
+    if (!activeThreat || activeThreat.resolved) return;
+
+    setActiveThreat(null);
+    triggerSpray();
+    // setScore((s) => s + 100);
+    // playSpraySound();
+    //handleToolUse("🛡️ You neutralized the threat in time!");
+  };
 
   useEffect(() => {
     const loadSounds = async () => {
@@ -349,75 +343,6 @@ const PlantScreen = () => {
     setTimeout(() => setShowPopup(false), 1500);
   };
 
-  // MORE FREQUENT BUGS
-  const spawnBugs = () => {
-    setBugSpawnTime(Date.now());
-    const newBugs: any[] = [];
-
-    const createBug = (index: number) => {
-      const delay = index < 4 ? 0 : (index - 3) * 150;
-
-      setTimeout(() => {
-        const id = Math.random().toString();
-
-        const position = new Animated.ValueXY({
-          x: 0,
-          y: 0,
-        });
-
-        const scale = new Animated.Value(0.5);
-        const opacity = new Animated.Value(1);
-
-        const wander = () => {
-          const toX = (Math.random() - 0.5) * 150; // +/- 75 px
-          const toY = (Math.random() - 0.5) * 150;
-
-          Animated.sequence([
-            Animated.timing(position, {
-              toValue: { x: toX, y: toY },
-              duration: 3000 + Math.random() * 2000,
-              useNativeDriver: false,
-            }),
-            Animated.delay(500),
-          ]).start(() => {
-            wander(); // loop
-          });
-        };
-
-        wander();
-
-        Animated.spring(scale, {
-          toValue: 1,
-          useNativeDriver: false,
-          friction: 5,
-        }).start();
-
-        const offset = (index * 360) / MAX_BUGS;
-
-        newBugs.push({
-          id,
-          position,
-          scale,
-          offset,
-          opacity,
-          tapCount: 1,
-        });
-
-        if (newBugs.length === MAX_BUGS) {
-          setBugs(newBugs);
-
-          setTimeout(() => {
-            setBugs([]);
-          }, 90000);
-        }
-      }, delay);
-    };
-
-    for (let i = 0; i < MAX_BUGS; i++) {
-      createBug(i);
-    }
-  };
-
   // FORMAT TIMER AS MM:SS
   const formatTime = (seconds: number) => {
     const min = Math.floor(seconds / 60)
@@ -436,21 +361,12 @@ const PlantScreen = () => {
     if (plantStage === 3) return 400;
     return 150;
   };
-  const resetGame = () => {
-    setTimeLeft(TEN_MINUTES);
-    setIsTimerActive(false);
-    setBugs([]);
-    setBugSpawnTime(null);
-    setActiveThreat(null);
-    setScore(0);
-    setPlantDamaged(false);
-  };
 
   const triggerSpray = () => {
-    if (bugs.length === 0) {
-      handleToolUse("No bugs right now");
-      return;
-    }
+    // if (bugs.length === 0) {
+    //   handleToolUse("No bugs right now");
+    //   return;
+    // }
     // if (userInventory.pesticideQty > 0) {
     //   handleUpdateInventory("Pesticide");
     // } else {
@@ -458,8 +374,8 @@ const PlantScreen = () => {
     //   return;
     // }
     setPlantDamaged(false);
-    setPlantDamagedTime(null);
-    setBugSpawnTime(null);
+
+    //setBugSpawnTime(null);
     setSpraying(true);
     sprayAnim.setValue(0);
     // 🔊 Play spray sound
@@ -468,7 +384,7 @@ const PlantScreen = () => {
     }
 
     setScore((s) => Math.min(s + 3, 100000));
-    setBugs((prevBugs) => {
+    /*setBugs((prevBugs) => {
       // Increase tapCount for all bugs
       const updatedBugs = prevBugs.map((bug) => {
         return { ...bug, tapCount: bug.tapCount + 1 };
@@ -485,7 +401,7 @@ const PlantScreen = () => {
       }
 
       return updatedBugs;
-    });
+    });*/
 
     // Start spray animation
     Animated.timing(sprayAnim, {
@@ -495,7 +411,7 @@ const PlantScreen = () => {
     }).start(() => {
       setSpraying(false);
     });
-    handleToolUse("Pesticide used! Bugs removed. +3");
+    //handleToolUse("Pesticide used! Bugs removed. +3");
   };
   const triggerFertilizer = () => {
     // if (userInventory.fertilizerQty > 0) {
@@ -517,7 +433,7 @@ const PlantScreen = () => {
       useNativeDriver: true,
     }).start(() => {
       setFertilizing(false);
-      handleToolUse("Fertilizer used! +3");
+      //handleToolUse("Fertilizer used! +3");
     });
   };
   const triggerWater = () => {
@@ -540,7 +456,7 @@ const PlantScreen = () => {
       useNativeDriver: true,
     }).start(() => {
       setWatering(false);
-      handleToolUse("Water used! +3");
+      //handleToolUse("Water used! +3");
     });
   };
   const getLevelImage = () => {
@@ -593,80 +509,6 @@ const PlantScreen = () => {
         />
       )}
 
-      {/* Bugs */}
-      {bugs.map((bug) => {
-        const angleWithOffset = Animated.add(
-          bug.angle,
-          (bug.offset * Math.PI) / 180
-        );
-
-        const x = angleWithOffset.interpolate({
-          inputRange: [0, 2 * Math.PI],
-          outputRange: [-bug.radius, bug.radius],
-        });
-        //  inputRange: [0, 0.2 * Math.PI, 2 * Math.PI],
-
-        const y = angleWithOffset.interpolate({
-          inputRange: [0, 0.5 * Math.PI, 0.5 * Math.PI],
-          outputRange: [0, bug.radius, 0],
-        });
-
-        return (
-          // <Animated.View
-          //   key={bug.id}
-          //   style={{
-          //     position: "absolute",
-          //     top: SCREEN_HEIGHT / 2 + 60, // Adjust to center plant
-          //     left: SCREEN_WIDTH / 2 - 40,
-          //     width: 100,
-          //     height: 100,
-          //     opacity: bug.opacity,
-          //     transform: [
-          //       // { translateX: x },
-          //       { translateY: y },
-          //       { scale: bug.scale },
-          //       {
-          //         rotate: angleWithOffset.interpolate({
-          //           inputRange: [0, 2 * Math.PI],
-          //           outputRange: ["0deg", "180deg"],
-          //         }),
-          //       },
-          //     ],
-          //   }}
-          // >
-          //   <Image
-          //     source={images.bugs}
-          //     style={{ width: 60, height: 60 }} // Increased size
-          //     resizeMode="cover"
-          //   />
-          // </Animated.View>
-          <Animated.View
-            key={bug.id}
-            className={`mt-80 mb-20`}
-            style={[
-              {
-                position: "absolute",
-                // left: SCREEN_WIDTH / 2,
-                // top: SCREEN_HEIGHT / 2 + 160,
-                marginTop: 480,
-                marginLeft: 150,
-              },
-              bug.position.getLayout(),
-              {
-                transform: [{ scale: bug.scale }],
-                // opacity: bug.opacity,
-              },
-            ]}
-          >
-            <ExpoImage
-              source={images.bugs}
-              style={{ width: 30, height: 30 }}
-              // resizeMode="cover"
-            />
-          </Animated.View>
-        );
-      })}
-
       {/* Top bar */}
       <View className="flex-row justify-between items-center px-4 pt-10">
         <TouchableOpacity className="bg-white/30 p-2 rounded-full">
@@ -682,24 +524,25 @@ const PlantScreen = () => {
         <Text className="text-white text-3xl font-bold">{score}</Text>
 
         <Text className="text-2xl text-gray-700">
-          Current Season: {currentSeason.toUpperCase()}
+          {"🌦️"} Current Season: {currentSeason.toUpperCase()}
         </Text>
         <Text className="text-3xl text-yellow-500">
           {currentSeason === "dry" && "Use more water and fertilizer"}
         </Text>
       </View>
 
-      {bugs.length > 0 && (
-        <View className="absolute top-48 left-0 right-0 items-center">
-          <Text className="text-red-700 font-bold text-lg">
-            {/* {bugs.length} */}
-            🐛 bugs around your plant!
+      <View className="absolute top-48 left-0 right-0 items-center">
+        <Text>❤️ Health: {plantHealth}</Text>
+        <Text>💧 Water Level: {waterLevel}</Text>
+        <Text>🌿 Nutrient Level: {nutrientLevel}</Text>
+
+        {activeThreat && !activeThreat.resolved && (
+          <Text style={{ color: "red", marginTop: 10 }}>
+            ⚠️{"🐛"} {activeThreat.type.toUpperCase()} - Respond within{" "}
+            {activeThreat.type === "disease" ? "10" : "5"}s!
           </Text>
-          <Text className="text-black/40 text-sm">
-            Use pesticide to clear them
-          </Text>
-        </View>
-      )}
+        )}
+      </View>
 
       {spraying && (
         <Animated.View
@@ -788,54 +631,77 @@ const PlantScreen = () => {
           // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
         }}
       >
-        <Animated.Image
-          source={
-            plantDamaged
-              ? plantSickImages[getPlantStage()]
-              : currentSeason === "raining"
-              ? plantRainImages[getPlantStage()]
-              : plantImages[getPlantStage()]
-          }
-          className={`w-48 `}
-          resizeMode="contain"
-          style={{
-            height: getPlantSize(),
-            // transform: [{ scale: plantScale }],
-          }}
-        />
+        {!isTimerActive && (
+          <Animated.Image
+            source={images.soil}
+            style={{
+              width: 110,
+              height: 140,
+              position: "absolute",
+            }}
+            resizeMode="contain"
+            className={`w-48 `}
+          />
+        )}
+        {activeThreat && !activeThreat.resolved && (
+          <ExpoImage
+            source={images.bugs}
+            style={{
+              width: 30,
+              height: 30,
+              position: "absolute", // <-- This removes it from layout flow
+              top: 120, // Adjust as needed
+              left: 170, // Adjust as needed
+              zIndex: 10, // Make sure it's above the plant
+            }}
+          />
+        )}
+        {isTimerActive && (
+          <Animated.Image
+            source={
+              plantDamaged
+                ? plantSickImages[getPlantStage()]
+                : currentSeason === "raining"
+                ? plantRainImages[getPlantStage()]
+                : plantImages[getPlantStage()]
+            }
+            className={`w-48 `}
+            resizeMode="contain"
+            style={{
+              height: getPlantSize(),
+              // transform: [{ scale: plantScale }],
+            }}
+          />
+        )}
       </View>
 
       {/* Tool buttons */}
-      {/* <View
-        // className={`absolute left-4`}
-        style={{
-          position: "absolute",
-          height: SCREEN_HEIGHT * 0.5,
-          top: -5,
-        }}
-      > */}
+
       <View className="absolute left-4 top-[18%] gap-y-1 py-80">
         <ToolIcon
           icon={images.fertilizer}
-          onPress={triggerFertilizer}
+          // onPress={triggerFertilizer}
+          onPress={fertilizePlant}
           itemQty={userInventory.fertilizerQty}
         />
         <ToolIcon
           itemQty={userInventory.pesticideQty}
           icon={images.pesticied}
-          onPress={() => {
-            if (bugs.length > 0) {
-              triggerSpray();
-            } else {
-              handleToolUse("No bugs right now");
-            }
-          }}
+          onPress={respondToThreat}
+          // onPress={() => {
+          //   if (bugs.length > 0) {
+          //     triggerSpray();
+          //   } else {
+          //     handleToolUse("No bugs right now");
+          //   }
+          // }}
         />
 
         <ToolIcon
           itemQty={userInventory.waterQty}
           icon={images.kettle}
-          onPress={triggerWater}
+          // onPress={triggerWater}
+          onPress={waterPlant}
         />
       </View>
 
@@ -875,9 +741,6 @@ const PlantScreen = () => {
               if (!isTimerActive) {
                 setIsTimerActive(true);
                 handleToolUse("Growth cycle started");
-                setTimeout(() => {
-                  spawnBugs();
-                }, 5000);
               }
             }}
           />
@@ -888,19 +751,6 @@ const PlantScreen = () => {
           onPress={() => router.push("/(screens)/inventory")}
         />
       </View>
-
-      {/* Harvest */}
-      {harvest && (
-        <TouchableOpacity
-          className="absolute bottom-20 self-center bg-yellow-400 px-4 py-2 rounded-full"
-          onPress={() => {
-            handleToolUse("Crop harvested!");
-            resetGame();
-          }}
-        >
-          <Text className="text-white font-bold">🌾 Harvest</Text>
-        </TouchableOpacity>
-      )}
 
       {/* Popup */}
       <Modal transparent visible={showPopup}>
@@ -975,11 +825,3 @@ const styles = StyleSheet.create({
   //   ...StyleSheet.absoluteFillObject, // fills the parent
   // },
 });
-
-// ImageBackground
-//           className="absolute w-full h-full"
-//           source={images.bgRainfall}
-//           resizeMode="cover"
-//         >
-//           <HybridRainScene />
-//         </ImageBackground>

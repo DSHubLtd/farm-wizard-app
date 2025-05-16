@@ -6,14 +6,11 @@ import { useLoginContext } from "../../context/LoginProvider";
 
 const TabsLayout = () => {
   const router = useRouter();
-
   const { user } = useLoginContext();
   if (!user) {
     router.replace('/');
   }
-
   const isPremiumUser = user?.isPremium === true;
-
   return (
     // <Tabs
     //   screenOptions={{

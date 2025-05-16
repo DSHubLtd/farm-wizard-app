@@ -1,25 +1,26 @@
 import { useCallback, useRef, useState } from "react";
-import { View, Image, BackHandler, ToastAndroid, Platform } from "react-native";
+import { View, Image, BackHandler, ToastAndroid, Platform, TouchableOpacity, Modal, Text, Dimensions } from "react-native";
 import { icons, images } from "../../constants";
 import { router, useFocusEffect } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { CustomButton } from "../../components";
 import { useLoginContext } from "../../context/LoginProvider";
-// import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
-// import InterstitialAdComponent from '../../utils/InterstitialAdComponent';
+import { BlurView } from "expo-blur";
+import RewardedAdComponent from '../../utils/RewardedAdComponent';
+const { width } = Dimensions.get("window");
 
 
 export default Home = () => {
-
   const { user } = useLoginContext();
   if (!user) {
     router.replace('/');
   }
-
-  // const isPremiumUser = user?.isPremium === true;
+  const isPremiumUser = user?.isPremium === true;
   // const isPremiumUser = ['pro', 'vip'].includes(user?.subscriptionLevel);
   // const isPremiumUser = new Date(user?.premiumUntil) > new Date();
   // const [showAd, setShowAd] = useState(true);
+  const [showAd, setShowAd] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [backPressedOnce, setBackPressedOnce] = useState(false);
   const timeoutRef = useRef(null);
 
@@ -51,6 +52,14 @@ export default Home = () => {
       };
     }, [backPressedOnce])
   )
+  const openModal = () => {
+    setModalVisible(true);
+    // Animated.timing(fadeAnim, {
+    //   toValue: 1,
+    //   duration: 300,
+    //   useNativeDriver: true,
+    // }).start();
+  };
 
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">
@@ -62,15 +71,6 @@ export default Home = () => {
         resizeMode="cover"
         blurRadius={0.5}
       />
-
-      {/* {showAd && (
-        <InterstitialAdComponent
-          onClose={() => {
-            setShowAd(false); // Hide the component after ad closes
-            console.log('Ad finished!');
-          }}
-        />
-      )} */}
 
       {/* {!isPremiumUser && <AdBanner />} */}
 
@@ -84,6 +84,16 @@ export default Home = () => {
         showRightButton={true}
       />
 
+      <View className="w-full px-5 flex-row justify-between items-center mt-10">
+        <TouchableOpacity></TouchableOpacity>
+        <TouchableOpacity
+          className="w-10 h-10 bg-white/30 rounded-full items-center justify-center"
+          onPress={openModal}
+        >
+          <Image source={images.adsBadge} className="w-20 h-20" />
+        </TouchableOpacity>
+      </View>
+
       <View className="flex-1 justify-center items-center">
         {/* Wizard Image */}
         <Image
@@ -91,6 +101,8 @@ export default Home = () => {
           resizeMode="contain"
           className="w-[250px] h-[250px]"
         />
+
+
 
         {/* Play Button */}
 
@@ -103,16 +115,62 @@ export default Home = () => {
         />
       </View>
 
-      {/* {!isPremiumUser &&
-        <BannerAd
-          unitId={TestIds.BANNER}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
+      {showAd && !isPremiumUser &&
+        <RewardedAdComponent
+          onRewardEarned={(reward) => {
+            console.log('User earned:', reward);
+            setShowAd(false);
+            // Unlock feature or give coins here
           }}
-          onAdFailedToLoad={(error) => console.error(error)}
+          onClose={() => {
+            console.log('Ad closed');
+          }}
         />
-      } */}
+      }
+
+      <Modal transparent visible={modalVisible} animationType="fade">
+        <BlurView
+          intensity={50}
+          tint="dark"
+          className="flex-1 items-center justify-center"
+        >
+          <View
+            className="bg-black/40 rounded-2xl w-[100%] h-[100%] p-2 items-center shadow-2xl"
+          >
+            <View className="w-full items-end my-20">
+              <TouchableOpacity
+                className="bg-yellow-300 rounded-full items-center justify-center w-20 h-20"
+                onPress={() => setModalVisible(false)}
+              >
+                <Image source={icons.close} className="w-20 h-20" />
+              </TouchableOpacity>
+            </View>
+            <Image
+              source={images.adsBadge}
+              style={{
+                width: width * 0.5,
+                height: width * 0.5,
+              }}
+              resizeMode="contain"
+            />
+
+            <Text className="text-white text-xl text-center mb-6">
+              Watch a short enchanted vision (ad) to save your journey and unlock a special reward. The forest remembers those who take the time — let the magic work in your favor!
+            </Text>
+
+            <View className="flex-row justify-center items-center">
+              <TouchableOpacity
+                className="bg-buttonColor flex-row rounded-xl items-center justify-center p-4 m-2"
+                onPress={() => setShowAd(true)}
+              >
+                <Image source={icons.play} className="w-10 h-10 mr-2" />
+                <Text className="text-white text-lg">Watch Ads</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </BlurView>
+      </Modal>
 
     </View>
   );

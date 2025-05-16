@@ -8,6 +8,9 @@ import background from "../assets/images/background.png";
 import background1 from "../assets/images/background1.png";
 import empty from "../assets/images/empty.png";
 import fewCoinsMessage from "../assets/images/few-coins-message.png";
+import premimUser from "../assets/images/premium-user.png";
+import nonPremimuUser from "../assets/images/non-premium-user.png";
+import adsBadge from "../assets/images/ads-badge.png";
 
 import maize from "../assets/images/seed/maize.png";
 import apple from "../assets/images/seed/apple.png";
@@ -34,6 +37,7 @@ import fertilizer from "../assets/images/inventory/fertilizers.png";
 import kettle from "../assets/images/inventory/kettle.png";
 import pesticied from "../assets/images/inventory/pesticied.png";
 import bugs from "../assets/plant-growth/bugs.gif";
+import soil from "../assets/plant-growth/soil.png";
 
 import bgDry from "../assets/plant-growth/background-dry.png";
 import bgRainfall from "../assets/plant-growth/bg-rainfall.png";
@@ -74,6 +78,7 @@ export default {
   pesticied,
   plantGrowing,
   bugs,
+  soil,
   bgRainfall,
   storm,
   bgDry,
@@ -83,4 +88,7 @@ export default {
   sessionStarted,
   success,
   requestPending,
+  premimUser,
+  nonPremimuUser,
+  adsBadge,
 };
