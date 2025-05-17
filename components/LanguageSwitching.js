@@ -17,27 +17,27 @@ export default function LanguageSwitching() {
   const languageMap = {
     English: { code: "en", nativeName: "English" },
     French: { code: "fr", nativeName: "Français" },
-    German: { code: "de", nativeName: "Deutsch" },
+    // German: { code: "de", nativeName: "Deutsch" },
     Arabic: { code: "ar", nativeName: "العربية" },
-    Hebrew: { code: "he", nativeName: "עברית" },
+    // Hebrew: { code: "he", nativeName: "עברית" },
     Hausa: { code: "ha", nativeName: "Hausa" },
-    Yoruba: { code: "yo", nativeName: "Yorùbá" },
-    Igbo: { code: "ig", nativeName: "Asụsụ Igbo" },
-    Swahili: { code: "sw", nativeName: "Kiswahili" },
-    Amharic: { code: "am", nativeName: "አማርኛ" },
-    Oromo: { code: "om", nativeName: "Afaan Oromoo" },
-    Tigrinya: { code: "ti", nativeName: "ትግርኛ" },
-    Lingala: { code: "ln", nativeName: "Lingála" },
-    Kinyarwanda: { code: "rw", nativeName: "Kinyarwanda" },
-    Luganda: { code: "lg", nativeName: "Luganda" },
-    Shona: { code: "sn", nativeName: "ChiShona" },
-    Zulu: { code: "zu", nativeName: "isiZulu" },
-    Xhosa: { code: "xh", nativeName: "isiXhosa" },
-    Wolof: { code: "wo", nativeName: "Wolof" },
-    Ewe: { code: "ee", nativeName: "Eʋegbe" },
-    Fula: { code: "ff", nativeName: "Pulaar" },
-    Tswana: { code: "tn", nativeName: "Setswana" },
-    Berber: { code: "ber", nativeName: "Tamazight" },
+    // Yoruba: { code: "yo", nativeName: "Yorùbá" },
+    // Igbo: { code: "ig", nativeName: "Asụsụ Igbo" },
+    // Swahili: { code: "sw", nativeName: "Kiswahili" },
+    // Amharic: { code: "am", nativeName: "አማርኛ" },
+    // Oromo: { code: "om", nativeName: "Afaan Oromoo" },
+    // Tigrinya: { code: "ti", nativeName: "ትግርኛ" },
+    // Lingala: { code: "ln", nativeName: "Lingála" },
+    // Kinyarwanda: { code: "rw", nativeName: "Kinyarwanda" },
+    // Luganda: { code: "lg", nativeName: "Luganda" },
+    // Shona: { code: "sn", nativeName: "ChiShona" },
+    // Zulu: { code: "zu", nativeName: "isiZulu" },
+    // Xhosa: { code: "xh", nativeName: "isiXhosa" },
+    // Wolof: { code: "wo", nativeName: "Wolof" },
+    // Ewe: { code: "ee", nativeName: "Eʋegbe" },
+    // Fula: { code: "ff", nativeName: "Pulaar" },
+    // Tswana: { code: "tn", nativeName: "Setswana" },
+    // Berber: { code: "ber", nativeName: "Tamazight" },
   };
 
   // 🔁 Load saved language on mount
@@ -141,7 +141,7 @@ export default function LanguageSwitching() {
         <ActivityIndicator size="large" />
       ) : (
         <>
-          <Text style={{ fontSize: 24 }}>{t("edit_profile")}</Text>
+          {/* <Text style={{ fontSize: 24 }}>{t("edit_profile")}</Text> */}
           {/* <Text style={{ fontSize: 18 }}>
             {t("hello_user", { name: "John" })}
           </Text> */}

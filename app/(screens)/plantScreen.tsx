@@ -22,6 +22,7 @@ import { Image as ExpoImage } from "expo-image";
 import { getUserPIventory, updateInventory } from "@/services/userInventory";
 import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
+import { useAvatarArray } from "../../hooks/useAvatarArray";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -495,10 +496,19 @@ const PlantScreen = () => {
 
         {/* Top bar */}
         <View className="flex-row justify-between items-center px-4 pt-10">
-          <TouchableOpacity className="bg-white/30 p-2 rounded-full">
-            <Image source={icons.profile} className="w-10 h-10" />
-          </TouchableOpacity>
-          <TouchableOpacity className="bg-white/30 p-2 rounded-full">
+          <View className="flex-row">
+            <TouchableOpacity className="">
+              <Image
+                source={useAvatarArray(user.avatar || 0)}
+                className="w-12 h-12 rounded-full"
+              />
+            </TouchableOpacity>
+            <Text className="my-4 text-white text-md">Hi, {user.fullName}</Text>
+          </View>
+          <TouchableOpacity
+            className="bg-yellow-300 p-2 rounded-full"
+            onPress={() => router.replace("/(tabs)/home")}
+          >
             <Image source={icons.close} className="w-10 h-10" />
           </TouchableOpacity>
         </View>
@@ -509,9 +519,6 @@ const PlantScreen = () => {
 
           <Text className="text-2xl text-gray-700">
             {"🌦️"} Current Season: {currentSeason.toUpperCase()}
-          </Text>
-          <Text className="text-2xl text-yellow-500">
-            {currentSeason === "dry" && "Use more water and fertilizer"}
           </Text>
         </View>
 
@@ -683,13 +690,6 @@ const PlantScreen = () => {
             itemQty={userInventory.pesticideQty}
             icon={images.pesticied}
             onPress={respondToThreat}
-            // onPress={() => {
-            //   if (bugs.length > 0) {
-            //     triggerSpray();
-            //   } else {
-            //     handleToolUse("No bugs right now");
-            //   }
-            // }}
           />
 
           <ToolIcon

@@ -11,7 +11,10 @@ import HeaderNavigation from "@/components/HeaderNavigation";
 import LanguageSwitching from "@/components/LanguageSwitching";
 
 const EditProfile = () => {
-  const { setUser, setIsLogged } = useLoginContext();
+  const { user, setUser, setIsLogged } = useLoginContext();
+  if (!user) {
+    router.replace("/");
+  }
 
   const [isSubmitting, setSubmitting] = useState(false);
 

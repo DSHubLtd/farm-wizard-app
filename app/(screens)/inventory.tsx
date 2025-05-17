@@ -458,7 +458,7 @@ const Inventory = () => {
                 <CustomButton
                   title={`Pay ${usdEquivalent} ${currency}`}
                   handlePress={() => setShowFlutterwave(true)}
-                  containerStyles="w-[90%]"
+                  containerStyles="w-[100%]"
                   textStyles={"font-pbold text-white"}
                   isLoading={exchangeLoading}
                 />

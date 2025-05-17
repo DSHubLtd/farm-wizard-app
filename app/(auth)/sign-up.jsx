@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Dimensions, Alert, Image, Pressable, TouchableOpacity } from "react-native";
@@ -6,19 +6,18 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 
 import { avatars, icons, images } from "../../constants";
 import { CustomButton, FormField } from "../../components";
-import { useLoginContext } from "@/context/LoginProvider";
+// import { useLoginContext } from "@/context/LoginProvider";
 import { signUpUser } from "@/services/auth";
 import BackgroundImage from "../../components/BackgroundImage";
 import SelectField from "../../components/SelectField";
 import { validateForm } from "../../utils/validateForm";
 import { useCountryData } from "../../hooks/useCountryData";
 import { useLanguageData } from "../../hooks/useLanguageData";
-import { ArrowLeft, ArrowRight } from "lucide-react-native";
 
 const screenHeight = Dimensions.get("window").height;
 
 const SignUp = () => {
-  const { setUser, setIsLogged } = useLoginContext();
+  //const { setUser, setIsLogged } = useLoginContext();
 
   const [isSubmitting, setSubmitting] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('')
@@ -78,6 +77,16 @@ const SignUp = () => {
     avatars.africanFmale,
     avatars.asianMale,
     avatars.asianFmale,
+    avatars.antMale,
+    avatars.antFmale,
+    avatars.austMale,
+    avatars.austFmale,
+    avatars.euMale,
+    avatars.euFmale,
+    avatars.naMale,
+    avatars.naFmale,
+    avatars.saMale,
+    avatars.saFmale,
   ]
   const handlePrev = () => {
     setSelectedIndex((prev) => (prev - 1 + avatarsArr.length) % avatarsArr.length);

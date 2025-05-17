@@ -1,3 +1,4 @@
+// eas build --platform android --profile preview --clear-cache
 // usage
 // import React from "react";
 // import InterstitialAdComponent from "./components/InterstitialAdComponent";

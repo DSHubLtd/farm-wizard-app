@@ -7,6 +7,7 @@ import { CustomButton } from "../../components";
 import { useLoginContext } from "../../context/LoginProvider";
 import { BlurView } from "expo-blur";
 import RewardedAdComponent from '../../utils/RewardedAdComponent';
+import { useAvatarArray } from "../../hooks/useAvatarArray";
 const { width } = Dimensions.get("window");
 
 
@@ -78,7 +79,7 @@ export default Home = () => {
       <HeaderNavigation
         onLeftPress={() => router.push("/(screens)/settings")}
         onRightPress={() => router.push("/(screens)/inventory")}
-        leftIcon={icons.profile}
+        leftIcon={useAvatarArray(user.avatar || 0)}
         rightIcon={icons.bell}
         showLeftButton={true}
         showRightButton={true}
@@ -142,7 +143,7 @@ export default Home = () => {
                 className="bg-yellow-300 rounded-full items-center justify-center w-20 h-20"
                 onPress={() => setModalVisible(false)}
               >
-                <Image source={icons.close} className="w-20 h-20" />
+                <Image source={icons.close} className="w-10 h-10" />
               </TouchableOpacity>
             </View>
             <Image
