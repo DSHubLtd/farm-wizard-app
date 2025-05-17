@@ -4,7 +4,7 @@ import HttpBackend from "i18next-http-backend";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Map your translation base URL
-const BASE_URL = "http://192.168.1.73:5000/translations/";
+const BASE_URL = "https://farm-wizard-api.onrender.com/translations/";
 // const BASE_URL =
 //   "https://raw.githubusercontent.com/your-username/expo-translations/main/";
 

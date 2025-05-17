@@ -9,35 +9,35 @@ const LANGUAGE_KEY = "user-language";
 
 export default function LanguageSwitching() {
   const { t, i18n } = useTranslation();
-  const [languages, setLanguages] = useState([]);
+  const [languageLoaded, setLanguageLoaded] = useState(false);
   const [selectedLang, setSelectedLang] = useState("English");
   const [loading, setLoading] = useState(false);
   const rtlLanguages = ["ar", "he"]; // Add more RTL languages if needed
 
   const languageMap = {
-    English: "en",
-    French: "fr",
-    German: "de",
-    Arabic: "ar",
-    Hebrew: "he",
-    Hausa: "ha",
-    Yoruba: "yo",
-    Igbo: "ig",
-    Swahili: "sw",
-    Zulu: "zu",
-    Xhosa: "xh",
-    Amharic: "am",
-    Oromo: "om",
-    Tigrinya: "ti",
-    Lingala: "ln",
-    Kinyarwanda: "rw",
-    Luganda: "lg",
-    Shona: "sn",
-    Wolof: "wo",
-    Ewe: "ee",
-    Fula: "ff",
-    Tswana: "tn",
-    Berber: "ber", // Note: this may not have a single ISO code
+    English: { code: "en", nativeName: "English" },
+    French: { code: "fr", nativeName: "Français" },
+    German: { code: "de", nativeName: "Deutsch" },
+    Arabic: { code: "ar", nativeName: "العربية" },
+    Hebrew: { code: "he", nativeName: "עברית" },
+    Hausa: { code: "ha", nativeName: "Hausa" },
+    Yoruba: { code: "yo", nativeName: "Yorùbá" },
+    Igbo: { code: "ig", nativeName: "Asụsụ Igbo" },
+    Swahili: { code: "sw", nativeName: "Kiswahili" },
+    Amharic: { code: "am", nativeName: "አማርኛ" },
+    Oromo: { code: "om", nativeName: "Afaan Oromoo" },
+    Tigrinya: { code: "ti", nativeName: "ትግርኛ" },
+    Lingala: { code: "ln", nativeName: "Lingála" },
+    Kinyarwanda: { code: "rw", nativeName: "Kinyarwanda" },
+    Luganda: { code: "lg", nativeName: "Luganda" },
+    Shona: { code: "sn", nativeName: "ChiShona" },
+    Zulu: { code: "zu", nativeName: "isiZulu" },
+    Xhosa: { code: "xh", nativeName: "isiXhosa" },
+    Wolof: { code: "wo", nativeName: "Wolof" },
+    Ewe: { code: "ee", nativeName: "Eʋegbe" },
+    Fula: { code: "ff", nativeName: "Pulaar" },
+    Tswana: { code: "tn", nativeName: "Setswana" },
+    Berber: { code: "ber", nativeName: "Tamazight" },
   };
 
   // 🔁 Load saved language on mount
@@ -45,7 +45,7 @@ export default function LanguageSwitching() {
     const loadSavedLanguage = async () => {
       const savedLangCode = await AsyncStorage.getItem(LANGUAGE_KEY);
       const savedLangName = Object.keys(languageMap).find(
-        (key) => languageMap[key] === savedLangCode
+        (key) => languageMap[key].code === savedLangCode
       );
       if (savedLangCode && savedLangName) {
         await i18n.changeLanguage(savedLangCode);
@@ -53,15 +53,16 @@ export default function LanguageSwitching() {
       } else {
         setSelectedLang("English"); // default
       }
+      setLanguageLoaded(true);
 
-      await AsyncStorage.removeItem("user-language");
+      // await AsyncStorage.removeItem("user-language");
 
       // Remove all translation caches
-      const keys = await AsyncStorage.getAllKeys();
-      const translationKeys = keys.filter((key) =>
-        key.startsWith("translations-")
-      );
-      await AsyncStorage.multiRemove(translationKeys);
+      // const keys = await AsyncStorage.getAllKeys();
+      // const translationKeys = keys.filter((key) =>
+      //   key.startsWith("translations-")
+      // );
+      // await AsyncStorage.multiRemove(translationKeys);
     };
     loadSavedLanguage();
   }, []);
@@ -108,8 +109,6 @@ export default function LanguageSwitching() {
         // Filter to only those available in languageMap
         const allLangs = Array.from(langSet);
         const filtered = allLangs.filter((lang) => languageMap[lang]);
-
-        setLanguages(filtered);
         setLoading(false);
       });
   }, []);
@@ -118,7 +117,8 @@ export default function LanguageSwitching() {
 
   const changeLanguage = async (langName) => {
     setLoading(true);
-    const code = languageMap[langName];
+    const code = languageMap[langName].code;
+
     if (code) {
       const isRTL = rtlLanguages.includes(code);
       if (I18nManager.isRTL !== isRTL) {
@@ -146,14 +146,20 @@ export default function LanguageSwitching() {
             {t("hello_user", { name: "John" })}
           </Text> */}
           <View className="bg-white rounded-2xl w-full ">
-            <Picker
-              selectedValue={selectedLang}
-              onValueChange={(value) => changeLanguage(value)}
-            >
-              {languages.map((lang, index) => (
-                <Picker.Item label={lang} value={lang} key={index} />
-              ))}
-            </Picker>
+            {languageLoaded && (
+              <Picker
+                selectedValue={selectedLang}
+                onValueChange={(value) => changeLanguage(value)}
+              >
+                {Object.keys(languageMap).map((lang, index) => (
+                  <Picker.Item
+                    key={index}
+                    label={languageMap[lang].nativeName}
+                    value={lang}
+                  />
+                ))}
+              </Picker>
+            )}
           </View>
         </>
       )}

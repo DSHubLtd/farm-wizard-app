@@ -9,6 +9,7 @@ import {
   Animated,
   TouchableWithoutFeedback,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CustomButton } from "@/components";
@@ -164,7 +165,9 @@ const Inventory = () => {
   }, []);
   if (invloading)
     return (
-      <Text className="text-2xl justify-center text-center">Loading...</Text>
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+      </View>
     );
 
   const handleAmount = (type: string) => {

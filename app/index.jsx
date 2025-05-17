@@ -1,7 +1,8 @@
+import { useCallback, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Dimensions, ScrollView, Text, View } from "react-native";
+import { BackHandler, Dimensions, Platform, ScrollView, Text, ToastAndroid, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 
 import CustomButton from "../components/CustomButton";
 
@@ -16,7 +17,37 @@ export default function Index() {
 
   if (!loading && isLogged) return <Redirect href={"/(tabs)/home"} />;
 
-  // return <Redirect href={"/(tabs)/home"} />;
+  const [backPressedOnce, setBackPressedOnce] = useState(false);
+  const timeoutRef = useRef(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== 'android') return;
+
+      const onBackPress = () => {
+        if (backPressedOnce) {
+          BackHandler.exitApp();
+          return true;
+        }
+
+        setBackPressedOnce(true);
+        ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+
+        timeoutRef.current = setTimeout(() => {
+          setBackPressedOnce(false);
+        }, 2000);
+
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        backHandler.remove();
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      };
+    }, [backPressedOnce])
+  )
 
   return (
     <SafeAreaView className="bg-primary h-full" edges={['left', 'right', 'bottom']} style={{ flex: 1 }}>

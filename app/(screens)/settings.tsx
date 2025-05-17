@@ -8,7 +8,6 @@ import {
   Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
-// import * as Updates from "expo-updates";
 import { icons, images } from "../../constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
@@ -53,7 +52,6 @@ const Settings = () => {
     } finally {
       setSubmitting(false);
       router.replace("/");
-      // Updates.reloadAsync()r; // force app reload
     }
   };
 

@@ -9,6 +9,8 @@ import {
   Dimensions,
   ImageBackground,
   StyleSheet,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
@@ -204,13 +206,13 @@ const PlantScreen = () => {
     // Health penalties
     if (waterLevel < 20) {
       setPlantHealth((h) => Math.max(0, h - 5));
-      handleToolUse("⚠️ Your plant is drying out!");
+      //handleToolUse("⚠️ Your plant is drying out!");
       setPlantDamaged(true);
     }
 
     if (nutrientLevel < 20) {
       setPlantHealth((h) => Math.max(0, h - 3));
-      handleToolUse("⚠️ Your plant lacks nutrients!");
+      //handleToolUse("⚠️ Your plant lacks nutrients!");
       setPlantDamaged(true);
     }
 
@@ -222,17 +224,22 @@ const PlantScreen = () => {
         if (activeThreat.type === "disease" && timeSinceThreat > 10000) {
           // Ongoing health drain
           setPlantHealth((h) => Math.max(0, h - 10));
-          handleToolUse("☠️ Disease is hurting your plant!");
+          //handleToolUse("☠️ Disease is hurting your plant!");
           setPlantDamaged(true);
         }
 
         if (activeThreat.type === "storm" && timeSinceThreat > 5000) {
           // One-time hit
-          setPlantHealth((h) => Math.max(0, h - 25));
-          handleToolUse("🌩️ Storm hit your plant!");
+          setPlantHealth((h) => Math.max(0, h - 20));
+          //handleToolUse("🌩️ Storm hit your plant!");
           //setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
           setPlantDamaged(true);
         }
+        // Remove threat after 15s regardless
+        /*if (timeSinceThreat > 15000) {
+          setActiveThreat(null);
+          handleToolUse("Threat disappeared...");
+        }*/
       }
     } else {
       // Maybe spawn new threat
@@ -243,7 +250,7 @@ const PlantScreen = () => {
           resolved: false,
           createdAt: now,
         });
-        handleToolUse(`⚠️ A ${type} has appeared! Respond quickly!`);
+        // handleToolUse(`⚠️ A ${type} has appeared! Respond quickly!`);
       }
     }
 
@@ -256,29 +263,23 @@ const PlantScreen = () => {
   };
 
   const waterPlant = () => {
+    if (waterLevel > 40) return;
     setWaterLevel(100);
     triggerWater();
-    // setScore((prev) => prev + 50);
-    // playWaterSound();
-    //handleToolUse("You watered the plant.");
   };
 
   const fertilizePlant = () => {
+    if (nutrientLevel > 50) return;
     setNutrientLevel(100);
     triggerFertilizer();
-    // setScore((prev) => prev + 30);
-    // playFertilizerSound();
-    //handleToolUse("You fertilized the plant.");
   };
 
   const respondToThreat = () => {
     if (!activeThreat || activeThreat.resolved) return;
-
-    setActiveThreat(null);
+    setTimeout(() => {
+      setActiveThreat(null);
+    }, 3000);
     triggerSpray();
-    // setScore((s) => s + 100);
-    // playSpraySound();
-    //handleToolUse("🛡️ You neutralized the threat in time!");
   };
 
   useEffect(() => {
@@ -317,7 +318,9 @@ const PlantScreen = () => {
 
   if (loading || invloading)
     return (
-      <Text className="text-2xl justify-center text-center">Loading...</Text>
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+      </View>
     );
   // ANIMATION
   const animatePlantGrowing = () => {
@@ -375,7 +378,6 @@ const PlantScreen = () => {
     // }
     setPlantDamaged(false);
 
-    //setBugSpawnTime(null);
     setSpraying(true);
     sprayAnim.setValue(0);
     // 🔊 Play spray sound
@@ -384,24 +386,6 @@ const PlantScreen = () => {
     }
 
     setScore((s) => Math.min(s + 3, 100000));
-    /*setBugs((prevBugs) => {
-      // Increase tapCount for all bugs
-      const updatedBugs = prevBugs.map((bug) => {
-        return { ...bug, tapCount: bug.tapCount + 1 };
-      });
-
-      // Find the first bug that reaches MAX_BUGS and remove it
-      const bugToRemoveIndex = updatedBugs.findIndex(
-        (bug) => bug.tapCount >= MAX_BUGS
-      );
-
-      if (bugToRemoveIndex !== -1) {
-        // If we found a bug that reaches MAX_BUGS, remove it from the list
-        updatedBugs.splice(bugToRemoveIndex, 1);
-      }
-
-      return updatedBugs;
-    });*/
 
     // Start spray animation
     Animated.timing(sprayAnim, {
@@ -411,7 +395,6 @@ const PlantScreen = () => {
     }).start(() => {
       setSpraying(false);
     });
-    //handleToolUse("Pesticide used! Bugs removed. +3");
   };
   const triggerFertilizer = () => {
     // if (userInventory.fertilizerQty > 0) {
@@ -468,299 +451,311 @@ const PlantScreen = () => {
   };
 
   return (
-    <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
-      {/* Background  */}
-      {currentSeason === "normal" && (
-        <Image
-          source={images.background1}
-          className="absolute w-full h-full"
-          resizeMode="cover"
-        />
-      )}
-      {currentSeason === "raining" && (
-        <ImageBackground
-          source={images.bgRainfall}
-          style={styles.background}
-          resizeMode="cover"
-          className="absolute w-full h-full"
-        >
-          <ExpoImage
-            source={images.storm}
-            style={styles.rain}
-            pointerEvents="none"
+    <TouchableWithoutFeedback onPress={respondToThreat}>
+      <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
+        {/* Background  */}
+        {currentSeason === "normal" && (
+          <Image
+            source={images.background1}
+            className="absolute w-full h-full"
+            resizeMode="cover"
           />
-        </ImageBackground>
-      )}
-      {currentSeason === "dry" && (
-        <Image
-          source={images.bgDry}
-          className="absolute w-full h-full"
-          resizeMode="cover"
-        />
-      )}
+        )}
+        {currentSeason === "raining" && (
+          <ImageBackground
+            source={images.bgRainfall}
+            style={styles.background}
+            resizeMode="cover"
+            className="absolute w-full h-full"
+          >
+            <ExpoImage
+              source={images.storm}
+              style={styles.rain}
+              pointerEvents="none"
+            />
+          </ImageBackground>
+        )}
+        {currentSeason === "dry" && (
+          <Image
+            source={images.bgDry}
+            className="absolute w-full h-full"
+            resizeMode="cover"
+          />
+        )}
 
-      {/* control show ads  */}
-      {showAd && !isPremiumUser && (
-        <InterstitialAdComponent
-          onClose={() => {
-            setShowAd(false); // Hide the component after ad closes
-            //console.log("Ad finished!");
-          }}
-        />
-      )}
+        {/* control show ads  */}
+        {showAd && !isPremiumUser && (
+          <InterstitialAdComponent
+            onClose={() => {
+              setShowAd(false); // Hide the component after ad closes
+              //console.log("Ad finished!");
+            }}
+          />
+        )}
 
-      {/* Top bar */}
-      <View className="flex-row justify-between items-center px-4 pt-10">
-        <TouchableOpacity className="bg-white/30 p-2 rounded-full">
-          <Image source={icons.profile} className="w-10 h-10" />
-        </TouchableOpacity>
-        <TouchableOpacity className="bg-white/30 p-2 rounded-full">
-          <Image source={icons.close} className="w-10 h-10" />
-        </TouchableOpacity>
-      </View>
+        {/* Top bar */}
+        <View className="flex-row justify-between items-center px-4 pt-10">
+          <TouchableOpacity className="bg-white/30 p-2 rounded-full">
+            <Image source={icons.profile} className="w-10 h-10" />
+          </TouchableOpacity>
+          <TouchableOpacity className="bg-white/30 p-2 rounded-full">
+            <Image source={icons.close} className="w-10 h-10" />
+          </TouchableOpacity>
+        </View>
 
-      {/* Points */}
-      <View className="absolute top-28 left-0 right-0 items-center">
-        <Text className="text-white text-3xl font-bold">{score}</Text>
+        {/* Points */}
+        <View className="absolute top-28 left-0 right-0 items-center">
+          <Text className="text-white text-3xl font-bold">{score}</Text>
 
-        <Text className="text-2xl text-gray-700">
-          {"🌦️"} Current Season: {currentSeason.toUpperCase()}
-        </Text>
-        <Text className="text-3xl text-yellow-500">
-          {currentSeason === "dry" && "Use more water and fertilizer"}
-        </Text>
-      </View>
-
-      <View className="absolute top-48 left-0 right-0 items-center">
-        <Text>❤️ Health: {plantHealth}</Text>
-        <Text>💧 Water Level: {waterLevel}</Text>
-        <Text>🌿 Nutrient Level: {nutrientLevel}</Text>
-
-        {activeThreat && !activeThreat.resolved && (
-          <Text style={{ color: "red", marginTop: 10 }}>
-            ⚠️{"🐛"} {activeThreat.type.toUpperCase()} - Respond within{" "}
-            {activeThreat.type === "disease" ? "10" : "5"}s!
+          <Text className="text-2xl text-gray-700">
+            {"🌦️"} Current Season: {currentSeason.toUpperCase()}
           </Text>
-        )}
-      </View>
+          <Text className="text-2xl text-yellow-500">
+            {currentSeason === "dry" && "Use more water and fertilizer"}
+          </Text>
+        </View>
 
-      {spraying && (
-        <Animated.View
-          style={{
-            position: "absolute",
-            top: SCREEN_HEIGHT / 2 - 80,
-            left: SCREEN_WIDTH / 2 - 80,
-            width: 160,
-            height: 160,
-            backgroundColor: "rgba(200,255,200,0.3)",
-            borderRadius: 80,
-            transform: [
-              {
-                scale: sprayAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.2, 1.2],
-                }),
-              },
-            ],
-            opacity: sprayAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.8, 0],
-            }),
-          }}
-        />
-      )}
+        <View className="absolute top-48 left-0 right-0 items-center">
+          <Text>❤️ Health: {plantHealth}</Text>
+          <Text>💧 Water Level: {waterLevel}</Text>
+          <Text>🌿 Nutrient Level: {nutrientLevel}</Text>
 
-      {watering && (
-        <Animated.View
-          style={{
-            position: "absolute",
-            top: SCREEN_HEIGHT / 2,
-            left: SCREEN_WIDTH / 2 - 30,
-            width: 60,
-            height: 100,
-            opacity: waterAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [1, 0],
-            }),
-            transform: [
-              {
-                translateY: waterAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 100],
-                }),
-              },
-            ],
-            backgroundColor: "rgba(0,150,255,0.4)",
-            borderRadius: 20,
-          }}
-        />
-      )}
+          {activeThreat && !activeThreat.resolved && (
+            <Text style={{ color: "red", marginTop: 10 }}>
+              ⚠️{"🐛"} {activeThreat.type.toUpperCase()} - Respond within{" "}
+              {activeThreat.type === "disease" ? "10" : "5"}s!
+            </Text>
+          )}
+          {waterLevel < 20 && (
+            <Text className="text-red text-md">
+              ⚠️ Your plant is drying out of water!
+            </Text>
+          )}
+          {nutrientLevel < 20 && (
+            <Text className="text-red text-md">
+              ⚠️ Your plant lacks nutrients!
+            </Text>
+          )}
+        </View>
 
-      {fertilizing && (
-        <Animated.View
-          style={{
-            position: "absolute",
-            top: SCREEN_HEIGHT / 2 - 80,
-            left: SCREEN_WIDTH / 2 - 80,
-            width: 160,
-            height: 160,
-            backgroundColor: "rgba(100,200,100,0.3)",
-            borderRadius: 80,
-            opacity: fertAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.8, 0],
-            }),
-            transform: [
-              {
-                scale: fertAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.5, 1.5],
-                }),
-              },
-            ],
-          }}
-        />
-      )}
-
-      {/* Plant */}
-      <View
-        className={`flex-1 justify-center items-center mt-80`}
-        style={{
-          borderRadius: 100,
-          padding: 2,
-          // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
-        }}
-      >
-        {!isTimerActive && (
-          <Animated.Image
-            source={images.soil}
+        {spraying && (
+          <Animated.View
             style={{
-              width: 110,
-              height: 140,
               position: "absolute",
+              top: SCREEN_HEIGHT / 2 - 80,
+              left: SCREEN_WIDTH / 2 - 80,
+              width: 160,
+              height: 160,
+              backgroundColor: "rgba(200,255,200,0.3)",
+              borderRadius: 80,
+              transform: [
+                {
+                  scale: sprayAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.2, 1.2],
+                  }),
+                },
+              ],
+              opacity: sprayAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.8, 0],
+              }),
             }}
-            resizeMode="contain"
-            className={`w-48 `}
           />
         )}
-        {activeThreat && !activeThreat.resolved && (
-          <ExpoImage
-            source={images.bugs}
+
+        {watering && (
+          <Animated.View
             style={{
-              width: 30,
-              height: 30,
-              position: "absolute", // <-- This removes it from layout flow
-              top: 120, // Adjust as needed
-              left: 170, // Adjust as needed
-              zIndex: 10, // Make sure it's above the plant
+              position: "absolute",
+              top: SCREEN_HEIGHT / 2,
+              left: SCREEN_WIDTH / 2 - 30,
+              width: 60,
+              height: 100,
+              opacity: waterAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 0],
+              }),
+              transform: [
+                {
+                  translateY: waterAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 100],
+                  }),
+                },
+              ],
+              backgroundColor: "rgba(0,150,255,0.4)",
+              borderRadius: 20,
             }}
           />
         )}
-        {isTimerActive && (
-          <Animated.Image
-            source={
-              plantDamaged
-                ? plantSickImages[getPlantStage()]
-                : currentSeason === "raining"
-                ? plantRainImages[getPlantStage()]
-                : plantImages[getPlantStage()]
-            }
-            className={`w-48 `}
-            resizeMode="contain"
+
+        {fertilizing && (
+          <Animated.View
             style={{
-              height: getPlantSize(),
-              // transform: [{ scale: plantScale }],
+              position: "absolute",
+              top: SCREEN_HEIGHT / 2 - 80,
+              left: SCREEN_WIDTH / 2 - 80,
+              width: 160,
+              height: 160,
+              backgroundColor: "rgba(100,200,100,0.3)",
+              borderRadius: 80,
+              opacity: fertAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.8, 0],
+              }),
+              transform: [
+                {
+                  scale: fertAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1.5],
+                  }),
+                },
+              ],
             }}
           />
         )}
-      </View>
 
-      {/* Tool buttons */}
-
-      <View className="absolute left-4 top-[18%] gap-y-1 py-80">
-        <ToolIcon
-          icon={images.fertilizer}
-          // onPress={triggerFertilizer}
-          onPress={fertilizePlant}
-          itemQty={userInventory.fertilizerQty}
-        />
-        <ToolIcon
-          itemQty={userInventory.pesticideQty}
-          icon={images.pesticied}
-          onPress={respondToThreat}
-          // onPress={() => {
-          //   if (bugs.length > 0) {
-          //     triggerSpray();
-          //   } else {
-          //     handleToolUse("No bugs right now");
-          //   }
-          // }}
-        />
-
-        <ToolIcon
-          itemQty={userInventory.waterQty}
-          icon={images.kettle}
-          // onPress={triggerWater}
-          onPress={waterPlant}
-        />
-      </View>
-
-      {/* Progress bar */}
-
-      <View className="px-6 mt-5">
-        <View className="h-3 bg-white/30 rounded-full">
-          <View
-            className="h-3 bg-yellow-400 rounded-full"
-            style={{ width: `${(getPlantStage() / 4) * 100}%` }}
-          />
-        </View>
-        <Text className="text-center text-white mt-1">
-          {getPlantStage() * 25}
-        </Text>
-      </View>
-
-      {/* Timer */}
-      <Text className="text-center text-white text-xl">
-        {formatTime(timeLeft)}
-      </Text>
-
-      {/* Action buttons */}
-      <View className="flex-row justify-around items-center ">
-        <ActionButton
-          icon={getLevelImage()}
-          // icon={images/levelDoc}
-          label={`LV ${userLevel}`}
-          onPress={() => handleToolUse(`Level info ${userLevel}`)}
-        />
-
-        {timeLeft > 0 && (
-          <ActionButton
-            icon={images.timer}
-            label=""
-            onPress={() => {
-              if (!isTimerActive) {
-                setIsTimerActive(true);
-                handleToolUse("Growth cycle started");
+        {/* Plant */}
+        <View
+          className={`flex-1 justify-center items-center mt-80`}
+          style={{
+            borderRadius: 100,
+            padding: 2,
+            // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
+          }}
+        >
+          {!isTimerActive && (
+            <Animated.Image
+              source={images.soil}
+              style={{
+                width: 100,
+                height: 130,
+                bottom: 80,
+                position: "absolute",
+              }}
+              resizeMode="contain"
+              className={`w-48 `}
+            />
+          )}
+          {activeThreat && !activeThreat.resolved && (
+            <ExpoImage
+              source={images.bugs}
+              style={{
+                width: 30,
+                height: 30,
+                position: "absolute", // <-- This removes it from layout flow
+                top: 120, // Adjust as needed
+                left: 170, // Adjust as needed
+                zIndex: 10, // Make sure it's above the plant
+              }}
+            />
+          )}
+          {isTimerActive && (
+            <Animated.Image
+              source={
+                plantDamaged
+                  ? plantSickImages[getPlantStage()]
+                  : currentSeason === "raining"
+                  ? plantRainImages[getPlantStage()]
+                  : plantImages[getPlantStage()]
               }
-            }}
-          />
-        )}
-        <ActionButton
-          icon={images.inventory}
-          label=""
-          onPress={() => router.push("/(screens)/inventory")}
-        />
-      </View>
-
-      {/* Popup */}
-      <Modal transparent visible={showPopup}>
-        <View className="flex-1 justify-center items-center bg-black/40">
-          <View className="bg-white rounded-xl p-6">
-            <Text className="text-lg font-bold">{popupText}</Text>
-          </View>
+              className={`w-48 `}
+              resizeMode="contain"
+              style={{
+                height: getPlantSize(),
+                // transform: [{ scale: plantScale }],
+              }}
+            />
+          )}
         </View>
-      </Modal>
-    </View>
+
+        {/* Tool buttons */}
+
+        <View className="absolute left-4 top-[18%] gap-y-1 py-80">
+          <ToolIcon
+            icon={images.fertilizer}
+            // onPress={triggerFertilizer}
+            onPress={fertilizePlant}
+            itemQty={userInventory.fertilizerQty}
+          />
+          <ToolIcon
+            itemQty={userInventory.pesticideQty}
+            icon={images.pesticied}
+            onPress={respondToThreat}
+            // onPress={() => {
+            //   if (bugs.length > 0) {
+            //     triggerSpray();
+            //   } else {
+            //     handleToolUse("No bugs right now");
+            //   }
+            // }}
+          />
+
+          <ToolIcon
+            itemQty={userInventory.waterQty}
+            icon={images.kettle}
+            // onPress={triggerWater}
+            onPress={waterPlant}
+          />
+        </View>
+
+        {/* Progress bar */}
+        <View className="px-6 mt-5">
+          <View className="h-3 bg-white/30 rounded-full">
+            <View
+              className="h-3 bg-yellow-400 rounded-full"
+              style={{ width: `${(getPlantStage() / 4) * 100}%` }}
+            />
+          </View>
+          <Text className="text-center text-white mt-1">
+            {getPlantStage() * 25}
+          </Text>
+        </View>
+
+        {/* Timer */}
+        <Text className="text-center text-white text-xl">
+          {formatTime(timeLeft)}
+        </Text>
+
+        {/* Action buttons */}
+        <View className="flex-row justify-around items-center ">
+          <ActionButton
+            icon={getLevelImage()}
+            // icon={images/levelDoc}
+            label={`LV ${userLevel}`}
+            onPress={() => handleToolUse(`Level info ${userLevel}`)}
+          />
+
+          {timeLeft > 0 && (
+            <ActionButton
+              icon={images.timer}
+              label=""
+              onPress={() => {
+                if (!isTimerActive) {
+                  setIsTimerActive(true);
+                  handleToolUse("Growth cycle started");
+                }
+              }}
+            />
+          )}
+          <ActionButton
+            icon={images.inventory}
+            label=""
+            onPress={() => router.push("/(screens)/inventory")}
+          />
+        </View>
+
+        {/* Popup */}
+        <Modal transparent visible={showPopup}>
+          <View className="flex-1 justify-center items-center bg-black/40">
+            <View className="bg-white rounded-xl p-6">
+              <Text className="text-lg font-bold">{popupText}</Text>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
