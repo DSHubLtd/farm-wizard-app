@@ -53,7 +53,6 @@ const Harvest = () => {
         //   "Session completed & level upgraded successfully"
         // );
         setUser(result.data.updateUser);
-        console.log("Harvest result ", result.data);
         // setTimeout(() => {
         //   router.replace({
         //     pathname: "/(screens)/profile",

@@ -261,6 +261,14 @@ const PlantScreen = () => {
       setIsTimerActive(false);
       router.replace("/(screens)/gameOver");
     }
+    // harvest time
+    if (timeLeft === 1 || getPlantStage() > 3) {
+      setIsTimerActive(false);
+      router.replace({
+        pathname: "/(screens)/harvest",
+        params: { name, score, userLevel },
+      });
+    }
   };
 
   const waterPlant = () => {

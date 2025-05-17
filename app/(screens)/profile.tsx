@@ -20,6 +20,7 @@ import { Picker } from "@react-native-picker/picker";
 import uuid from "react-native-uuid";
 import FlutterwaveModal from "@/components/FlutterwaveModal";
 import checkCurrency from "@/utils/checkCurrency";
+import { useAvatarArray } from "@/hooks/useAvatarArray";
 
 const chartData = {
   Daily: [250, 180, 300, 120, 260, 190, 230, 210, 150, 200, 170, 240],
@@ -185,7 +186,7 @@ const Profile = () => {
       {/* Avatar + Info */}
       <View className="items-center">
         <Image
-          source={icons.profile}
+          source={useAvatarArray(user.avatar || 0)}
           resizeMode="contain"
           // className="w-[50%] aspect-square max-w-[200px] "
           className="w-[80px] h-[80px] md:w-48 md:h-48"
