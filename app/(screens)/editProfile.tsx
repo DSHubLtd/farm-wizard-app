@@ -61,7 +61,7 @@ const EditProfile = () => {
           //   className="max-h-10 p-2 border-r-4 border-r-[#E1CE67] mb-3"
         >
           <FormField
-            title="Full Name"
+            title={t("fullname")}
             placeholder="Full name"
             value={form.fullName}
             handleChangeText={(e: any) => setForm({ ...form, fullName: e })}
@@ -92,7 +92,7 @@ const EditProfile = () => {
             otherStyles="mt-1"
           />
           <CustomButton
-            title={t("save")}
+            title={t("buttons.save")}
             handlePress={() => console.log("save")}
             containerStyles="w-full"
             textStyles={"font-pbold text-white"}

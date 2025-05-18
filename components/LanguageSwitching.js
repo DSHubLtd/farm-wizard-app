@@ -21,9 +21,9 @@ export default function LanguageSwitching() {
     Arabic: { code: "ar", nativeName: "العربية" },
     // Hebrew: { code: "he", nativeName: "עברית" },
     Hausa: { code: "ha", nativeName: "Hausa" },
-    // Yoruba: { code: "yo", nativeName: "Yorùbá" },
-    // Igbo: { code: "ig", nativeName: "Asụsụ Igbo" },
-    // Swahili: { code: "sw", nativeName: "Kiswahili" },
+    Yoruba: { code: "yo", nativeName: "Yorùbá" },
+    Igbo: { code: "ig", nativeName: "Asụsụ Igbo" },
+    Swahili: { code: "sw", nativeName: "Kiswahili" },
     // Amharic: { code: "am", nativeName: "አማርኛ" },
     // Oromo: { code: "om", nativeName: "Afaan Oromoo" },
     // Tigrinya: { code: "ti", nativeName: "ትግርኛ" },
@@ -55,14 +55,14 @@ export default function LanguageSwitching() {
       }
       setLanguageLoaded(true);
 
-      // await AsyncStorage.removeItem("user-language");
+      await AsyncStorage.removeItem("user-language");
 
       // Remove all translation caches
-      // const keys = await AsyncStorage.getAllKeys();
-      // const translationKeys = keys.filter((key) =>
-      //   key.startsWith("translations-")
-      // );
-      // await AsyncStorage.multiRemove(translationKeys);
+      const keys = await AsyncStorage.getAllKeys();
+      const translationKeys = keys.filter((key) =>
+        key.startsWith("translations-")
+      );
+      await AsyncStorage.multiRemove(translationKeys);
     };
     loadSavedLanguage();
   }, []);

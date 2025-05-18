@@ -4,10 +4,13 @@ import { images } from "@/constants";
 import { View, Text, Image, Dimensions } from "react-native";
 import { CustomButton } from "../../components";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
 const TransactionSuccess = () => {
+  const { t } = useTranslation();
+
   return (
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
       {/* Background */}
@@ -23,8 +26,12 @@ const TransactionSuccess = () => {
 
       <View className="items-center justify-center my-14">
         {/* Title */}
-        <Text className="text-white text-3xl font-primary">TRANSACTION</Text>
-        <Text className="text-white text-3xl font-primary">SUCCESSFUL</Text>
+        <Text className="text-white text-3xl font-primary">
+          {t("transaction")}
+        </Text>
+        <Text className="text-white text-3xl font-primary">
+          {t("successful")}
+        </Text>
 
         <View className="items-center my-8 rounded-3xl p-6">
           <Image
@@ -49,7 +56,7 @@ const TransactionSuccess = () => {
         </View>
 
         <CustomButton
-          title="OK"
+          title={t("buttons.ok")}
           handlePress={() => router.replace("/(tabs)/home")}
           containerStyles="w-[200px] mb-1"
           textStyles={"font-pbold text-white"}

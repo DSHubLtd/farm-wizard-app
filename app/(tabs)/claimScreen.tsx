@@ -21,6 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const { height } = Dimensions.get("window");
 import uuid from "react-native-uuid";
 import { useLoginContext } from "@/context/LoginProvider";
+import { useTranslation } from "react-i18next";
 
 const tabs = ["Token", "Airtime", "Data bundle"] as const;
 
@@ -223,6 +224,7 @@ const ClaimScreen = () => {
       }
     }
   };
+  const { t } = useTranslation();
   return (
     <View className="flex-1 bg-green-200 items-center justify-start relative">
       <BackgroundImage
@@ -377,12 +379,12 @@ const ClaimScreen = () => {
               isLoading={isSubmitting}
             />
             <Text className="text-md font-secondary text-white my-2">
-              Airtime / data rewards are available in Nigeria only.
+              {t("messages.available")}
             </Text>
           </ScrollView>
         ) : (
           <Text className="text-white text-base font-primary my-40 ">
-            This service is not avaialabel in your region
+            {t("messages.unavailable")}
           </Text>
         ))}
 
@@ -412,7 +414,8 @@ const ClaimScreen = () => {
               {selectedProvider?.name}
             </Text>
             <Text className="text-gray-200 text-center mb-6">
-              Are you sure you want to claim via {selectedProvider?.name}?
+              {t("messages.confirm_claim")}
+              {selectedProvider?.name}?
             </Text>
 
             <FormField
@@ -446,7 +449,9 @@ const ClaimScreen = () => {
                 className="p-3 bg-gray-300 rounded"
                 onPress={closeModal}
               >
-                <Text className="text-black font-semibold">Cancel</Text>
+                <Text className="text-black font-semibold">
+                  {t("buttons.cancel")}
+                </Text>
               </TouchableOpacity>
             </View>
           </Animated.View>

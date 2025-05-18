@@ -16,13 +16,23 @@ const CustomButton = ({
                 intensity={50}
                 tint="dark"
                 className="rounded-lg p-2 bg-white/10"
+                style={{
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                }}
             >
                 <TouchableOpacity
                     onPress={handlePress}
                     activeOpacity={0.7}
                     className={`bg-buttonColor rounded-xl min-h-[52px] flex flex-row justify-center items-center shadow-lg shadow-black/50 ${containerStyles} ${isLoading ? "opacity-50" : ""
                         }`}
-                    style={{ borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    // style={{ borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                    style={{
+                        borderWidth: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        // backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    }}
 
                     disabled={isLoading}
                 >

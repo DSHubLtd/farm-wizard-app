@@ -14,25 +14,8 @@ import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { signOut } from "../../services/auth";
 import { useLoginContext } from "@/context/LoginProvider";
-const settingsOptions = [
-  {
-    label: "Get special rewards",
-    icon: icons.settings,
-    link: "special-reward",
-  },
-  { label: "Edit Profile", icon: icons.settings, link: "editProfile" },
-  { label: "Privacy Policy", icon: icons.settings, link: "privacy" },
-  { label: "Terms and Condition", icon: icons.settings, link: "terms" },
-  { label: "Contact Us", icon: icons.settings, link: "contact-us" },
-  { label: "Tutorial", icon: icons.settings, link: "tutorial" },
-  { label: "Logout", icon: icons.settings, link: "logout" },
-  {
-    label: "Delete Account",
-    icon: icons.settings,
-    danger: true,
-    link: "delete-account",
-  },
-];
+import { useTranslation } from "react-i18next";
+
 const Settings = () => {
   const [isSubmitting, setSubmitting] = useState(false);
   const { setIsLogged } = useLoginContext();
@@ -64,6 +47,48 @@ const Settings = () => {
     }
   };
 
+  const { t } = useTranslation();
+
+  const settingsOptions = [
+    {
+      label: t("settings.special_reward"),
+      icon: icons.settings,
+      link: "special-reward",
+    },
+    { label: t("edit_profile"), icon: icons.settings, link: "editProfile" },
+    {
+      label: t("settings.privacy_policy"),
+      icon: icons.settings,
+      link: "privacy",
+    },
+    {
+      label: t("settings.terms_and_condition"),
+      icon: icons.settings,
+      link: "terms",
+    },
+    {
+      label: t("settings.contact_us"),
+      icon: icons.settings,
+      link: "contact-us",
+    },
+    {
+      label: t("settings.tutorial"),
+      icon: icons.settings,
+      link: "tutorial",
+    },
+    {
+      label: t("settings.logout"),
+      icon: icons.settings,
+      link: "logout",
+    },
+    {
+      label: t("settings.delete_account"),
+      icon: icons.settings,
+      danger: true,
+      link: "delete-account",
+    },
+  ];
+
   return (
     <View className="flex-1 items-center justify-start bg-green-200">
       {/* Background */}
@@ -84,7 +109,7 @@ const Settings = () => {
 
       {/* Title */}
       <Text className="text-white text-2xl font-primary font-bold">
-        SETTINGS
+        {t("settings.settings")}
       </Text>
 
       {/* Glass Panel */}

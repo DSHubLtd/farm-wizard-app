@@ -13,6 +13,7 @@ import {
 import { CustomButton } from "../../components";
 import { useRouter } from "expo-router";
 import { plantGrowth as seeds } from "@/constants/plants";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
@@ -46,6 +47,7 @@ const SelectSeed = () => {
   const prevSeed = () =>
     handleSeedChange((selectedIndex - 1 + seeds.length) % seeds.length);
 
+  const { t } = useTranslation();
   return (
     //  <View
     //   style={{
@@ -72,7 +74,7 @@ const SelectSeed = () => {
           marginBottom: 20,
         }}
       >
-        Select Seed
+        {t("buttons.exit_to_menu")}
       </Text>
 
       {/* Scrollable Icons */}
@@ -232,7 +234,7 @@ const SelectSeed = () => {
       </Animated.View>
 
       <CustomButton
-        title="Select Seed"
+        title={t("buttons.exit_to_menu")}
         handlePress={() =>
           router.push({
             pathname: "/(screens)/sessionStarted",

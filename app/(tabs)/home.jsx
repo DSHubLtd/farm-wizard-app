@@ -8,6 +8,7 @@ import { useLoginContext } from "../../context/LoginProvider";
 import { BlurView } from "expo-blur";
 import RewardedAdComponent from '../../utils/RewardedAdComponent';
 import { useAvatarArray } from "../../hooks/useAvatarArray";
+import { useTranslation } from "react-i18next";
 const { width } = Dimensions.get("window");
 
 
@@ -61,7 +62,7 @@ export default Home = () => {
     //   useNativeDriver: true,
     // }).start();
   };
-
+  const { t } = useTranslation();
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">
 
@@ -156,7 +157,7 @@ export default Home = () => {
             />
 
             <Text className="text-white text-xl text-center mb-6">
-              Watch a short enchanted vision (ad) to save your journey and unlock a special reward. The forest remembers those who take the time — let the magic work in your favor!
+              {t("messages.watch_ads")}
             </Text>
 
             <View className="flex-row justify-center items-center">

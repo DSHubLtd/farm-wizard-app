@@ -5,13 +5,14 @@ import { View, Text, Image, Dimensions } from "react-native";
 import { CustomButton } from "../../components";
 import { router, useLocalSearchParams } from "expo-router";
 import CountdownTimer from "@/utils/CountdownTimer";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
 const RequestReceived = () => {
   const { createdAt, amount, reference } = useLocalSearchParams();
 
-  // console.log("details ", createdAt, amount, reference);
+  const { t } = useTranslation();
   return (
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
       {/* Background */}
@@ -43,8 +44,7 @@ const RequestReceived = () => {
               paddingHorizontal: 10,
             }}
           >
-            Your reward request has been successfully received and is currently
-            being processed. It will be delivered to you once the timer ends!
+            {t("messages.reques_recieved")}
             Amount: {amount} & referece: {reference}
           </Text>
           <Image

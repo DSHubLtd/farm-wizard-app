@@ -21,7 +21,7 @@ const PlayState = ({ title, subtitle }) => {
 
             <CustomButton
                 title="Play"
-                handlePress={() => router.push("/farmScreen")}
+                handlePress={() => console.log("hi")}
                 containerStyles="w-full my-5"
             />
         </View>

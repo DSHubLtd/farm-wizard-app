@@ -557,7 +557,7 @@ const PlantScreen = () => {
           <Animated.View
             style={{
               position: "absolute",
-              top: SCREEN_HEIGHT / 2 - 80,
+              top: SCREEN_HEIGHT / 2 - 5,
               left: SCREEN_WIDTH / 2 - 80,
               width: 160,
               height: 160,
@@ -599,7 +599,7 @@ const PlantScreen = () => {
                   }),
                 },
               ],
-              backgroundColor: "rgba(0,150,255,0.4)",
+              backgroundColor: "rgba(100, 180, 200, 0.4)",
               borderRadius: 20,
             }}
           />

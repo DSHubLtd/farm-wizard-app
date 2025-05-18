@@ -4,11 +4,14 @@ import { images } from "@/constants";
 import { View, Text, Image, Dimensions } from "react-native";
 import { CustomButton } from "../../components";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
 const GameOver = () => {
   const router = useRouter();
+
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
@@ -78,23 +81,21 @@ const GameOver = () => {
             paddingHorizontal: 10,
           }}
         >
-          The magic fades… Your farm rests for now. But with a new dawn, fresh
-          hope will grow again. Please check the game instructions and try again
-          when you're ready!.
+          {t("messages.game_over")}
         </Text>
       </View>
 
       {/* </View> */}
       <View className="flex-row justify-between m-3">
         <CustomButton
-          title="Go Again"
+          title={t("buttons.go_again")}
           handlePress={() => router.push("/(screens)/selectSeed")}
           containerStyles="w-[150px]"
           textStyles={"font-pbold text-white"}
           isLoading={false}
         />
         <CustomButton
-          title="Exit To Menu"
+          title={t("buttons.exit_to_menu")}
           handlePress={() => router.push("/(tabs)/home")}
           containerStyles="w-[150px]"
           textStyles={"font-pbold text-white"}

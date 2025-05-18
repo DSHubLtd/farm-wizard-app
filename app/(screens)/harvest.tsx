@@ -8,6 +8,7 @@ import { plantGrowth } from "@/constants/plants";
 import { updatePlantLevels } from "@/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLoginContext } from "@/context/LoginProvider";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
@@ -70,6 +71,7 @@ const Harvest = () => {
   useEffect(() => {
     updateLevel();
   }, []);
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
@@ -82,8 +84,13 @@ const Harvest = () => {
       {/* Title */}
 
       <View className="items-center justify-center my-14">
-        <Text className="text-white text-3xl font-primary">SESSION</Text>
-        <Text className="text-white text-3xl font-primary">COMPLETED</Text>
+        <Text className="text-white text-3xl font-primary">
+          {" "}
+          {t("menu.session")}
+        </Text>
+        <Text className="text-white text-3xl font-primary">
+          {t("menu.completed")}
+        </Text>
 
         <Image
           source={images.sessionComplete}
@@ -96,27 +103,26 @@ const Harvest = () => {
         />
 
         <Text className="text-center text-xl p-4 my-2 text-white">
-          Total points Earned
+          {t("game.total_points")}
         </Text>
 
         <Text className="text-center text-5xl font-bold font-secondary p-4 text-[#FEDA42]">
           {score}
         </Text>
         <Text className="text-center text-xl p-4 my-2 text-white">
-          Great work today! Your farm flourished under your care — take a
-          well-earned rest and return soon to keep the magic growing.
+          {t("messages.harvest")}
         </Text>
 
         <View className="flex-row justify-between m-3">
           <CustomButton
-            title="Keep Going"
+            title={t("buttons.keep_going")}
             handlePress={() => router.replace("/(screens)/selectSeed")}
             containerStyles="w-[150px]"
             textStyles={"font-pbold text-white"}
             isLoading={isSubmitting}
           />
           <CustomButton
-            title="Exit To Menu"
+            title={t("buttons.exit_to_menu")}
             handlePress={() => router.replace("/(tabs)/home")}
             containerStyles="w-[150px]"
             textStyles={"font-pbold text-white"}
