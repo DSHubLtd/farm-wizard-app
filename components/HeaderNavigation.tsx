@@ -27,6 +27,18 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
         >
           <Image source={leftIcon} className="w-20 h-20 rounded-full" />
         </TouchableOpacity>
+        // <View className="flex-row">
+        //             <TouchableOpacity className="">
+        //               <Image
+        //                 source={useAvatarArray(user.avatar || 0)}
+        //                 className="w-16 h-16 rounded-full"
+        //               />
+        //             </TouchableOpacity>
+        //             <View className="flex my-4">
+        //               <Text className="text-white text-md">Hi, {user.fullName}</Text>
+        //               <Text className="text-white text-md">{user.score}</Text>
+        //             </View>
+        //           </View>
       )}
 
       {showRightButton && (

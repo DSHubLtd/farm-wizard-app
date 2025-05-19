@@ -223,7 +223,7 @@ const PlantScreen = () => {
 
       if (!activeThreat.resolved) {
         if (activeThreat.type === "disease" && timeSinceThreat > 10000) {
-          // Ongoing health drain
+          // angoing health drain
           setPlantHealth((h) => Math.max(0, h - 10));
           //handleToolUse("☠️ Disease is hurting your plant!");
           setPlantDamaged(true);
@@ -379,12 +379,12 @@ const PlantScreen = () => {
     //   handleToolUse("No bugs right now");
     //   return;
     // }
-    // if (userInventory.pesticideQty > 0) {
-    //   handleUpdateInventory("Pesticide");
-    // } else {
-    //   handleToolUse("Insufficient pesticide item, Please purchase");
-    //   return;
-    // }
+    if (userInventory.pesticideQty > 0) {
+      handleUpdateInventory("Pesticide");
+    } else {
+      handleToolUse("Insufficient pesticide item, Please purchase");
+      return;
+    }
     setPlantDamaged(false);
 
     setSpraying(true);
@@ -406,12 +406,12 @@ const PlantScreen = () => {
     });
   };
   const triggerFertilizer = () => {
-    // if (userInventory.fertilizerQty > 0) {
-    //   handleUpdateInventory("Fertilizer");
-    // } else {
-    //   handleToolUse("Insufficient fertilizer item, Please purchase");
-    //   return;
-    // }
+    if (userInventory.fertilizerQty > 0) {
+      handleUpdateInventory("Fertilizer");
+    } else {
+      handleToolUse("Insufficient fertilizer item, Please purchase");
+      return;
+    }
     setScore((s) => Math.min(s + 3, 100000));
     setFertilizing(true);
     fertAnim.setValue(0);
@@ -429,12 +429,12 @@ const PlantScreen = () => {
     });
   };
   const triggerWater = () => {
-    // if (userInventory.waterQty > 0) {
-    //   handleUpdateInventory("Water");
-    // } else {
-    //   handleToolUse("Insufficient water item, Please purchase");
-    //   return;
-    // }
+    if (userInventory.waterQty > 0) {
+      handleUpdateInventory("Water");
+    } else {
+      handleToolUse("Insufficient water item, Please purchase");
+      return;
+    }
     setScore((s) => Math.min(s + 3, 100000));
     setWatering(true);
     waterAnim.setValue(0);
@@ -508,10 +508,13 @@ const PlantScreen = () => {
             <TouchableOpacity className="">
               <Image
                 source={useAvatarArray(user.avatar || 0)}
-                className="w-12 h-12 rounded-full"
+                className="w-16 h-16 rounded-full"
               />
             </TouchableOpacity>
-            <Text className="my-4 text-white text-md">Hi, {user.fullName}</Text>
+            <View className="flex my-4">
+              <Text className="text-white text-md">Hi, {user.fullName}</Text>
+              <Text className="text-white text-md">{user.score}</Text>
+            </View>
           </View>
           <TouchableOpacity
             className="bg-yellow-300 p-2 rounded-full"
@@ -722,9 +725,9 @@ const PlantScreen = () => {
         </View>
 
         {/* Timer */}
-        <Text className="text-center text-white text-xl">
+        {/* <Text className="text-center text-white text-xl">
           {formatTime(timeLeft)}
-        </Text>
+        </Text> */}
 
         {/* Action buttons */}
         <View className="flex-row justify-around items-center ">

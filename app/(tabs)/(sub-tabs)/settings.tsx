@@ -8,17 +8,29 @@ import {
   Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import { icons, images } from "../../constants";
+import { icons, images } from "../../../constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
-import { signOut } from "../../services/auth";
+import WebViewModal from "@/components/WebViewModal";
+import RewardModal from "@/components/RewardModal";
+import { signOut } from "../../../services/auth";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
+import ConfirmModal from "@/components/ConfirmDialog";
 
 const Settings = () => {
-  const [isSubmitting, setSubmitting] = useState(false);
   const { setIsLogged } = useLoginContext();
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [rewalVisible, setRewardVisible] = useState(false);
+  const [url, setUrl] = useState("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  const [confirmModal, setConfirmModal] = useState(false);
+
+  const openWebView = (url: string) => {
+    setUrl(url);
+    setModalVisible(true);
+  };
 
   const logOut = async () => {
     setSubmitting(true);
@@ -38,12 +50,26 @@ const Settings = () => {
     }
   };
 
-  const handleItemClick = (itemLink: string) => {
+  const handleItemClick = (itemLink: string, url: string) => {
     if (itemLink === "editProfile") {
-      router.push(`/${itemLink}`);
+      router.push(`/(tabs)/(sub-tabs)/${itemLink}`);
+    }
+    if (itemLink === "specialReward") {
+      setRewardVisible(true);
+    }
+    if (
+      itemLink === "privacy" ||
+      itemLink === "terms" ||
+      itemLink === "contact-us" ||
+      itemLink === "tutorial"
+    ) {
+      openWebView(url);
     }
     if (itemLink === "logout") {
       logOut();
+    }
+    if (itemLink === "delete-account") {
+      setConfirmModal(true);
     }
   };
 
@@ -52,40 +78,52 @@ const Settings = () => {
   const settingsOptions = [
     {
       label: t("settings.special_reward"),
-      icon: icons.settings,
-      link: "special-reward",
+      icon: icons.reward,
+      link: "specialReward",
+      url: "www.google.com",
     },
-    { label: t("edit_profile"), icon: icons.settings, link: "editProfile" },
+    {
+      label: t("edit_profile"),
+      icon: icons.editProfile,
+      link: "editProfile",
+      url: "",
+    },
     {
       label: t("settings.privacy_policy"),
-      icon: icons.settings,
+      icon: icons.privacy,
       link: "privacy",
+      url: "www.google.com",
     },
     {
       label: t("settings.terms_and_condition"),
-      icon: icons.settings,
+      icon: icons.termsNcondition,
       link: "terms",
+      url: "www.google.com",
     },
     {
       label: t("settings.contact_us"),
-      icon: icons.settings,
+      icon: icons.contact,
       link: "contact-us",
+      url: "www.google.com",
     },
     {
       label: t("settings.tutorial"),
-      icon: icons.settings,
+      icon: icons.tutorial,
       link: "tutorial",
+      url: "https://youtu.be/E0Hmnixke2g?si=pXvbfDqh3Gxquv2y",
     },
     {
       label: t("settings.logout"),
-      icon: icons.settings,
+      icon: icons.logout,
       link: "logout",
+      url: "",
     },
     {
       label: t("settings.delete_account"),
-      icon: icons.settings,
+      icon: icons.del,
       danger: true,
       link: "delete-account",
+      url: "",
     },
   ];
 
@@ -119,14 +157,14 @@ const Settings = () => {
         tint="default"
         className="px-5 py-3 w-[95%] rounded-xl bg-white/10"
       >
-        <ScrollView className="max-h-[80vh]">
+        <ScrollView className="max-h-[70vh]">
           {settingsOptions.map((item, index) => (
             <TouchableOpacity
               key={index}
               className={`flex-row items-center justify-between m-30 p-8 border-b border-white/80 ${
                 index === settingsOptions.length - 1 ? "border-b-0" : ""
               }`}
-              onPress={() => handleItemClick(item.link)}
+              onPress={() => handleItemClick(item.link, item.url)}
             >
               <View className="flex-row items-center space-x-2">
                 {item.icon && (
@@ -153,6 +191,28 @@ const Settings = () => {
           ))}
         </ScrollView>
       </BlurView>
+
+      <RewardModal
+        visible={rewalVisible}
+        onClose={() => setRewardVisible(false)}
+      />
+      <WebViewModal
+        visible={modalVisible}
+        url={url}
+        onClose={() => setModalVisible(false)}
+      />
+
+      <ConfirmModal
+        visible={confirmModal}
+        onConfirm={() => {
+          console.log("Confirmed!");
+          setConfirmModal(false);
+        }}
+        onCancel={() => {
+          console.log("Cancelled");
+          setConfirmModal(false);
+        }}
+      />
     </View>
   );
 };

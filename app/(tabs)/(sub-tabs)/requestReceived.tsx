@@ -2,7 +2,7 @@ import React from "react";
 import BackgroundImage from "@/components/BackgroundImage";
 import { images } from "@/constants";
 import { View, Text, Image, Dimensions } from "react-native";
-import { CustomButton } from "../../components";
+import { CustomButton } from "../../../components";
 import { router, useLocalSearchParams } from "expo-router";
 import CountdownTimer from "@/utils/CountdownTimer";
 import { useTranslation } from "react-i18next";

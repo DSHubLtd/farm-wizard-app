@@ -3,12 +3,8 @@ import { Stack } from "expo-router";
 export default function ScreenLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="settings" />
-      <Stack.Screen name="home" />
-      <Stack.Screen name="profile" />
       <Stack.Screen name="selectSeed" />
       <Stack.Screen name="inventory" />
-      <Stack.Screen name="editProfile" />
       <Stack.Screen name="plantScreen" />
       <Stack.Screen name="gameOver" />
       <Stack.Screen name="harvest" />
@@ -16,7 +12,6 @@ export default function ScreenLayout() {
       <Stack.Screen name="sessionStarted" />
       <Stack.Screen name="payStackCheckout" />
       <Stack.Screen name="transactionSuccess" />
-      <Stack.Screen name="requestReceived" />
     </Stack>
   );
 }

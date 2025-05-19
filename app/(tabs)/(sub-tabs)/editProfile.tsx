@@ -3,12 +3,12 @@ import { Link, router } from "expo-router";
 import { View, Text, ScrollView, Dimensions, Alert, Image } from "react-native";
 import { useTranslation } from "react-i18next";
 
-import { icons, images } from "../../constants";
 import { useLoginContext } from "@/context/LoginProvider";
 import BackgroundImage from "@/components/BackgroundImage";
 import { CustomButton, FormField } from "@/components";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import LanguageSwitching from "@/components/LanguageSwitching";
+import { icons, images } from "@/constants";
 
 const EditProfile = () => {
   const { user, setUser, setIsLogged } = useLoginContext();
@@ -21,7 +21,6 @@ const EditProfile = () => {
   const [form, setForm] = useState({
     fullName: "",
     username: "",
-    email: "",
     password: "",
     cpassword: "",
   });
@@ -30,9 +29,10 @@ const EditProfile = () => {
   return (
     <View className="flex-1 items-center justify-start bg-green-200">
       <BackgroundImage source={images.background} style={{}} />
+
       {/* Back Button */}
       <HeaderNavigation
-        onLeftPress={() => router.push("/(screens)/settings")}
+        onLeftPress={() => router.push("/(tabs)/(sub-tabs)/settings")}
         onRightPress={() => null}
         leftIcon={icons.back}
         rightIcon={icons.settings}
@@ -65,16 +65,7 @@ const EditProfile = () => {
             placeholder="Full name"
             value={form.fullName}
             handleChangeText={(e: any) => setForm({ ...form, fullName: e })}
-            otherStyles="mt-1"
-          />
-
-          <FormField
-            title="Email"
-            placeholder="Email"
-            value={form.email}
-            handleChangeText={(e: any) => setForm({ ...form, email: e })}
-            otherStyles="mt-1"
-            keyboardType="email-address"
+            otherStyles="mt-2"
           />
 
           <FormField
@@ -82,14 +73,14 @@ const EditProfile = () => {
             placeholder="password"
             value={form.password}
             handleChangeText={(e: any) => setForm({ ...form, password: e })}
-            otherStyles="mt-1"
+            otherStyles="mt-2"
           />
           <FormField
             title="Confirm Password"
             placeholder="c password"
             value={form.cpassword}
             handleChangeText={(e: any) => setForm({ ...form, cpassword: e })}
-            otherStyles="mt-1"
+            otherStyles="mt-2"
           />
           <CustomButton
             title={t("buttons.save")}

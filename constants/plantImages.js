@@ -11,10 +11,10 @@ import maize2 from "../assets/plant-growth/Healthy/Maize/2.png";
 import maize3 from "../assets/plant-growth/Healthy/Maize/3.png";
 import maize4 from "../assets/plant-growth/Healthy/Maize/4.png";
 
-import mongo1 from "../assets/plant-growth/Healthy/Mongo/1.png";
-import mongo2 from "../assets/plant-growth/Healthy/Mongo/2.png";
-import mongo3 from "../assets/plant-growth/Healthy/Mongo/3.png";
-import mongo4 from "../assets/plant-growth/Healthy/Mongo/4.png";
+import mango1 from "../assets/plant-growth/Healthy/Mango/1.png";
+import mango2 from "../assets/plant-growth/Healthy/Mango/2.png";
+import mango3 from "../assets/plant-growth/Healthy/Mango/3.png";
+import mango4 from "../assets/plant-growth/Healthy/Mango/4.png";
 
 import orange1 from "../assets/plant-growth/Healthy/Orange/1.png";
 import orange2 from "../assets/plant-growth/Healthy/Orange/2.png";
@@ -37,10 +37,10 @@ import maizeSick2 from "../assets/plant-growth/sick/Maize/2.png";
 import maizeSick3 from "../assets/plant-growth/sick/Maize/3.png";
 import maizeSick4 from "../assets/plant-growth/sick/Maize/4.png";
 
-import mongoSick1 from "../assets/plant-growth/sick/Mongo/1.png";
-import mongoSick2 from "../assets/plant-growth/sick/Mongo/2.png";
-import mongoSick3 from "../assets/plant-growth/sick/Mongo/3.png";
-import mongoSick4 from "../assets/plant-growth/sick/Mongo/4.png";
+import mangoSick1 from "../assets/plant-growth/sick/Mango/1.png";
+import mangoSick2 from "../assets/plant-growth/sick/Mango/2.png";
+import mangoSick3 from "../assets/plant-growth/sick/Mango/3.png";
+import mangoSick4 from "../assets/plant-growth/sick/Mango/4.png";
 
 import orangeSick1 from "../assets/plant-growth/sick/Orange/1.png";
 import orangeSick2 from "../assets/plant-growth/sick/Orange/2.png";
@@ -63,10 +63,10 @@ import maizeRain2 from "../assets/plant-growth/Rain/Maize/2.png";
 import maizeRain3 from "../assets/plant-growth/Rain/Maize/3.png";
 import maizeRain4 from "../assets/plant-growth/Rain/Maize/4.png";
 
-import mongoRain1 from "../assets/plant-growth/Rain/Mongo/1.png";
-import mongoRain2 from "../assets/plant-growth/Rain/Mongo/2.png";
-import mongoRain3 from "../assets/plant-growth/Rain/Mongo/3.png";
-import mongoRain4 from "../assets/plant-growth/Rain/Mongo/4.png";
+import mangoRain1 from "../assets/plant-growth/Rain/Mango/1.png";
+import mangoRain2 from "../assets/plant-growth/Rain/Mango/2.png";
+import mangoRain3 from "../assets/plant-growth/Rain/Mango/3.png";
+import mangoRain4 from "../assets/plant-growth/Rain/Mango/4.png";
 
 import orangeRain1 from "../assets/plant-growth/Rain/Orange/1.png";
 import orangeRain2 from "../assets/plant-growth/Rain/Orange/2.png";
@@ -89,10 +89,10 @@ export default {
   maize3,
   maize4,
 
-  mongo1,
-  mongo2,
-  mongo3,
-  mongo4,
+  mango1,
+  mango2,
+  mango3,
+  mango4,
 
   orange1,
   orange2,
@@ -114,10 +114,10 @@ export default {
   maizeSick3,
   maizeSick4,
 
-  mongoSick1,
-  mongoSick2,
-  mongoSick3,
-  mongoSick4,
+  mangoSick1,
+  mangoSick2,
+  mangoSick3,
+  mangoSick4,
 
   orangeSick1,
   orangeSick2,
@@ -139,10 +139,10 @@ export default {
   maizeRain3,
   maizeRain4,
 
-  mongoRain1,
-  mongoRain2,
-  mongoRain3,
-  mongoRain4,
+  mangoRain1,
+  mangoRain2,
+  mangoRain3,
+  mangoRain4,
 
   orangeRain1,
   orangeRain2,

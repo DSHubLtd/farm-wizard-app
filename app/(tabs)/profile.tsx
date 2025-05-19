@@ -7,6 +7,7 @@ import {
   Animated,
   Modal,
   Alert,
+  ScrollView,
 } from "react-native";
 import { icons, images } from "@/constants";
 import BackgroundImage from "@/components/BackgroundImage";
@@ -21,15 +22,30 @@ import uuid from "react-native-uuid";
 import FlutterwaveModal from "@/components/FlutterwaveModal";
 import checkCurrency from "@/utils/checkCurrency";
 import { useAvatarArray } from "@/hooks/useAvatarArray";
-
-const chartData = {
-  Daily: [250, 180, 300, 120, 260, 190, 230, 210, 150, 200, 170, 240],
-  Weekly: [400, 350, 280, 460, 300, 370, 420],
-  Monthly: [600, 720, 530, 650, 700, 630, 710, 580],
-};
+import { ActivityIndicator } from "react-native";
 
 const tabs = ["Daily", "Weekly", "Monthly"] as const;
 type TabType = (typeof tabs)[number];
+
+// Sample datasets
+const datasets = {
+  Daily: {
+    data: [100, 320, 150, 650, 300, 280, 120],
+    labels: ["1", "7", "14", "21", "28", "5", "13"],
+  },
+  Weekly: {
+    data: [250, 500, 400, 600],
+    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+  },
+  Monthly: {
+    data: [800, 950, 700, 600, 1100],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+  },
+};
+
+const maxValue = 1200; // Global max value for consistent height scaling
+const yAxisLabels = Array.from({ length: 7 }, (_, i) => i * 200).reverse();
+const xAxisLabels = [1, 7, 14, 21, 28, 5, 13];
 
 const Profile = () => {
   const { user, setUser } = useLoginContext();
@@ -39,13 +55,16 @@ const Profile = () => {
   const isPremiumUser = user?.isPremium === true;
 
   const [activeTab, setActiveTab] = useState<TabType>("Daily");
-  const [animatedValues, setAnimatedValues] = useState<Animated.Value[]>([]);
-  const [chartData, setChartData] = useState<{ [key in TabType]?: number[] }>(
-    {}
-  );
-  const [chartLabels, setChartLabels] = useState<{
-    [key in TabType]?: string[];
-  }>({});
+  const { data, labels } = datasets[activeTab];
+
+  const [chartData, setChartData] = useState<{
+    data: number[];
+    labels: string[];
+  }>({
+    data: [],
+    labels: [],
+  });
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [showFlutterwave, setShowFlutterwave] = useState(false);
   const [currency, setCurrency] = useState("USD");
@@ -59,41 +78,24 @@ const Profile = () => {
     const fetchData = async () => {
       const token = await AsyncStorage.getItem("token");
       if (token !== null) {
+        setLoading(true);
         try {
           const res = await fetch(
-            `https://farm-wizard-api.onrender.com/api/v1/earning/chart/${activeTab}`,
+            `https://farm-wizard-api.onrender.com/api/v1/earning/usd-chart/${activeTab}`,
             {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `JWT ${token}`,
               },
-              //body: JSON.stringify({ amount: 25.5 }),
             }
           );
           const json = await res.json();
-          //console.log("res ", json);
-
-          setChartData((prev) => ({ ...prev, [activeTab]: json.values }));
-          setChartLabels((prev) => ({ ...prev, [activeTab]: json.labels }));
-
-          const newAnimatedValues = json.values.map(
-            () => new Animated.Value(0)
-          );
-          setAnimatedValues(newAnimatedValues);
-
-          Animated.stagger(
-            50,
-            newAnimatedValues.map((val: any, i: any) =>
-              Animated.timing(val, {
-                toValue: json.values[i],
-                duration: 500,
-                useNativeDriver: false,
-              })
-            )
-          ).start();
+          setChartData(json);
         } catch (err) {
           console.error("Chart fetch error:", err);
+        } finally {
+          setLoading(false);
         }
       }
     };
@@ -162,6 +164,7 @@ const Profile = () => {
       })();
     }
   }, [currency, upgradeAmount]);
+
   return (
     <View className="flex-1 bg-green-200 items-center">
       <BackgroundImage
@@ -171,8 +174,8 @@ const Profile = () => {
 
       {/* Header */}
       <HeaderNavigation
-        onLeftPress={() => router.push("/(screens)/settings")}
-        onRightPress={() => console.log("Settings pressed")}
+        onLeftPress={() => router.push("/(tabs)/home")}
+        onRightPress={() => router.push("/(tabs)/(sub-tabs)/settings")}
         leftIcon={icons.back}
         rightIcon={icons.settings}
         showLeftButton={true}
@@ -188,7 +191,6 @@ const Profile = () => {
         <Image
           source={useAvatarArray(user.avatar || 0)}
           resizeMode="contain"
-          // className="w-[50%] aspect-square max-w-[200px] "
           className="w-[80px] h-[80px] md:w-48 md:h-48"
         />
         <Text className="text-white font-secondary text-xl text-center">
@@ -214,13 +216,6 @@ const Profile = () => {
                 Upgrade To premium
               </Text>
             </TouchableOpacity>
-            {/* <CustomButton
-              title="Upgrade To premium "
-              handlePress={openModal}
-              containerStyles="w-[200px]"
-              textStyles={"font-pbold text-white"}
-              isLoading={false}
-            /> */}
           </>
         ) : (
           <>
@@ -234,15 +229,6 @@ const Profile = () => {
                 Enchanted Farmer
               </Text>
             </View>
-            {/* <CustomButton
-            title="Premium Member!"
-            handlePress={() =>
-              Alert.alert("Congratulations", "Your account is premium member")
-            }
-            containerStyles="w-[200px]"
-            textStyles={"font-pbold text-white"}
-            isLoading={false}
-          /> */}
           </>
         )}
       </View>
@@ -255,75 +241,78 @@ const Profile = () => {
         {tabs.map((tab) => (
           <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
             <Text
-              className={`font-secondary ${
-                tab === activeTab
-                  ? "text-white font-bold underline"
-                  : "text-white/60"
+              className={`text-white ${
+                activeTab === tab ? "font-bold" : "opacity-60"
               }`}
             >
+              {activeTab === tab ? "● " : ""}
               {tab}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Chart with Axes */}
       {/* Chart Container */}
-      <View className="mt-4 rounded-2xl w-[90%] px-4 bg-[#D4B75873]">
-        <View className="flex-row items-end">
-          {/* Y-Axis */}
-          <View className="justify-between h-30 p-2">
-            {[4, 3, 2, 1, 0].map((n) => {
-              const max = Math.max(...(chartData[activeTab] || [1]));
-              const label = Math.round((n * max) / 4);
-              return (
-                <Text
-                  key={n}
-                  className="text-white text-xs"
-                  style={{ height: 32 }}
-                >
-                  {label}
+
+      <View className="w-[90%] mt-4 rounded-3xl bg-[#D4B75873] p-4">
+        {loading ? (
+          <ActivityIndicator size="large" color="#fff" className="mt-8" />
+        ) : (
+          <>
+            <View className="flex-row items-end">
+              {/* Y-Axis Labels */}
+              <View className="h-[200px] justify-between mr-2">
+                {yAxisLabels.map((val, i) => (
+                  <Text key={i} className="text-white text-xs">
+                    {val}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Chart */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 30 }}
+              >
+                <View className="flex-row items-end justify-between h-[200px] gap-6">
+                  {chartData.data.map((value: any, index: number) => {
+                    const heightPercent = (value / maxValue) * 100;
+
+                    return (
+                      <View key={index} className="items-center">
+                        {/* Bar Container */}
+                        <View className="w-4 h-[200px] bg-white/20 rounded-md overflow-hidden justify-end">
+                          {/* Filled Bar */}
+                          <View
+                            className="w-full bg-white"
+                            style={{ height: `${heightPercent}%` }}
+                          />
+                        </View>
+                        {/* <Text className="text-white mt-2">
+                        {chartData.labels[index]}
+                      </Text> */}
+                      </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
+            <View className="flex-row justify-between w-[60%] gap-8 ml-16">
+              {xAxisLabels.map((val, i) => (
+                <Text key={i} className="text-white text-xs">
+                  {val}
                 </Text>
-              );
-            })}
-          </View>
-
-          {/* Bars */}
-          <View className="flex-1 flex-row items-end justify-between space-x-1 h-40">
-            {(chartData[activeTab] || []).map((value, i) => (
-              <Animated.View
-                key={i}
-                className="bg-white rounded-full w-2"
-                style={{
-                  height:
-                    animatedValues[i]?.interpolate({
-                      inputRange: [
-                        0,
-                        Math.max(...(chartData[activeTab] || [1])),
-                      ],
-                      outputRange: [0, 160],
-                    }) || 0,
-                }}
-              />
-            ))}
-          </View>
-        </View>
-
-        {/* X-Axis */}
-        <View className="flex-row justify-between px-2 mt-2">
-          {(chartLabels[activeTab] || []).map((label, i) => (
-            <Text key={i} className="text-white text-[10px] text-center w-2">
-              {label}
-            </Text>
-          ))}
-        </View>
+              ))}
+            </View>
+          </>
+        )}
       </View>
 
       {/* Withdraw */}
-
       <CustomButton
         title="Claim"
-        handlePress={() => router.push("/(tabs)/claimScreen")}
+        handlePress={() => router.push("/(tabs)/(sub-tabs)/claimScreen")}
         containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}
         isLoading={false}

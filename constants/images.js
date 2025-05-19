@@ -11,16 +11,17 @@ import fewCoinsMessage from "../assets/images/few-coins-message.png";
 import premimUser from "../assets/images/premium-user.png";
 import nonPremimuUser from "../assets/images/non-premium-user.png";
 import adsBadge from "../assets/images/ads-badge.png";
+import bgTabs from "../assets/images/bg-tabs.png";
 
 import maize from "../assets/images/seed/maize.png";
 import apple from "../assets/images/seed/apple.png";
-import mongo from "../assets/images/seed/mongo.png";
+import mango from "../assets/images/seed/mango.png";
 import pawpaw from "../assets/images/seed/pawpaw.png";
 import orange from "../assets/images/seed/orange.png";
 
 import maizeLg from "../assets/images/seed/maize-lg.png";
 import appleLg from "../assets/images/seed/apple-lg.png";
-import mongoLg from "../assets/images/seed/mongo-lg.png";
+import mangoLg from "../assets/images/seed/mango-lg.png";
 import pawpawLg from "../assets/images/seed/pawpaw-lg.png";
 import orangeLg from "../assets/images/seed/orange-lg.png";
 
@@ -60,12 +61,12 @@ export default {
 
   maize,
   apple,
-  mongo,
+  mango,
   pawpaw,
   orange,
   maizeLg,
   appleLg,
-  mongoLg,
+  mangoLg,
   pawpawLg,
   orangeLg,
 
@@ -91,4 +92,5 @@ export default {
   premimUser,
   nonPremimuUser,
   adsBadge,
+  bgTabs,
 };

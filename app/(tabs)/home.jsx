@@ -1,16 +1,16 @@
-import { useCallback, useRef, useState } from "react";
-import { View, Image, BackHandler, ToastAndroid, Platform, TouchableOpacity, Modal, Text, Dimensions } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { View, Image, BackHandler, ToastAndroid, Platform, TouchableOpacity, Modal, Text, Dimensions, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { icons, images } from "../../constants";
 import { router, useFocusEffect } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
+import RewardModal from "@/components/RewardModal";
 import { CustomButton } from "../../components";
 import { useLoginContext } from "../../context/LoginProvider";
 import { BlurView } from "expo-blur";
 import RewardedAdComponent from '../../utils/RewardedAdComponent';
 import { useAvatarArray } from "../../hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
-const { width } = Dimensions.get("window");
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default Home = () => {
   const { user } = useLoginContext();
@@ -22,9 +22,14 @@ export default Home = () => {
   // const isPremiumUser = new Date(user?.premiumUntil) > new Date();
   // const [showAd, setShowAd] = useState(true);
   const [showAd, setShowAd] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showNotifcation, setShowNotification] = useState(false);
   const [backPressedOnce, setBackPressedOnce] = useState(false);
   const timeoutRef = useRef(null);
+
+  const { t } = useTranslation();
 
   useFocusEffect(
     useCallback(() => {
@@ -62,7 +67,40 @@ export default Home = () => {
     //   useNativeDriver: true,
     // }).start();
   };
-  const { t } = useTranslation();
+  const handlsShowNotifcation = () => {
+    setShowNotification(!showNotifcation);
+  };
+
+  const fetchNotification = async () => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+
+    if (token !== null) {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `https://farm-wizard-api.onrender.com/api/v1/notification/all/`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${token}`,
+            },
+          }
+        );
+        const json = await res.json();
+        setNotifications(json.notifications);
+      } catch (err) {
+        console.error("notifcations fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchNotification();
+  }, []);
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">
 
@@ -78,8 +116,8 @@ export default Home = () => {
 
       {/* Top Buttons */}
       <HeaderNavigation
-        onLeftPress={() => router.push("/(screens)/settings")}
-        onRightPress={() => router.push("/(screens)/inventory")}
+        onLeftPress={() => router.push("/(tabs)/(sub-tabs)/settings")}
+        onRightPress={handlsShowNotifcation}
         leftIcon={useAvatarArray(user.avatar || 0)}
         rightIcon={icons.bell}
         showLeftButton={true}
@@ -130,48 +168,40 @@ export default Home = () => {
         />
       }
 
-      <Modal transparent visible={modalVisible} animationType="fade">
-        <BlurView
-          intensity={50}
-          tint="dark"
-          className="flex-1 items-center justify-center"
-        >
-          <View
-            className="bg-black/40 rounded-2xl w-[100%] h-[100%] p-2 items-center shadow-2xl"
+      <RewardModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+      />
+
+      <Modal transparent visible={showNotifcation} animationType="fade">
+        <TouchableWithoutFeedback onPress={handlsShowNotifcation}>
+          <BlurView
+            intensity={50}
+            tint="dark"
+          // className="bg-[#78693985] items-center justify-end rounded-3xl w-[50%] p-2 border"
+
           >
-            <View className="w-full items-end my-20">
-              <TouchableOpacity
-                className="bg-yellow-300 rounded-full items-center justify-center w-20 h-20"
-                onPress={() => setModalVisible(false)}
-              >
-                <Image source={icons.close} className="w-10 h-10" />
-              </TouchableOpacity>
+            <View
+              className="bg-black/40 rounded-2xl w-[100%] p-4 items-center shadow-2xl"
+            >
+              <ScrollView contentContainerStyle={{ paddingBottom: 90 }}>
+                {notifications?.map((notification, index) => (
+                  <View
+                    key={index}
+                    className="flex-row items-center justify-between bg-white/20 rounded-xl mx-4 px-4 py-2 mb-2"
+                  >
+                    <View className="flex-row items-center space-x-3">
+                      <Text className="text-white">{notification.message}</Text>
+                    </View>
+                    <Text className="text-yellow-300 font-semibold">
+                      {notification.date}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
             </View>
-            <Image
-              source={images.adsBadge}
-              style={{
-                width: width * 0.5,
-                height: width * 0.5,
-              }}
-              resizeMode="contain"
-            />
-
-            <Text className="text-white text-xl text-center mb-6">
-              {t("messages.watch_ads")}
-            </Text>
-
-            <View className="flex-row justify-center items-center">
-              <TouchableOpacity
-                className="bg-buttonColor flex-row rounded-xl items-center justify-center p-4 m-2"
-                onPress={() => setShowAd(true)}
-              >
-                <Image source={icons.play} className="w-10 h-10 mr-2" />
-                <Text className="text-white text-lg">Watch Ads</Text>
-              </TouchableOpacity>
-            </View>
-
-          </View>
-        </BlurView>
+          </BlurView>
+        </TouchableWithoutFeedback>
       </Modal>
 
     </View>

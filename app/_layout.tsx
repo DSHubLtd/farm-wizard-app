@@ -30,7 +30,10 @@ const RootLayout = () => {
     // Initialize once at app startup
     mobileAds()
       .initialize()
-      .then(() => console.log("AdMob initialized"));
+      .then(
+        () => null
+        // console.log("AdMob initialized")
+      );
 
     if (error) throw error;
 

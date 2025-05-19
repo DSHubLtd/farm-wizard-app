@@ -234,7 +234,7 @@ const ClaimScreen = () => {
 
       {/* Header */}
       <HeaderNavigation
-        onLeftPress={() => router.push("/(screens)/settings")}
+        onLeftPress={() => router.push("/(tabs)/profile")}
         onRightPress={() => null}
         leftIcon={icons.back}
         rightIcon={icons.settings}

@@ -1,6 +1,6 @@
 import { Tabs, useRouter } from "expo-router";
 import { icons } from "../../constants";
-import FloatingTabButton from "@/components/FloatingTabButton";
+import CustomBottomTab from "@/components/CustomBottomTab";
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 import { useLoginContext } from "../../context/LoginProvider";
 
@@ -66,6 +66,39 @@ const TabsLayout = () => {
     <>
       <Tabs
         screenOptions={{
+          headerShown: false,
+        }}
+        tabBar={(props) => <CustomBottomTab {...props} />}
+      >
+        <Tabs.Screen
+          name="(sub-tabs)/settings"
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
+        <Tabs.Screen
+          name="(sub-tabs)/editProfile"
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
+        <Tabs.Screen
+          name="(sub-tabs)/claimScreen"
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
+        <Tabs.Screen
+          name="(sub-tabs)/requestReceived"
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
+
+
+      </Tabs>
+      {/* <Tabs
+        screenOptions={{
           tabBarShowLabel: false,
           tabBarStyle: {
             position: "absolute",
@@ -77,7 +110,7 @@ const TabsLayout = () => {
         }}
       >
         {/* Center Floating Home FAB */}
-        <Tabs.Screen
+      {/* <Tabs.Screen
           name="home"
           options={{
             headerShown: false,
@@ -89,10 +122,10 @@ const TabsLayout = () => {
               />
             ),
           }}
-        />
+        /> */}
 
-        {/* Right-side Floating FAB */}
-        <Tabs.Screen
+      {/* Right-side Floating FAB */}
+      {/* <Tabs.Screen
           name="profile"
           options={{
             headerShown: false,
@@ -104,10 +137,10 @@ const TabsLayout = () => {
               />
             ),
           }}
-        />
+        /> */}
 
-        {/* Left-side Floating FAB (New!) */}
-        <Tabs.Screen
+      {/* Left-side Floating FAB (New!) */}
+      {/* <Tabs.Screen
           name="claimScreen"
           options={{
             headerShown: false,
@@ -120,7 +153,7 @@ const TabsLayout = () => {
             ),
           }}
         />
-      </Tabs>
+      </Tabs>  */}
       {!isPremiumUser &&
         <BannerAd
           unitId={TestIds.BANNER}
