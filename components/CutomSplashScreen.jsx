@@ -33,12 +33,17 @@ export default function CutomSplashScreen() {
 
     return (
         <View style={styles.container}>
-            <Image
+            {/* <Image
                 source={images.background}
                 className="w-[100vw] h-[100vh]"
                 resizeMode="cover"
+            /> */}
+            <Image
+                source={images.logo}
+                resizeMode="contain"
+                className="w-[250px] h-[250px]"
             />
-            <Animated.View
+            {/* <Animated.View
                 style={[
                     styles.iconContainer,
                     {
@@ -46,11 +51,11 @@ export default function CutomSplashScreen() {
                         transform: [{ scale: scaleAnim }],
                     },
                 ]}
-            >
+            > */}
 
-                {/* <Ionicons name="medical" size={100} color="white" />
+            {/* <Ionicons name="medical" size={100} color="white" />
                 <Text style={styles.appName}>MedRemind</Text> */}
-            </Animated.View>
+            {/* </Animated.View> */}
         </View>
     );
 }
@@ -58,7 +63,8 @@ export default function CutomSplashScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#4CAF50",
+        backgroundColor: "#fff",
+        // backgroundColor: "#4CAF50",
         alignItems: "center",
         justifyContent: "center",
     },

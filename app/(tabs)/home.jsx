@@ -12,6 +12,7 @@ import { useAvatarArray } from "../../hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 export default Home = () => {
   const { user } = useLoginContext();
   if (!user) {
@@ -141,8 +142,6 @@ export default Home = () => {
           resizeMode="contain"
           className="w-[250px] h-[250px]"
         />
-
-
 
         {/* Play Button */}
 
