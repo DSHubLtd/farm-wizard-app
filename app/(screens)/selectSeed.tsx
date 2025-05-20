@@ -234,7 +234,7 @@ const SelectSeed = () => {
       </Animated.View>
 
       <CustomButton
-        title={t("buttons.exit_to_menu")}
+        title={t("buttons.select_seed")}
         handlePress={() =>
           router.push({
             pathname: "/(screens)/sessionStarted",

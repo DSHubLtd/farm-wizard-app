@@ -22,7 +22,7 @@ import { Image as ExpoImage } from "expo-image";
 import { getUserPIventory, updateInventory } from "@/services/userInventory";
 import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
-import { useAvatarArray } from "../../hooks/useAvatarArray";
+import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -115,7 +115,7 @@ const PlantScreen = () => {
     }
   };
   const fetchUserInventotyData = async () => {
-    setInvLoading(true);
+    //setInvLoading(true);
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
       const res = await getUserPIventory(token);
@@ -507,7 +507,7 @@ const PlantScreen = () => {
           <View className="flex-row">
             <TouchableOpacity className="">
               <Image
-                source={useAvatarArray(user.avatar || 0)}
+                source={useFramedAvatarArray(user.avatar || 0)}
                 className="w-16 h-16 rounded-full"
               />
             </TouchableOpacity>

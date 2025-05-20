@@ -94,6 +94,12 @@ const TabsLayout = () => {
             tabBarButton: () => null,
           }}
         />
+        <Tabs.Screen
+          name="(sub-tabs)/withdrawalRequest"
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
 
 
       </Tabs>

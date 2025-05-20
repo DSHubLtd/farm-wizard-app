@@ -21,7 +21,7 @@ import { Picker } from "@react-native-picker/picker";
 import uuid from "react-native-uuid";
 import FlutterwaveModal from "@/components/FlutterwaveModal";
 import checkCurrency from "@/utils/checkCurrency";
-import { useAvatarArray } from "@/hooks/useAvatarArray";
+import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 import { ActivityIndicator } from "react-native";
 
 const tabs = ["Daily", "Weekly", "Monthly"] as const;
@@ -189,7 +189,7 @@ const Profile = () => {
       {/* Avatar + Info */}
       <View className="items-center">
         <Image
-          source={useAvatarArray(user.avatar || 0)}
+          source={useFramedAvatarArray(user.avatar || 0)}
           resizeMode="contain"
           className="w-[80px] h-[80px] md:w-48 md:h-48"
         />

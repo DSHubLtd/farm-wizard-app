@@ -36,10 +36,10 @@ export default function CutomSplashScreen() {
             {/* <Image
                 source={images.background}
                 className="w-[100vw] h-[100vh]"
-                resizeMode="cover"
+                resizeMode="cover" 
             /> */}
             <Image
-                source={images.logo}
+                source={images.logoLg}
                 resizeMode="contain"
                 className="w-[250px] h-[250px]"
             />

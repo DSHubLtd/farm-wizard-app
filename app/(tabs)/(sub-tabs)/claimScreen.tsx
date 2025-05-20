@@ -116,6 +116,7 @@ const ClaimScreen = () => {
   const [activeTab, setActiveTab] = useState<keyof typeof providers>("Token");
   const [selectedProvider, setSelectedProvider] = useState<Provider>();
   const [modalVisible, setModalVisible] = useState(false);
+  const [conversionModal, setConversionModal] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [selectedAmount, setSelectedAmount] = useState(0);
   const [isSubmitting, setSubmitting] = useState(false);
@@ -124,6 +125,7 @@ const ClaimScreen = () => {
     phoneNo: "",
     data: "",
   });
+  const [token, setToken] = useState(0);
 
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
@@ -150,6 +152,15 @@ const ClaimScreen = () => {
       setModalVisible(false);
       setSelectedProvider(undefined);
     });
+  };
+
+  const openCoversionModal = () => {
+    setConversionModal(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
   };
 
   const handleAmountSelect = (amount: number) => {
@@ -235,16 +246,19 @@ const ClaimScreen = () => {
       {/* Header */}
       <HeaderNavigation
         onLeftPress={() => router.push("/(tabs)/profile")}
-        onRightPress={() => null}
+        onRightPress={() => router.push("/(tabs)/(sub-tabs)/withdrawalRequest")}
         leftIcon={icons.back}
         rightIcon={icons.settings}
         showLeftButton={true}
-        showRightButton={false}
+        showRightButton={true}
       />
       <Text className="text-white text-2xl font-primary">CLAIM</Text>
 
       {/* Balance Box */}
-      <View className="bg-black/20 opacity-90 flex flex-row justify-center items-center p-2 rounded-lg">
+      <TouchableOpacity
+        className="bg-black/20 opacity-90 flex flex-row justify-center items-center p-2 rounded-lg"
+        onPress={openCoversionModal}
+      >
         <View className="px-6 py-2 bg-[#E0C145B8] rounded-xl">
           <Text className="text-white text-sm text-center">
             USD {user.score}
@@ -253,7 +267,7 @@ const ClaimScreen = () => {
             1000 = 0.00001 USD
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
 
       {/* Tabs */}
       <View className="flex-row justify-around space-x-6">
@@ -448,6 +462,62 @@ const ClaimScreen = () => {
               <TouchableOpacity
                 className="p-3 bg-gray-300 rounded"
                 onPress={closeModal}
+              >
+                <Text className="text-black font-semibold">
+                  {t("buttons.cancel")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </BlurView>
+      </Modal>
+
+      <Modal transparent visible={conversionModal} animationType="fade">
+        <BlurView
+          intensity={50}
+          tint="dark"
+          className="flex-1 items-center justify-center"
+        >
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0],
+                  }),
+                },
+              ],
+            }}
+            className="bg-black-200 rounded-2xl w-[80%] p-6 items-center shadow-2xl"
+          >
+            <Text className="text-xl text-white font-bold mb-2 text-center">
+              Convert Your Token To Usd
+            </Text>
+
+            <FormField
+              type="text"
+              placeholder="Enter Toekn"
+              title=""
+              value={token}
+              handleChangeText={(e: any) => setToken(e)}
+              otherStyles=""
+            />
+
+            <View className="flex-row space-x-4">
+              <CustomButton
+                title="Convert "
+                handlePress={() => console.log("hh")}
+                containerStyles="w-[200px]"
+                textStyles={"font-pbold text-white"}
+                isLoading={isSubmitting}
+              />
+            </View>
+            <View className="w-full items-end mt-4">
+              <TouchableOpacity
+                className="p-3 bg-gray-300 rounded"
+                onPress={() => setConversionModal(false)}
               >
                 <Text className="text-black font-semibold">
                   {t("buttons.cancel")}

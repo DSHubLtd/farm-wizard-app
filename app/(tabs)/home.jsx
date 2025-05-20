@@ -8,7 +8,7 @@ import { CustomButton } from "../../components";
 import { useLoginContext } from "../../context/LoginProvider";
 import { BlurView } from "expo-blur";
 import RewardedAdComponent from '../../utils/RewardedAdComponent';
-import { useAvatarArray } from "../../hooks/useAvatarArray";
+import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -119,7 +119,7 @@ export default Home = () => {
       <HeaderNavigation
         onLeftPress={() => router.push("/(tabs)/(sub-tabs)/settings")}
         onRightPress={handlsShowNotifcation}
-        leftIcon={useAvatarArray(user.avatar || 0)}
+        leftIcon={useFramedAvatarArray(user.avatar || 0)}
         rightIcon={icons.bell}
         showLeftButton={true}
         showRightButton={true}
@@ -138,7 +138,7 @@ export default Home = () => {
       <View className="flex-1 justify-center items-center">
         {/* Wizard Image */}
         <Image
-          source={images.logo}
+          source={images.logoLg}
           resizeMode="contain"
           className="w-[250px] h-[250px]"
         />
@@ -174,34 +174,63 @@ export default Home = () => {
 
       <Modal transparent visible={showNotifcation} animationType="fade">
         <TouchableWithoutFeedback onPress={handlsShowNotifcation}>
-          <BlurView
-            intensity={50}
-            tint="dark"
-          // className="bg-[#78693985] items-center justify-end rounded-3xl w-[50%] p-2 border"
-
-          >
-            <View
-              className="bg-black/40 rounded-2xl w-[100%] p-4 items-center shadow-2xl"
+          <View style={{ flex: 1 }}>
+            <BlurView
+              intensity={50}
+              tint="dark"
+              style={{
+                position: 'absolute',
+                top: 40, // adjust as needed
+                right: 20, // adjust as needed
+                width: '80%',
+                borderRadius: 20,
+                overflow: 'hidden',
+              }}
             >
-              <ScrollView contentContainerStyle={{ paddingBottom: 90 }}>
-                {notifications?.map((notification, index) => (
-                  <View
-                    key={index}
-                    className="flex-row items-center justify-between bg-white/20 rounded-xl mx-4 px-4 py-2 mb-2"
-                  >
-                    <View className="flex-row items-center space-x-3">
-                      <Text className="text-white">{notification.message}</Text>
+              <View
+                style={{
+                  backgroundColor: 'rgba(0,0,0,0.4)',
+                  borderRadius: 16,
+                  padding: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 5,
+                  // maxHeight: '80%',
+                }}
+              >
+                <ScrollView contentContainerStyle={{ paddingBottom: 90 }}>
+                  {notifications?.map((notification, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        borderRadius: 12,
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                        marginBottom: 8,
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ color: '#fff' }}>{index + 1}. </Text>
+                        <Text style={{ color: '#fff' }}>{notification.message} on </Text>
+                      </View>
+                      <Text style={{ color: '#FCD34D', fontWeight: '600' }}>
+                        {(new Date(notification.createdAt)).toString()}
+                      </Text>
                     </View>
-                    <Text className="text-yellow-300 font-semibold">
-                      {notification.date}
-                    </Text>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-          </BlurView>
+                  ))}
+                </ScrollView>
+              </View>
+            </BlurView>
+          </View>
         </TouchableWithoutFeedback>
       </Modal>
+
 
     </View>
   );

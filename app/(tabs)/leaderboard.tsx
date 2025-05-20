@@ -12,56 +12,9 @@ import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 
-const { height } = Dimensions.get("window");
-
-const players = [
-  {
-    fullName: "wizard 1",
-    score: "99999999",
-    avatar: avatars.africanFmale,
-  },
-  {
-    fullName: "wizard 2",
-    score: "99999999",
-    avatar: avatars.asianFmale,
-  },
-  {
-    fullName: "wizard 3",
-    score: "99999999",
-    avatar: avatars.africanMale,
-  },
-  {
-    fullName: "wizard 4",
-    score: "99999999",
-    avatar: avatars.africanMale,
-  },
-  {
-    fullName: "wizard 5",
-    score: "99999999",
-    avatar: avatars.africanMale,
-  },
-  {
-    fullName: "wizard 6",
-    score: "99999999",
-    avatar: avatars.africanMale,
-  },
-  {
-    fullName: "wizard 7",
-    score: "99999999",
-    avatar: avatars.africanMale,
-  },
-  {
-    fullName: "wizard 8",
-    score: "99999999",
-    avatar: avatars.africanMale,
-  },
-  {
-    fullName: "wizard 9",
-    score: "99999999",
-    avatar: avatars.africanMale,
-  },
-];
+const { height, width } = Dimensions.get("window");
 
 export default function Leaderboard() {
   interface User {
@@ -147,67 +100,11 @@ export default function Leaderboard() {
 
       <View className="m-2">
         {/* Top 3 Section */}
-        {/* <View
-          className="bg-[#AC9B44] rounded-t-[40px] rounded-b-[80px] px-6 pb-10 py-8 my-8 flex-row justify-between items-end w-full"
-          style={{
-            borderBottomLeftRadius: 180,
-            borderBottomRightRadius: 180,
-            height: 180,
-            transform: [{ scaleY: 1.2 }],
-          }}
-        >
-          {topUsers.slice(0, 3).map((player, i) => (
-            <View
-              key={i}
-              // className={`items-center ${i === 1 ? "scale-110" : "opacity-80"}`}
-              style={{
-                transform: [{ scale: i === 1 ? 1.8 : 1 }],
-                opacity: i === 1 ? 1 : 0.8,
-                // marginRight: i === 1 ? 1 : 26,
-                // marginLeft: i === 2 ? 1 : 1,
-                marginBottom: 20,
-              }}
-            >
-              
-              {player.position === 1 && (
-                <View>
-                  <Image
-                    source={player.avatar}
-                    className="w-16 h-16 rounded-full border-4 border-yellow-400"
-                  />
-                  
-                </View>
-              )}
-              {player.position === 2 && (
-                <View className="d-flex flex-column justify-content-center align-items-center text-center">
-                  <Image
-                    source={player.avatar}
-                    className="w-16 h-16 rounded-full border-4 border-yellow-400"
-                  />
-                 
-                </View>
-              )}
-              {player.position === 3 && (
-                <View>
-                  <Image
-                    source={player.avatar}
-                    className="w-16 h-16 rounded-full border-4 border-yellow-400"
-                  />
-                </View>
-              )}
-
-              <Text className="text-white text-sm font-semibold">
-                {player.fullName}
-              </Text>
-              <Text className="text-white text-xs">{player.score}</Text>
-            </View>
-          ))}
-        </View> */}
 
         <View className="w-full relative items-center">
           {/* Background with tapered middle */}
           <View
-            className="bg-yellow-400/90 w-full rounded-t-[40px] pb-8 pt-6 flex-row justify-between items-end px-4"
+            className="w-full rounded-t-[40px] pb-8 pt-6 flex-row justify-between items-end px-4"
             style={{
               borderBottomLeftRadius: 80,
               borderBottomRightRadius: 80,
@@ -215,16 +112,29 @@ export default function Leaderboard() {
               transform: [{ scaleY: 0.9 }],
             }}
           >
+            <Image
+              source={images.leaderboard}
+              className="absolute w-full h-full rounded-2xl my-2"
+              style={{ height: height * 0.24, width: width * 0.96 }}
+              resizeMode="cover"
+              blurRadius={0.5}
+            />
             {/* Wizard 2 */}
             <View className="items-center w-1/4 -mt-4">
               {topUsers.find((p) => p.position === 2) && (
                 <>
                   <Image
+                    source={images.leaderboard2}
+                    className="w-16 h-16 absolute -top-10 z-10"
+                    resizeMode="contain"
+                  />
+                  <Image
                     source={
-                      topUsers.find((p) => p.position === 2)?.avatar ||
-                      avatars.africanMale
+                      useFramedAvatarArray(
+                        topUsers.find((p) => p.position === 2)?.avatar
+                      ) || avatars.africanMaleF
                     }
-                    className="w-20 h-20 rounded-full border-4 border-green-600"
+                    className="w-20 h-20 rounded-full"
                   />
                   <Text className="text-white text-sm mt-2">
                     {topUsers.find((p) => p.position === 2)?.fullName}
@@ -241,11 +151,17 @@ export default function Leaderboard() {
               {topUsers.find((p) => p.position === 1) && (
                 <>
                   <Image
+                    source={images.leaderboard1}
+                    className="w-18 h-16 absolute -top-10 z-10"
+                    resizeMode="contain"
+                  />
+                  <Image
                     source={
-                      topUsers.find((p) => p.position === 1)?.avatar ||
-                      avatars.africanMale
+                      useFramedAvatarArray(
+                        topUsers.find((p) => p.position === 1)?.avatar
+                      ) || avatars.africanMaleF
                     }
-                    className="w-28 h-28 rounded-full border-4 border-green-800"
+                    className="w-28 h-28 rounded-full"
                   />
                   <Text className="text-white text-base mt-2 font-semibold">
                     {topUsers.find((p) => p.position === 1)?.fullName}
@@ -262,11 +178,17 @@ export default function Leaderboard() {
               {topUsers.find((p) => p.position === 3) && (
                 <>
                   <Image
+                    source={images.leaderboard3}
+                    className="w-16 h-16 absolute -top-10 z-10"
+                    resizeMode="contain"
+                  />
+                  <Image
                     source={
-                      topUsers.find((p) => p.position === 3)?.avatar ||
-                      avatars.africanMale
+                      useFramedAvatarArray(
+                        topUsers.find((p) => p.position === 3)?.avatar
+                      ) || avatars.africanMaleF
                     }
-                    className="w-20 h-20 rounded-full border-4 border-green-600"
+                    className="w-20 h-20 rounded-full"
                   />
                   <Text className="text-white text-sm mt-2">
                     {topUsers.find((p) => p.position === 3)?.fullName}
@@ -278,6 +200,7 @@ export default function Leaderboard() {
               )}
             </View>
           </View>
+          {/* </ImageBackground> */}
         </View>
 
         {/* Scrollable List */}
@@ -294,7 +217,7 @@ export default function Leaderboard() {
               <View className="flex-row items-center space-x-3">
                 <Text className="text-white font-bold">{index + 4}</Text>
                 <Image
-                  source={player.avatar}
+                  source={useFramedAvatarArray(player.avatar)}
                   className="w-10 h-10 rounded-full"
                 />
                 <Text className="text-white">{player.fullName}</Text>
@@ -316,11 +239,11 @@ export default function Leaderboard() {
             </Text>
           </TouchableOpacity>
         )}
-        {!hasMore && (
+        {/* {!hasMore && (
           <Text className="my-1 text-white text-center">
             No more users to load.
           </Text>
-        )}
+        )} */}
       </View>
     </View>
   );

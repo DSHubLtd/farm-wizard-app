@@ -3,6 +3,7 @@ import thumbnail from "../assets/images/thumbnail.png";
 import cards from "../assets/images/cards.png";
 import path from "../assets/images/path.png";
 import logo from "../assets/images/logo.png";
+import logoLg from "../assets/images/logoLg.png";
 import logoSmall from "../assets/images/logo-small.png";
 import background from "../assets/images/background.png";
 import background1 from "../assets/images/background1.png";
@@ -47,12 +48,18 @@ import storm from "../assets/plant-growth/storm.gif";
 import success from "../assets/images/success.png";
 import requestPending from "../assets/images/request-pending.png";
 
+import leaderboard from "../assets/images/leaderboard/leaderboard.png";
+import leaderboard1 from "../assets/images/leaderboard/1st.png";
+import leaderboard2 from "../assets/images/leaderboard/2nd.png";
+import leaderboard3 from "../assets/images/leaderboard/3rd.png";
+
 export default {
   profile,
   thumbnail,
   cards,
   path,
   logo,
+  logoLg,
   logoSmall,
   background,
   empty,
@@ -93,4 +100,9 @@ export default {
   nonPremimuUser,
   adsBadge,
   bgTabs,
+
+  leaderboard,
+  leaderboard1,
+  leaderboard2,
+  leaderboard3,
 };
