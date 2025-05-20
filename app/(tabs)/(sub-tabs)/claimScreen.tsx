@@ -202,7 +202,7 @@ const ClaimScreen = () => {
           // console.log("withdrawal", result.data.withdrawal);
           setTimeout(() => {
             router.push({
-              pathname: "/(screens)/requestReceived",
+              pathname: "/(tabs)/(sub-tabs)/requestReceived",
               params: {
                 createdAt: result.data.withdrawal.createdAt,
                 amount: result.data.withdrawal.amount,
