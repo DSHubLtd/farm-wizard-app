@@ -212,7 +212,7 @@ export default function Leaderboard() {
           {topUsers.slice(3).map((player, index) => (
             <View
               key={index}
-              className="flex-row items-center justify-between border-t border-b border-white rounded-none mx-4 px-4 py-4 mb-2"
+              className="flex-row items-center justify-between border-t border-yellow-300 rounded-none mx-4 px-4 py-4 mb-2"
             >
               <View className="flex-row items-center space-x-3">
                 <Text className="text-white font-bold">{index + 4}</Text>
