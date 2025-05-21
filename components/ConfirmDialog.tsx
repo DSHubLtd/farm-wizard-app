@@ -1,7 +1,12 @@
 import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Modal, View } from "react-native";
 
-const ConfirmModal = ({ visible, onConfirm, onCancel }: any) => (
+const ConfirmModal = ({
+  visible,
+  onConfirm,
+  onCancel,
+  message = "Are you sure you want to proceed?",
+}: any) => (
   <Modal
     transparent
     visible={visible}
@@ -11,7 +16,7 @@ const ConfirmModal = ({ visible, onConfirm, onCancel }: any) => (
     <View style={styles.overlay}>
       <View style={styles.modal}>
         <Text style={styles.title}>Confirm</Text>
-        <Text style={styles.message}>Are you sure you want to proceed?</Text>
+        <Text style={styles.message}>{message}</Text>
 
         <View style={styles.actions}>
           <TouchableOpacity style={styles.button} onPress={onCancel}>

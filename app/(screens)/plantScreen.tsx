@@ -35,6 +35,7 @@ import {
 import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
+import ConfirmModal from "@/components/ConfirmDialog";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -97,6 +98,7 @@ const PlantScreen = () => {
   const [waterLevel, setWaterLevel] = useState(100);
   const [nutrientLevel, setNutrientLevel] = useState(100);
   const [soilVisible, setSoilVisible] = useState(true);
+  const [confirmModal, setConfirmModal] = useState(false);
 
   const [isDead, setIsDead] = useState(false);
 
@@ -657,7 +659,7 @@ const PlantScreen = () => {
           </View>
           <TouchableOpacity
             className="bg-yellow-300 p-2 rounded-full"
-            onPress={() => router.replace("/(tabs)/home")}
+            onPress={() => setConfirmModal(true)}
           >
             <Image source={icons.close} className="w-10 h-10" />
           </TouchableOpacity>
@@ -906,6 +908,18 @@ const PlantScreen = () => {
             </View>
           </View>
         </Modal>
+        <ConfirmModal
+          visible={confirmModal}
+          message="Are you sure you want to close the game?"
+          onConfirm={() => {
+            router.replace("/(tabs)/home");
+            setConfirmModal(false);
+          }}
+          onCancel={() => {
+            console.log("Cancelled");
+            setConfirmModal(false);
+          }}
+        />
       </View>
     </TouchableWithoutFeedback>
   );
