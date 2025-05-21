@@ -1,3 +1,11 @@
+// start automatically
+// pause & resume
+// pesticide (+1) for any bugs killed (when pesticide is 3 left ) + 10
+// confirmation when clicking on close button
+// higher level, the higher the score
+// not use water during raining
+// In purchase
+
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -14,12 +22,16 @@ import {
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { plantGrowth } from "@/constants/plants";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserPlantLevel } from "@/services/user";
 import { Image as ExpoImage } from "expo-image";
-import { getUserPIventory, updateInventory } from "@/services/userInventory";
+import {
+  addToInventory,
+  getUserPIventory,
+  updateInventory,
+} from "@/services/userInventory";
 import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
@@ -57,7 +69,7 @@ const PlantScreen = () => {
   const [popupText, setPopupText] = useState("");
 
   const [timeLeft, setTimeLeft] = useState(TEN_MINUTES); // in seconds
-  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [isTimerActive, setIsTimerActive] = useState(true);
   const [score, setScore] = useState(0);
   const [activeThreat, setActiveThreat] = useState<null | {
     type: "disease" | "storm";
@@ -84,12 +96,14 @@ const PlantScreen = () => {
   const [plantHealth, setPlantHealth] = useState(100);
   const [waterLevel, setWaterLevel] = useState(100);
   const [nutrientLevel, setNutrientLevel] = useState(100);
+  const [soilVisible, setSoilVisible] = useState(true);
 
   const [isDead, setIsDead] = useState(false);
 
   const [currentSeason, setCurrentSeason] = useState<SeasonType>("normal");
 
   const [showAd, setShowAd] = useState(true);
+  const [showGiftMessage, setShowGiftMessage] = useState("");
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -153,6 +167,17 @@ const PlantScreen = () => {
       }
     }
   };
+  const handleGiftInventoryItem = async (item: string, qty = 10) => {
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const result = await addToInventory(token, item, qty);
+        await fetchUserInventotyData();
+      } catch (error: any) {
+        console.log("Error", error.message);
+      }
+    }
+  };
 
   const getPhaseInfo = () => {
     const elapsed = TEN_MINUTES - timeLeft;
@@ -173,7 +198,7 @@ const PlantScreen = () => {
     if (season === "raining") return 0.15;
     return 0.1;
   };
-
+  /*
   useEffect(() => {
     if (!isTimerActive) return;
 
@@ -191,7 +216,78 @@ const PlantScreen = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isTimerActive, waterLevel, nutrientLevel]);
+  }, [isTimerActive, waterLevel, nutrientLevel]);*/
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const prevPathRef = useRef<string>("");
+  const pathname = usePathname();
+  // Save previous route
+  useEffect(() => {
+    return () => {
+      prevPathRef.current = pathname;
+    };
+  }, [pathname]);
+
+  // Auto-resume if coming from /inventory
+  useEffect(() => {
+    const comingFromInventory = prevPathRef.current === "/inventory";
+    if (comingFromInventory && isTimerActive && intervalRef.current === null) {
+      //console.log("Auto-resuming timer from /inventory");
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(intervalRef.current!);
+            intervalRef.current = null;
+            return 0;
+          }
+          return prev - 1;
+        });
+
+        setCurrentSeason(getCurrentSeason());
+        handlePlantLifeCycle();
+      }, 1000);
+    }
+
+    // Pause when leaving timer page
+    if (pathname !== "/plantScreen" && intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [pathname, isTimerActive, waterLevel, nutrientLevel]);
+
+  // Manual start/pause/resume logic
+  useEffect(() => {
+    if (isTimerActive && intervalRef.current === null) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+
+        setCurrentSeason(getCurrentSeason());
+        handlePlantLifeCycle();
+      }, 1000);
+    }
+
+    // Pause the timer
+    if (!isTimerActive && intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    return () => {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [pathname, isTimerActive, waterLevel, nutrientLevel]);
 
   const handlePlantLifeCycle = () => {
     const now = Date.now();
@@ -205,7 +301,7 @@ const PlantScreen = () => {
     setNutrientLevel((prev) => Math.max(0, prev - nutrientDecay));
 
     // Health penalties
-    if (waterLevel < 20) {
+    if (waterLevel < 20 && currentSeason !== "raining") {
       setPlantHealth((h) => Math.max(0, h - 5));
       //handleToolUse("⚠️ Your plant is drying out!");
       setPlantDamaged(true);
@@ -269,26 +365,10 @@ const PlantScreen = () => {
         params: { name, score, userLevel },
       });
     }
-  };
 
-  const waterPlant = () => {
-    if (waterLevel > 40) return;
-    setWaterLevel(100);
-    triggerWater();
-  };
-
-  const fertilizePlant = () => {
-    if (nutrientLevel > 50) return;
-    setNutrientLevel(100);
-    triggerFertilizer();
-  };
-
-  const respondToThreat = () => {
-    if (!activeThreat || activeThreat.resolved) return;
-    setTimeout(() => {
-      setActiveThreat(null);
-    }, 3000);
-    triggerSpray();
+    if (timeLeft === 595 && getPlantStage() === 0) {
+      setSoilVisible(false);
+    }
   };
 
   useEffect(() => {
@@ -379,14 +459,34 @@ const PlantScreen = () => {
     //   handleToolUse("No bugs right now");
     //   return;
     // }
+    if (!activeThreat || activeThreat.resolved) return;
+
     if (userInventory.pesticideQty > 0) {
       handleUpdateInventory("Pesticide");
+      // handle gift for userLevel 1
+      if (userInventory.pesticideQty <= 2 && userLevel === 1) {
+        handleGiftInventoryItem("Pesticide"); // give gift of tem items
+        setShowGiftMessage("You have receive 10 pesticide for free");
+        setTimeout(() => {
+          setShowGiftMessage("");
+        }, 4000);
+      }
     } else {
       handleToolUse("Insufficient pesticide item, Please purchase");
+      // handle gift for userLevel 1 (andle when qty is 0)
+      if (userInventory.pesticideQty <= 2 && userLevel === 1) {
+        handleGiftInventoryItem("Pesticide"); // give gift of tem items
+        setShowGiftMessage("You have receive 10 pesticide for free");
+        setTimeout(() => {
+          setShowGiftMessage("");
+        }, 4000);
+      }
       return;
     }
+    setTimeout(() => {
+      setActiveThreat(null);
+    }, 3000);
     setPlantDamaged(false);
-
     setSpraying(true);
     sprayAnim.setValue(0);
     // 🔊 Play spray sound
@@ -406,12 +506,30 @@ const PlantScreen = () => {
     });
   };
   const triggerFertilizer = () => {
+    if (nutrientLevel > 50) return;
     if (userInventory.fertilizerQty > 0) {
       handleUpdateInventory("Fertilizer");
+      // handle gift for userLevel 1
+      if (userInventory.fertilizerQty <= 2 && userLevel === 1) {
+        handleGiftInventoryItem("Fertilizer"); // give gift of tem items
+        setShowGiftMessage("You have receive 10 Fertilizer for free");
+        setTimeout(() => {
+          setShowGiftMessage("");
+        }, 4000);
+      }
     } else {
       handleToolUse("Insufficient fertilizer item, Please purchase");
+      // handle gift for userLevel 1 (andle when qty is 0)
+      if (userInventory.fertilizerQty <= 2 && userLevel === 1) {
+        handleGiftInventoryItem("Fertilizer"); // give gift of tem items
+        setShowGiftMessage("You have receive 10 Fertilizer for free");
+        setTimeout(() => {
+          setShowGiftMessage("");
+        }, 4000);
+      }
       return;
     }
+    setNutrientLevel(100);
     setScore((s) => Math.min(s + 3, 100000));
     setFertilizing(true);
     fertAnim.setValue(0);
@@ -429,12 +547,30 @@ const PlantScreen = () => {
     });
   };
   const triggerWater = () => {
+    if (waterLevel > 40) return;
     if (userInventory.waterQty > 0) {
       handleUpdateInventory("Water");
+      // handle gift for userLevel 1
+      if (userInventory.waterQty <= 2 && userLevel === 1) {
+        handleGiftInventoryItem("Water"); // give gift of tem items
+        setShowGiftMessage("You have receive 10 Water for free");
+        setTimeout(() => {
+          setShowGiftMessage("");
+        }, 4000);
+      }
     } else {
       handleToolUse("Insufficient water item, Please purchase");
+      // handle gift for userLevel 1 (andle when qty is 0)
+      if (userInventory.waterQty <= 2 && userLevel === 1) {
+        handleGiftInventoryItem("Water"); // give gift of tem items
+        setShowGiftMessage("You have receive 10 Water for free");
+        setTimeout(() => {
+          setShowGiftMessage("");
+        }, 4000);
+      }
       return;
     }
+    setWaterLevel(100);
     setScore((s) => Math.min(s + 3, 100000));
     setWatering(true);
     waterAnim.setValue(0);
@@ -460,7 +596,7 @@ const PlantScreen = () => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={respondToThreat}>
+    <TouchableWithoutFeedback onPress={triggerSpray}>
       <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
         {/* Background  */}
         {currentSeason === "normal" && (
@@ -554,6 +690,7 @@ const PlantScreen = () => {
               ⚠️ Your plant lacks nutrients!
             </Text>
           )}
+          <Text className="text-yellow-600 text-lg">{showGiftMessage}</Text>
         </View>
 
         {spraying && (
@@ -643,7 +780,7 @@ const PlantScreen = () => {
             // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
           }}
         >
-          {!isTimerActive && (
+          {soilVisible && (
             <Animated.Image
               source={images.soil}
               style={{
@@ -669,7 +806,7 @@ const PlantScreen = () => {
               }}
             />
           )}
-          {isTimerActive && (
+          {isTimerActive && !soilVisible && (
             <Animated.Image
               source={
                 plantDamaged
@@ -693,21 +830,19 @@ const PlantScreen = () => {
         <View className="absolute left-4 top-[18%] gap-y-1 py-80">
           <ToolIcon
             icon={images.fertilizer}
-            // onPress={triggerFertilizer}
-            onPress={fertilizePlant}
+            onPress={triggerFertilizer}
             itemQty={userInventory.fertilizerQty}
           />
           <ToolIcon
             itemQty={userInventory.pesticideQty}
             icon={images.pesticied}
-            onPress={respondToThreat}
+            onPress={triggerSpray}
           />
 
           <ToolIcon
             itemQty={userInventory.waterQty}
             icon={images.kettle}
-            // onPress={triggerWater}
-            onPress={waterPlant}
+            onPress={triggerWater}
           />
         </View>
 
@@ -725,9 +860,9 @@ const PlantScreen = () => {
         </View>
 
         {/* Timer */}
-        {/* <Text className="text-center text-white text-xl">
+        <Text className="text-center text-white text-xl">
           {formatTime(timeLeft)}
-        </Text> */}
+        </Text>
 
         {/* Action buttons */}
         <View className="flex-row justify-around items-center ">

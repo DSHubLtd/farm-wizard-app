@@ -49,3 +49,26 @@ export const updateInventory = async (
     throw error;
   }
 };
+export const addToInventory = async (
+  // add items to user inventor as gift
+  token: string,
+  item: string,
+  amount: number
+) => {
+  try {
+    const res = await client.patch(
+      `/user/add-qty`,
+      { name: item, amount },
+      {
+        headers: {
+          Authorization: `JWT ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    console.error("User Inventory Error:", error?.response?.data);
+    throw error;
+  }
+};
