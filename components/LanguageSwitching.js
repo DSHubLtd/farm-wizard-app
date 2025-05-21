@@ -4,7 +4,7 @@ import { Picker } from "@react-native-picker/picker";
 import "../utils/i18n";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import * as Updates from "expo-updates";
+import * as Updates from "expo-updates";
 const LANGUAGE_KEY = "user-language";
 
 export default function LanguageSwitching() {
@@ -124,7 +124,7 @@ export default function LanguageSwitching() {
       if (I18nManager.isRTL !== isRTL) {
         await I18nManager.forceRTL(isRTL);
         // Note: forceRTL requires app restart for layout to
-        //Updates.reloadAsync(); // force app reload
+        Updates.reloadAsync(); // force app reload
         console.log("App needs to restart to apply RTL layout.");
       }
 

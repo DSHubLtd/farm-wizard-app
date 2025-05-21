@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Dimensions, Alert, Image, Pressable, TouchableOpacity } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-import { avatars, icons, images } from "../../constants";
+import { icons, images } from "../../constants";
 import { CustomButton, FormField } from "../../components";
 // import { useLoginContext } from "@/context/LoginProvider";
 import { signUpUser } from "@/services/auth";
@@ -13,6 +13,7 @@ import SelectField from "../../components/SelectField";
 import { validateForm } from "../../utils/validateForm";
 import { useCountryData } from "../../hooks/useCountryData";
 import { useLanguageData } from "../../hooks/useLanguageData";
+import { avatarsArr } from "../../hooks/useAvatarArray";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -72,22 +73,6 @@ const SignUp = () => {
 
   };
 
-  const avatarsArr = [
-    avatars.africanMale,
-    avatars.africanFmale,
-    avatars.asianMale,
-    avatars.asianFmale,
-    avatars.antMale,
-    avatars.antFmale,
-    avatars.austMale,
-    avatars.austFmale,
-    avatars.euMale,
-    avatars.euFmale,
-    avatars.naMale,
-    avatars.naFmale,
-    avatars.saMale,
-    avatars.saFmale,
-  ]
   const handlePrev = () => {
     setSelectedIndex((prev) => (prev - 1 + avatarsArr.length) % avatarsArr.length);
   };
@@ -112,7 +97,7 @@ const SignUp = () => {
       <Text className="text-white text-3xl font-primary mb-2">CREATE ACCOUNT</Text>
 
       {/* Avatar Selector */}
-      <View className="flex-row items-center gap-14 mb-6 p-2">
+      <View className="flex-row items-center gap-8 mb-6 p-2">
         <Image source={avatarsArr[(selectedIndex - 1 + avatarsArr.length) % avatarsArr.length]} className="w-10 h-10 opacity-60" />
         <Pressable
           onPress={handlePrev}

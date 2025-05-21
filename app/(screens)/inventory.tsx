@@ -86,10 +86,15 @@ const Inventory = () => {
   const [currency, setCurrency] = useState("USD");
   const [usdEquivalent, setUsdEquivalent] = useState<string | null>(null);
   const [exchangeLoading, setExchangeLoading] = useState(false);
+  const [paymentOptionModal, setPaymentOptionModl] = useState(false);
+  const [inAppPurchaseModal, setInAppPurchaseModal] = useState(false);
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState("Card");
 
   const txRef = `tx-${uuid.v4().split("-")[0]}`;
+  /* const purchaseDetails =
+    selectedItem?.name + "-" + purchaseQty + "-" + totalAmount;*/
   const purchaseDetails =
-    selectedItem?.name + "-" + purchaseQty + "-" + totalAmount;
+    selectedItem?.name + "-" + purchaseQty + "-" + usdEquivalent;
 
   const renderTabButton = (label: string, value: "items" | "seeds") => (
     <TouchableOpacity
@@ -175,9 +180,9 @@ const Inventory = () => {
       let newQty = prevQty;
 
       if (type === "add") {
-        newQty = Math.min(prevQty + 1, 50);
+        newQty = Math.min(prevQty + 1, 1000);
       } else if (type === "sub") {
-        newQty = Math.max(prevQty - 1, 0);
+        newQty = Math.max(prevQty - 1, 1);
       } else {
         return prevQty; // No update for invalid type
       }
@@ -245,10 +250,58 @@ const Inventory = () => {
   };
 
   const handleBuyItem = () => {
+    setPaymentOptionModl(true);
     setModalVisible(false);
     // setModalMessage(true);
-    setConfirmShowModal(true);
   };
+
+  const handlePaymentOption = () => {
+    if (selectedPaymentOption === "Card") {
+      setConfirmShowModal(true); // flutterwave
+    } else {
+      setInAppPurchaseModal(true);
+    }
+    setPaymentOptionModl(false);
+  };
+
+  const convertWizpointToUsd = (userBalance: number) => {
+    return Number(userBalance * 0.00001) / 1000;
+  };
+
+  const handleInAppPurchase = async () => {
+    const transaction_id = txRef;
+
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const res = await fetch(
+          `https://farm-wizard-api.onrender.com/api/v1/payment/in-app-purchase/verify-purchase/${transaction_id}/${purchaseDetails}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${token}`,
+            },
+          }
+        );
+        const json = await res.json();
+
+        if (json.success) {
+          setInAppPurchaseModal(false);
+          Alert.alert(
+            "Payment Verified",
+            `Transaction Ref: ${json.data.tx_ref} and Transaction Id: ${transaction_id} `
+          );
+          await fetchUserInventotyData(); // fetch updated inventory
+        } else {
+          Alert.alert("Verification Failed", json.message);
+        }
+      } catch (e: any) {
+        Alert.alert("Error", e.message);
+      }
+    }
+  };
+
   return (
     <View className="flex-1 bg-green-200 pt-12 px-4">
       {/* Background */}
@@ -396,6 +449,7 @@ const Inventory = () => {
         </TouchableWithoutFeedback>
       </Modal>
 
+      {/* flutterwave modal  */}
       <Modal transparent visible={showConfirmModal} animationType="fade">
         <TouchableWithoutFeedback onPress={() => setConfirmShowModal(false)}>
           <BlurView
@@ -468,6 +522,58 @@ const Inventory = () => {
         </TouchableWithoutFeedback>
       </Modal>
 
+      {/* in app purchase modal  */}
+      <Modal transparent visible={inAppPurchaseModal} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setInAppPurchaseModal(false)}>
+          <BlurView
+            intensity={50}
+            tint="dark"
+            className="flex-1 p-4 items-center justify-center"
+          >
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View className="bg-white rounded-2xl w-[90%] p-6 ">
+                <Text
+                  className="font-secondary font-bold italic"
+                  style={{ fontSize: 22 }}
+                >
+                  {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.name} Using your Wizpoint`}
+                </Text>
+                <Text style={{ fontSize: 16 }} className="my-4">
+                  Note! 1000 Wizpoint = 0.00001 USD
+                </Text>
+                <Text style={{ fontSize: 14 }} className="">
+                  your Wiz balance is {user.score} wiz ={" "}
+                  {convertWizpointToUsd(user.score)} USD
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+            {!usdEquivalent || exchangeLoading ? (
+              <Text style={{ marginBottom: 10 }}>Loading...</Text>
+            ) : (
+              <>
+                {Number(usdEquivalent) >=
+                Number(convertWizpointToUsd(user.score)) ? (
+                  <Text
+                    className="text-red-400 text-xl font-bold"
+                    style={{ marginBottom: 10 }}
+                  >
+                    In Sufficient Balance
+                  </Text>
+                ) : (
+                  <CustomButton
+                    title={`Pay ${usdEquivalent} ${currency}`}
+                    handlePress={handleInAppPurchase}
+                    containerStyles="w-[100%]"
+                    textStyles={"font-pbold text-white"}
+                    isLoading={exchangeLoading}
+                  />
+                )}
+              </>
+            )}
+          </BlurView>
+        </TouchableWithoutFeedback>
+      </Modal>
+
       <FlutterwaveModal
         visible={showFlutterwave}
         onRequestClose={() => setShowFlutterwave(false)}
@@ -480,6 +586,62 @@ const Inventory = () => {
         onSuccess={handleSuccess}
         onCancel={handleCancel}
       />
+
+      <Modal transparent visible={paymentOptionModal} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setPaymentOptionModl(false)}>
+          <BlurView
+            intensity={50}
+            tint="dark"
+            className="flex-1 items-center justify-center"
+          >
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View className="bg-[#857f6e85] opacity-2 rounded-lg p-2 flex justify-center items-center">
+                <Text className="text-md text-white font-bold text-center">
+                  Select Payment Option To Continue
+                </Text>
+                <View className="flex-row p-4 my-8">
+                  <TouchableOpacity
+                    onPress={() => setSelectedPaymentOption("Card")}
+                    className={`bg-black/20 m-1 rounded-lg ${
+                      selectedPaymentOption === "Card"
+                        ? "border border-white"
+                        : ""
+                    }`}
+                  >
+                    <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
+                      <Text className="text-white text-md font-bold font-secondary text-center">
+                        CARD / TRANSFER
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setSelectedPaymentOption("In App")}
+                    className={`bg-black/20 m-1 rounded-lg ${
+                      selectedPaymentOption === "In App"
+                        ? "border border-white"
+                        : ""
+                    }`}
+                  >
+                    <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
+                      <Text className="text-white text-md font-bold font-secondary text-center">
+                        IN APP PURCHASE
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+
+            <CustomButton
+              title="Continue"
+              handlePress={handlePaymentOption}
+              containerStyles="w-[200px]"
+              textStyles={"font-pbold text-white"}
+              isLoading={false}
+            />
+          </BlurView>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };

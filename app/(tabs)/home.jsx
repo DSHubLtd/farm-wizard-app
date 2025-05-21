@@ -205,9 +205,6 @@ export default Home = () => {
                     <View
                       key={index}
                       style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
                         backgroundColor: 'rgba(255,255,255,0.2)',
                         borderRadius: 12,
                         paddingVertical: 8,
@@ -215,15 +212,15 @@ export default Home = () => {
                         marginBottom: 8,
                       }}
                     >
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ color: '#fff' }}>{index + 1}. </Text>
-                        <Text style={{ color: '#fff' }}>{notification.message} on </Text>
-                      </View>
-                      <Text style={{ color: '#FCD34D', fontWeight: '600' }}>
+                      <Text style={{ color: '#fff' }}>
+                        {index + 1}. {notification.message}
+                      </Text>
+                      <Text style={{ color: '#FCD34D', fontWeight: '600', marginTop: 4 }}>
                         {(new Date(notification.createdAt)).toString()}
                       </Text>
                     </View>
                   ))}
+
                 </ScrollView>
               </View>
             </BlurView>

@@ -1,8 +1,8 @@
 // start automatically
 // pause & resume
-// pesticide (+1) for any bugs killed (when pesticide is 3 left ) + 10
+// Item gift (+10) for any user at level 1 (when 2 items left )
 // confirmation when clicking on close button
-// higher level, the higher the score
+// higher level, the higher the score - later
 // not use water during raining
 // In purchase
 
@@ -231,7 +231,10 @@ const PlantScreen = () => {
   // Auto-resume if coming from /inventory
   useEffect(() => {
     const comingFromInventory = prevPathRef.current === "/inventory";
-    if (comingFromInventory && isTimerActive && intervalRef.current === null) {
+
+    // if (comingFromInventory && isTimerActive && intervalRef.current === null) {
+    if (comingFromInventory && intervalRef.current === null) {
+      setIsTimerActive(true);
       //console.log("Auto-resuming timer from /inventory");
       intervalRef.current = setInterval(() => {
         setTimeLeft((prev) => {
@@ -294,14 +297,14 @@ const PlantScreen = () => {
 
     // Decay logic
     const waterDecay =
-      currentSeason === "dry" ? 5 : currentSeason === "normal" ? 3 : 1;
+      currentSeason === "dry" ? 5 : currentSeason === "normal" ? 3 : 0;
     const nutrientDecay = currentSeason === "raining" ? 2 : 1;
 
     setWaterLevel((prev) => Math.max(0, prev - waterDecay));
     setNutrientLevel((prev) => Math.max(0, prev - nutrientDecay));
 
     // Health penalties
-    if (waterLevel < 20 && currentSeason !== "raining") {
+    if (waterLevel < 20) {
       setPlantHealth((h) => Math.max(0, h - 5));
       //handleToolUse("⚠️ Your plant is drying out!");
       setPlantDamaged(true);
@@ -454,7 +457,7 @@ const PlantScreen = () => {
     return 150;
   };
 
-  const triggerSpray = () => {
+  const triggerSpray = async () => {
     // if (bugs.length === 0) {
     //   handleToolUse("No bugs right now");
     //   return;
@@ -462,10 +465,10 @@ const PlantScreen = () => {
     if (!activeThreat || activeThreat.resolved) return;
 
     if (userInventory.pesticideQty > 0) {
-      handleUpdateInventory("Pesticide");
+      await handleUpdateInventory("Pesticide");
       // handle gift for userLevel 1
       if (userInventory.pesticideQty <= 2 && userLevel === 1) {
-        handleGiftInventoryItem("Pesticide"); // give gift of tem items
+        await handleGiftInventoryItem("Pesticide"); // give gift of tem items
         setShowGiftMessage("You have receive 10 pesticide for free");
         setTimeout(() => {
           setShowGiftMessage("");
@@ -475,7 +478,7 @@ const PlantScreen = () => {
       handleToolUse("Insufficient pesticide item, Please purchase");
       // handle gift for userLevel 1 (andle when qty is 0)
       if (userInventory.pesticideQty <= 2 && userLevel === 1) {
-        handleGiftInventoryItem("Pesticide"); // give gift of tem items
+        await handleGiftInventoryItem("Pesticide"); // give gift of tem items
         setShowGiftMessage("You have receive 10 pesticide for free");
         setTimeout(() => {
           setShowGiftMessage("");
@@ -505,13 +508,13 @@ const PlantScreen = () => {
       setSpraying(false);
     });
   };
-  const triggerFertilizer = () => {
+  const triggerFertilizer = async () => {
     if (nutrientLevel > 50) return;
     if (userInventory.fertilizerQty > 0) {
-      handleUpdateInventory("Fertilizer");
+      await handleUpdateInventory("Fertilizer");
       // handle gift for userLevel 1
       if (userInventory.fertilizerQty <= 2 && userLevel === 1) {
-        handleGiftInventoryItem("Fertilizer"); // give gift of tem items
+        await handleGiftInventoryItem("Fertilizer"); // give gift of tem items
         setShowGiftMessage("You have receive 10 Fertilizer for free");
         setTimeout(() => {
           setShowGiftMessage("");
@@ -521,7 +524,7 @@ const PlantScreen = () => {
       handleToolUse("Insufficient fertilizer item, Please purchase");
       // handle gift for userLevel 1 (andle when qty is 0)
       if (userInventory.fertilizerQty <= 2 && userLevel === 1) {
-        handleGiftInventoryItem("Fertilizer"); // give gift of tem items
+        await handleGiftInventoryItem("Fertilizer"); // give gift of tem items
         setShowGiftMessage("You have receive 10 Fertilizer for free");
         setTimeout(() => {
           setShowGiftMessage("");
@@ -546,13 +549,13 @@ const PlantScreen = () => {
       //handleToolUse("Fertilizer used! +3");
     });
   };
-  const triggerWater = () => {
+  const triggerWater = async () => {
     if (waterLevel > 40) return;
     if (userInventory.waterQty > 0) {
-      handleUpdateInventory("Water");
+      await handleUpdateInventory("Water");
       // handle gift for userLevel 1
       if (userInventory.waterQty <= 2 && userLevel === 1) {
-        handleGiftInventoryItem("Water"); // give gift of tem items
+        await handleGiftInventoryItem("Water"); // give gift of tem items
         setShowGiftMessage("You have receive 10 Water for free");
         setTimeout(() => {
           setShowGiftMessage("");
@@ -562,7 +565,7 @@ const PlantScreen = () => {
       handleToolUse("Insufficient water item, Please purchase");
       // handle gift for userLevel 1 (andle when qty is 0)
       if (userInventory.waterQty <= 2 && userLevel === 1) {
-        handleGiftInventoryItem("Water"); // give gift of tem items
+        await handleGiftInventoryItem("Water"); // give gift of tem items
         setShowGiftMessage("You have receive 10 Water for free");
         setTimeout(() => {
           setShowGiftMessage("");
@@ -860,9 +863,9 @@ const PlantScreen = () => {
         </View>
 
         {/* Timer */}
-        <Text className="text-center text-white text-xl">
+        {/* <Text className="text-center text-white text-xl">
           {formatTime(timeLeft)}
-        </Text>
+        </Text> */}
 
         {/* Action buttons */}
         <View className="flex-row justify-around items-center ">
@@ -888,7 +891,10 @@ const PlantScreen = () => {
           <ActionButton
             icon={images.inventory}
             label=""
-            onPress={() => router.push("/(screens)/inventory")}
+            onPress={() => {
+              router.push("/(screens)/inventory");
+              setIsTimerActive(false);
+            }}
           />
         </View>
 

@@ -54,6 +54,9 @@ const Settings = () => {
     if (itemLink === "editProfile") {
       router.push(`/(tabs)/(sub-tabs)/${itemLink}`);
     }
+    if (itemLink === "inventory") {
+      router.push(`/(screens)/inventory`);
+    }
     if (itemLink === "specialReward") {
       setRewardVisible(true);
     }
@@ -86,6 +89,12 @@ const Settings = () => {
       label: t("edit_profile"),
       icon: icons.editProfile,
       link: "editProfile",
+      url: "",
+    },
+    {
+      label: "Inventory", //t("edit_profile"),
+      icon: icons.plus,
+      link: "inventory",
       url: "",
     },
     {

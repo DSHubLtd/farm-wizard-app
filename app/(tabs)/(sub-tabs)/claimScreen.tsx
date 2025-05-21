@@ -266,6 +266,9 @@ const ClaimScreen = () => {
           <Text className="text-white/80 text-xs text-center">
             1000 = 0.00001 USD
           </Text>
+          <Text className="text-white/80 text-xs text-center">
+            (Widrawal Eligibility = 0.005) USD
+          </Text>
         </View>
       </TouchableOpacity>
 

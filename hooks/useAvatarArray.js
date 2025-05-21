@@ -18,7 +18,7 @@ export const useFramedAvatarArray = (index) => {
     avatars.saFmaleF,
   ];
 
-  return avatarsArr[index];
+  return avatarsArr[Number(index)];
 };
 export const useNonFramedAvatarArray = (index) => {
   const avatarsArr = [
@@ -38,5 +38,22 @@ export const useNonFramedAvatarArray = (index) => {
     avatars.saFmale,
   ];
 
-  return avatarsArr[index];
+  return avatarsArr[Number(index)];
 };
+
+export const avatarsArr = [
+  avatars.africanMale,
+  avatars.africanFmale,
+  avatars.asianMale,
+  avatars.asianFmale,
+  avatars.antMale,
+  avatars.antFmale,
+  avatars.austMale,
+  avatars.austFmale,
+  avatars.euMale,
+  avatars.euFmale,
+  avatars.naMale,
+  avatars.naFmale,
+  avatars.saMale,
+  avatars.saFmale,
+];
