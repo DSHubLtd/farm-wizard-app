@@ -31,7 +31,7 @@ import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 import ConfirmModal from "@/components/ConfirmDialog";
-import { useThrottle } from "@/hooks/useThrottle";
+import { useThrottleWithState } from "@/hooks/useThrottle";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -105,6 +105,7 @@ const PlantScreen = () => {
 
   const [showAd, setShowAd] = useState(true);
   const [showGiftMessage, setShowGiftMessage] = useState("");
+  const [isThrottled, setIsThrottled] = useState(false);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -483,8 +484,11 @@ const PlantScreen = () => {
       handleToolUse("Insufficient pesticide item, Please purchase");
       return;
     }
+    setIsThrottled(true); // Disable further click
+
     setTimeout(() => {
       setActiveThreat(null);
+      setIsThrottled(false);
     }, 2000);
     setPlantDamaged(false);
     setSpraying(true);
@@ -584,9 +588,18 @@ const PlantScreen = () => {
     return levelmages.lv1;
   };
   // Wrap in throttle (once every 1 second)
-  const throttledTriggerSpray = useThrottle(triggerSpray, 1000);
-  const throttledTriggerFertilizer = useThrottle(triggerFertilizer, 1000);
-  const throttledTriggerWater = useThrottle(triggerWater, 1000);
+  const [throttledTriggerSpray, isThrottledS] = useThrottleWithState(
+    triggerSpray,
+    1000
+  );
+  const [throttledTriggerFertilizer, isThrottledF] = useThrottleWithState(
+    triggerFertilizer,
+    1000
+  );
+  const [throttledTriggerWater, isThrottledW] = useThrottleWithState(
+    triggerWater,
+    1000
+  );
 
   if (loading || invloading)
     return (
@@ -595,7 +608,10 @@ const PlantScreen = () => {
       </View>
     );
   return (
-    <TouchableWithoutFeedback onPress={throttledTriggerSpray}>
+    <TouchableWithoutFeedback
+      onPress={throttledTriggerSpray}
+      disabled={isThrottled}
+    >
       <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
         {/* Background  */}
         {currentSeason === "normal" && (
@@ -831,17 +847,20 @@ const PlantScreen = () => {
             icon={images.fertilizer}
             onPress={throttledTriggerFertilizer}
             itemQty={userInventory.fertilizerQty}
+            disabled={isThrottledF}
           />
           <ToolIcon
             itemQty={userInventory.pesticideQty}
             icon={images.pesticied}
             onPress={throttledTriggerSpray}
+            disabled={isThrottledS}
           />
 
           <ToolIcon
             itemQty={userInventory.waterQty}
             icon={images.kettle}
             onPress={throttledTriggerWater}
+            disabled={isThrottledW}
           />
         </View>
 
@@ -926,13 +945,16 @@ const ToolIcon = ({
   itemQty,
   icon,
   onPress,
+  disabled,
 }: {
   itemQty: number;
   icon: any;
   onPress: () => void;
+  disabled: boolean;
 }) => (
   <TouchableOpacity
     onPress={onPress}
+    disabled={disabled}
     className="relative w-20 h-20 rounded-full bg-cream border-4 border-[#e6d6aa] flex items-center justify-center shadow-md"
   >
     <Image source={icon} className="w-26 h-26" resizeMode="contain" />
