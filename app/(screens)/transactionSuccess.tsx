@@ -51,7 +51,7 @@ const TransactionSuccess = () => {
               paddingHorizontal: 10,
             }}
           >
-            .
+            Congratulations!
           </Text>
         </View>
 

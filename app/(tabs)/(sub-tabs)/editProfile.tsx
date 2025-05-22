@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import { icons, images } from "@/constants";
 import { avatarsArr } from "@/hooks/useAvatarArray";
 import { validateForm } from "../../../utils/validateForm";
 import { updateUser } from "@/services/user";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const EditProfile = () => {
   const { user, setUser, setIsLogged } = useLoginContext();
@@ -38,7 +39,7 @@ const EditProfile = () => {
   const [selectedIndex, setSelectedIndex] = useState(user?.avatar || 0);
 
   const [form, setForm] = useState({
-    fullName: "",
+    fullName: user.fullName,
     password: "",
     cpassword: "",
   });
@@ -47,22 +48,34 @@ const EditProfile = () => {
   const handleUpdate = async () => {
     const { isValid, errors: validationErrors } = validateForm({
       ...form,
+      email: user.email,
+      selectedCountry: "update",
+      selectedLanguage: "update",
     });
-
     if (isValid) {
       setSubmitting(true);
-      try {
-        const result = await updateUser(user._id, form);
-        if (result.status !== 200 || result.data.success === false) {
-          Alert.alert("Error", result.data.message);
-          return;
+      const token = await AsyncStorage.getItem("token");
+      if (token !== null) {
+        try {
+          const result = await updateUser(
+            token,
+            form.fullName,
+            form.password,
+            selectedIndex
+          );
+          if (result.status !== 200 || result.success === false) {
+            Alert.alert("Error", result.message);
+            return;
+          }
+
+          Alert.alert("Success", result.message);
+          setUser(result.userDetails);
+        } catch (error: any) {
+          console.log("error ", error);
+          Alert.alert("Error occured", error.message);
+        } finally {
+          setSubmitting(false);
         }
-        Alert.alert("Success", result.data.message);
-        // setUser(result.data.user);
-      } catch (error: any) {
-        Alert.alert("Error occured", error.message);
-      } finally {
-        setSubmitting(false);
       }
     } else {
       setErrors(validationErrors); // display errors in UI

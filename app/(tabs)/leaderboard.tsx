@@ -214,11 +214,13 @@ export default function Leaderboard() {
               key={index}
               className="flex-row items-center justify-between border-t border-yellow-300 rounded-none mx-4 px-4 py-4 mb-2"
             >
-              <View className="flex-row items-center space-x-3">
+              <View className="flex-row items-center gap-x-6">
                 <Text className="text-white font-bold">{index + 4}</Text>
                 <Image
-                  source={useFramedAvatarArray(player.avatar)}
-                  className="w-10 h-10 rounded-full"
+                  source={
+                    useFramedAvatarArray(player.avatar) || avatars.asianMaleF
+                  }
+                  className="w-12 h-12 rounded-full"
                 />
                 <Text className="text-white">{player.fullName}</Text>
               </View>

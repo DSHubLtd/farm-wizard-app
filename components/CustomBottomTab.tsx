@@ -4,11 +4,6 @@ import { icons, images } from "@/constants";
 import Svg, { Path } from "react-native-svg";
 import { router } from "expo-router";
 
-// const icons = {
-//   weight: require("../assets/weight.png"),
-//   watering: require("../assets/watering.png"),
-//   leaderboard: require("../assets/leaderboard.png"),
-// };
 export function WavyBackground() {
   return (
     <View className="absolute bottom-0 w-full h-24">
@@ -40,7 +35,7 @@ export default function CustomBottomTab() {
           className="w-20 h-20 rounded-full bg-[#d1a635] items-center justify-center border-4 border-white mb-2 shadow-lg shadow-black"
           onPress={() => router.push("/(tabs)/home")}
         >
-          <Image source={icons.home} className="w-8 h-8 tint-white" />
+          <Image source={icons.home} className="w-12 h-8 tint-white" />
         </Pressable>
 
         {/* Right Tab */}

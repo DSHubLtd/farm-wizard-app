@@ -22,6 +22,7 @@ const { height } = Dimensions.get("window");
 import uuid from "react-native-uuid";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
+import { submitConversion } from "@/services/user";
 
 const tabs = ["Token", "Airtime", "Data bundle"] as const;
 
@@ -109,7 +110,7 @@ const dataBundle = [
 ];
 
 const ClaimScreen = () => {
-  const { user } = useLoginContext();
+  const { user, setUser } = useLoginContext();
   if (!user) {
     router.replace("/");
   }
@@ -121,12 +122,11 @@ const ClaimScreen = () => {
   const [selectedAmount, setSelectedAmount] = useState(0);
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    amount: "",
+    amount: user.usdBalance,
     phoneNo: "",
     data: "",
+    network: "TON",
   });
-  const [token, setToken] = useState(0);
-
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   const handleTabChange = (tab: "Token" | "Airtime" | "Data bundle") => {
@@ -172,6 +172,14 @@ const ClaimScreen = () => {
   };
 
   const submitWithdrawal = async () => {
+    if (Number(user.usdBalance) < 0.005) {
+      Alert.alert(
+        "Warning!!!",
+        "Ooops!! You don have enough USD balance to withdraw, Please play more game and convert your score to USD"
+      );
+      return;
+    }
+
     const type = activeTab;
     const reference = `withdraw-${uuid.v4().split("-")[0]}`;
     const provider = selectedNetwork ? selectedNetwork : selectedProvider?.name;
@@ -206,6 +214,7 @@ const ClaimScreen = () => {
           provider,
           type,
           reference,
+          form.network,
           token
         );
         if (result.status !== 200 || result.data.success === false) {
@@ -224,6 +233,40 @@ const ClaimScreen = () => {
           return;
         }
 
+        Alert.alert("Success", result.data.message);
+        setTimeout(() => {
+          router.replace("/(screens)/transactionSuccess");
+        }, 2000);
+        setUser(result.data.userDetails);
+      } catch (error: any) {
+        Alert.alert("Error occured", error.message);
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  };
+
+  const handleSubmitConvertion = async () => {
+    if (user.score <= 0) {
+      Alert.alert(
+        "Warning!!!",
+        "You dont have enough token to convert, Please play more game to earn token"
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const result = await submitConversion(token, Number(user.score));
+        console.log("result ", result.data);
+        if (result.status !== 200) {
+          Alert.alert("Warning!", result.data.message);
+          return;
+        }
+
+        setUser(result.data.userDetails);
         Alert.alert("Success", result.data.message);
         setTimeout(() => {
           router.replace("/(screens)/transactionSuccess");
@@ -261,13 +304,13 @@ const ClaimScreen = () => {
       >
         <View className="px-6 py-2 bg-[#E0C145B8] rounded-xl">
           <Text className="text-white text-sm text-center">
-            USD {user.score}
+            USD: {user.usdBalance}
           </Text>
           <Text className="text-white/80 text-xs text-center">
             1000 = 0.00001 USD
           </Text>
           <Text className="text-white/80 text-xs text-center">
-            (Widrawal Eligibility = 0.005) USD
+            (Widrawal Eligibility = 0.005 USD)
           </Text>
         </View>
       </TouchableOpacity>
@@ -434,21 +477,25 @@ const ClaimScreen = () => {
               {t("messages.confirm_claim")}
               {selectedProvider?.name}?
             </Text>
-
+            <Text className="text-xl text-white font-bold mb-2 text-center">
+              Enter your destination address below to withdraw your{" "}
+              {user.usdBalance} USD balance
+            </Text>
             <FormField
               type="text"
               placeholder="Enter destination address"
-              title=""
+              title="Destination Wallet address"
               value={form.phoneNo}
               handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-              otherStyles=""
+              otherStyles="my-2"
             />
+
             <FormField
-              type="number"
-              placeholder="Enter amount"
-              title=""
-              value={form.amount}
-              handleChangeText={(e: any) => setForm({ ...form, amount: e })}
+              type="text"
+              placeholder="Enter Network / More details"
+              title="Withdrawal Netwiork"
+              value={form.network}
+              handleChangeText={(e: any) => setForm({ ...form, network: e })}
               otherStyles=""
             />
 
@@ -496,22 +543,25 @@ const ClaimScreen = () => {
             className="bg-black-200 rounded-2xl w-[80%] p-6 items-center shadow-2xl"
           >
             <Text className="text-xl text-white font-bold mb-2 text-center">
-              Convert Your Token To Usd
+              Convert Your Wizpoints To Usd
+            </Text>
+            <Text className="text-xl text-white font-bold mb-2 text-center">
+              {user.score.toFixed(2)}
             </Text>
 
-            <FormField
+            {/* <FormField
               type="text"
               placeholder="Enter Toekn"
-              title=""
+              title="Wiz Points"
               value={token}
               handleChangeText={(e: any) => setToken(e)}
               otherStyles=""
-            />
+            /> */}
 
             <View className="flex-row space-x-4">
               <CustomButton
-                title="Convert "
-                handlePress={() => console.log("hh")}
+                title="Clock to confirm "
+                handlePress={handleSubmitConvertion}
                 containerStyles="w-[200px]"
                 textStyles={"font-pbold text-white"}
                 isLoading={isSubmitting}

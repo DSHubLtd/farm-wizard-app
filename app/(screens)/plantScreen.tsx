@@ -1,10 +1,5 @@
-// start automatically
-// pause & resume
-// Item gift (+10) for any user at level 1 (when 2 items left )
-// confirmation when clicking on close button
+// pause & resume button physically
 // higher level, the higher the score - later
-// not use water during raining
-// In purchase
 
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -36,6 +31,7 @@ import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 import ConfirmModal from "@/components/ConfirmDialog";
+import { useThrottle } from "@/hooks/useThrottle";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -45,6 +41,9 @@ const SEASON_DURATION = TEN_MINUTES / 3;
 
 const SEASONS = ["normal", "dry", "raining"] as const;
 type SeasonType = (typeof SEASONS)[number];
+type InventoryItemType = "Fertilizer" | "Pesticide" | "Water";
+type InventoryKey = "fertilizerQty" | "pesticideQty" | "waterQty";
+
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
   const { user } = useLoginContext();
@@ -130,7 +129,7 @@ const PlantScreen = () => {
       setLoading(false);
     }
   };
-  const fetchUserInventotyData = async () => {
+  const fetchUserInventoryData = async () => {
     //setInvLoading(true);
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
@@ -155,13 +154,20 @@ const PlantScreen = () => {
       setInvLoading(false);
     }
   };
-  const handleUpdateInventory = async (item: string, qty = 1) => {
+
+  const handleUpdateInventory = async (item: InventoryItemType, qty = 1) => {
     //  setSubmitting(true);
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
       try {
-        const result = await updateInventory(token, item, qty);
-        await fetchUserInventotyData();
+        await updateInventory(token, item, qty);
+        const key = `${item.toLowerCase()}Qty` as InventoryKey;
+        // Optimistically update local state
+        setUserInventory((prev) => ({
+          ...prev,
+          [key]: Math.max((prev[key] || 0) - qty, 0),
+        }));
+        fetchUserInventoryData();
       } catch (error: any) {
         //  Alert.alert("Error", error.message);
       } finally {
@@ -173,8 +179,14 @@ const PlantScreen = () => {
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
       try {
-        const result = await addToInventory(token, item, qty);
-        await fetchUserInventotyData();
+        await addToInventory(token, item, qty);
+        const key = `${item.toLowerCase()}Qty` as InventoryKey;
+        setUserInventory((prev) => ({
+          ...prev,
+          [key]: (prev[key] || 0) + qty,
+          //[key]: Math.max((prev[key] || 0) + qty, 0),
+        }));
+        fetchUserInventoryData();
       } catch (error: any) {
         console.log("Error", error.message);
       }
@@ -402,7 +414,7 @@ const PlantScreen = () => {
     // PLANT ANIMATION
     // animatePlantGrowing();
     fetchUserPlantLevelData();
-    fetchUserInventotyData();
+    fetchUserInventoryData();
     return () => {
       spraySound?.unloadAsync();
       fertilizerSound?.unloadAsync();
@@ -410,12 +422,6 @@ const PlantScreen = () => {
     };
   }, []);
 
-  if (loading || invloading)
-    return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
   // ANIMATION
   const animatePlantGrowing = () => {
     Animated.loop(
@@ -460,37 +466,26 @@ const PlantScreen = () => {
   };
 
   const triggerSpray = async () => {
-    // if (bugs.length === 0) {
-    //   handleToolUse("No bugs right now");
-    //   return;
-    // }
     if (!activeThreat || activeThreat.resolved) return;
 
-    if (userInventory.pesticideQty > 0) {
-      await handleUpdateInventory("Pesticide");
-      // handle gift for userLevel 1
-      if (userInventory.pesticideQty <= 2 && userLevel === 1) {
-        await handleGiftInventoryItem("Pesticide"); // give gift of tem items
-        setShowGiftMessage("You have receive 10 pesticide for free");
-        setTimeout(() => {
-          setShowGiftMessage("");
-        }, 4000);
-      }
+    const currentQty = userInventory.pesticideQty;
+
+    // Gifting logic
+    if (currentQty <= 2 && userLevel === 1) {
+      await handleGiftInventoryItem("Pesticide", 10);
+      setShowGiftMessage("You have received 10 pesticide for free");
+      setTimeout(() => setShowGiftMessage(""), 4000);
+    }
+
+    if (currentQty > 0) {
+      await handleUpdateInventory("Pesticide", 1);
     } else {
       handleToolUse("Insufficient pesticide item, Please purchase");
-      // handle gift for userLevel 1 (andle when qty is 0)
-      if (userInventory.pesticideQty <= 2 && userLevel === 1) {
-        await handleGiftInventoryItem("Pesticide"); // give gift of tem items
-        setShowGiftMessage("You have receive 10 pesticide for free");
-        setTimeout(() => {
-          setShowGiftMessage("");
-        }, 4000);
-      }
       return;
     }
     setTimeout(() => {
       setActiveThreat(null);
-    }, 3000);
+    }, 2000);
     setPlantDamaged(false);
     setSpraying(true);
     sprayAnim.setValue(0);
@@ -512,28 +507,23 @@ const PlantScreen = () => {
   };
   const triggerFertilizer = async () => {
     if (nutrientLevel > 50) return;
-    if (userInventory.fertilizerQty > 0) {
-      await handleUpdateInventory("Fertilizer");
-      // handle gift for userLevel 1
-      if (userInventory.fertilizerQty <= 2 && userLevel === 1) {
-        await handleGiftInventoryItem("Fertilizer"); // give gift of tem items
-        setShowGiftMessage("You have receive 10 Fertilizer for free");
-        setTimeout(() => {
-          setShowGiftMessage("");
-        }, 4000);
-      }
+
+    const currentQty = userInventory.fertilizerQty;
+
+    // Gifting logic
+    if (currentQty <= 2 && userLevel === 1) {
+      await handleGiftInventoryItem("Fertilizer", 10);
+      setShowGiftMessage("You have received 10 Fertilizer for free");
+      setTimeout(() => setShowGiftMessage(""), 4000);
+    }
+
+    if (currentQty > 0) {
+      await handleUpdateInventory("Fertilizer", 1);
     } else {
-      handleToolUse("Insufficient fertilizer item, Please purchase");
-      // handle gift for userLevel 1 (andle when qty is 0)
-      if (userInventory.fertilizerQty <= 2 && userLevel === 1) {
-        await handleGiftInventoryItem("Fertilizer"); // give gift of tem items
-        setShowGiftMessage("You have receive 10 Fertilizer for free");
-        setTimeout(() => {
-          setShowGiftMessage("");
-        }, 4000);
-      }
+      handleToolUse("Insufficient Fertilizer item, Please purchase");
       return;
     }
+
     setNutrientLevel(100);
     setScore((s) => Math.min(s + 3, 100000));
     setFertilizing(true);
@@ -553,28 +543,22 @@ const PlantScreen = () => {
   };
   const triggerWater = async () => {
     if (waterLevel > 40) return;
-    if (userInventory.waterQty > 0) {
-      await handleUpdateInventory("Water");
-      // handle gift for userLevel 1
-      if (userInventory.waterQty <= 2 && userLevel === 1) {
-        await handleGiftInventoryItem("Water"); // give gift of tem items
-        setShowGiftMessage("You have receive 10 Water for free");
-        setTimeout(() => {
-          setShowGiftMessage("");
-        }, 4000);
-      }
+    const currentQty = userInventory.waterQty;
+
+    // Gifting logic
+    if (currentQty <= 2 && userLevel === 1) {
+      await handleGiftInventoryItem("Water", 10);
+      setShowGiftMessage("You have received 10 Water for free");
+      setTimeout(() => setShowGiftMessage(""), 4000);
+    }
+
+    if (currentQty > 0) {
+      await handleUpdateInventory("Water", 1);
     } else {
-      handleToolUse("Insufficient water item, Please purchase");
-      // handle gift for userLevel 1 (andle when qty is 0)
-      if (userInventory.waterQty <= 2 && userLevel === 1) {
-        await handleGiftInventoryItem("Water"); // give gift of tem items
-        setShowGiftMessage("You have receive 10 Water for free");
-        setTimeout(() => {
-          setShowGiftMessage("");
-        }, 4000);
-      }
+      handleToolUse("Insufficient Water item, Please purchase");
       return;
     }
+
     setWaterLevel(100);
     setScore((s) => Math.min(s + 3, 100000));
     setWatering(true);
@@ -599,9 +583,19 @@ const PlantScreen = () => {
     if (userLevel === 4) return levelmages.lv4;
     return levelmages.lv1;
   };
+  // Wrap in throttle (once every 1 second)
+  const throttledTriggerSpray = useThrottle(triggerSpray, 1000);
+  const throttledTriggerFertilizer = useThrottle(triggerFertilizer, 1000);
+  const throttledTriggerWater = useThrottle(triggerWater, 1000);
 
+  if (loading || invloading)
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   return (
-    <TouchableWithoutFeedback onPress={triggerSpray}>
+    <TouchableWithoutFeedback onPress={throttledTriggerSpray}>
       <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
         {/* Background  */}
         {currentSeason === "normal" && (
@@ -835,19 +829,19 @@ const PlantScreen = () => {
         <View className="absolute left-4 top-[18%] gap-y-1 py-80">
           <ToolIcon
             icon={images.fertilizer}
-            onPress={triggerFertilizer}
+            onPress={throttledTriggerFertilizer}
             itemQty={userInventory.fertilizerQty}
           />
           <ToolIcon
             itemQty={userInventory.pesticideQty}
             icon={images.pesticied}
-            onPress={triggerSpray}
+            onPress={throttledTriggerSpray}
           />
 
           <ToolIcon
             itemQty={userInventory.waterQty}
             icon={images.kettle}
-            onPress={triggerWater}
+            onPress={throttledTriggerWater}
           />
         </View>
 
@@ -878,18 +872,21 @@ const PlantScreen = () => {
             onPress={() => handleToolUse(`Level info ${userLevel}`)}
           />
 
-          {timeLeft > 0 && (
-            <ActionButton
-              icon={images.timer}
-              label=""
-              onPress={() => {
-                if (!isTimerActive) {
-                  setIsTimerActive(true);
-                  handleToolUse("Growth cycle started");
-                }
-              }}
-            />
-          )}
+          <ActionButton
+            icon={images.timer}
+            label=""
+            onPress={() => {
+              if (!isTimerActive) {
+                setIsTimerActive(true);
+                handleToolUse("Growth cycle resumed");
+              }
+              if (isTimerActive) {
+                setIsTimerActive(false);
+                handleToolUse("Growth cycle paused");
+              }
+            }}
+          />
+
           <ActionButton
             icon={images.inventory}
             label=""

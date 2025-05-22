@@ -146,12 +146,12 @@ export default function WithdrawalRequest() {
               className="flex-row items-center justify-between border-t border-b border-white rounded-none mx-4 px-4 py-2 mb-2"
               onPress={() => openModal(withdrawal)}
             >
-              <View className="flex-row justify-center items-center space-x-3">
+              <View className="flex-row justify-center items-center gap-x-6">
                 <Text className="text-white font-bold">{index + 1}</Text>
                 <Image
                   source={
                     useFramedAvatarArray(withdrawal?.userId.avatar) ||
-                    avatars.africanMale
+                    avatars.africanMaleF
                   }
                   className="w-16 h-16 rounded-full"
                 />

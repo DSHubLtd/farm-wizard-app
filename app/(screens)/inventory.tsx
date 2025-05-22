@@ -265,7 +265,7 @@ const Inventory = () => {
   };
 
   const convertWizpointToUsd = (userBalance: number) => {
-    return Number(userBalance * 0.00001) / 1000;
+    return (Number(userBalance * 0.00001) / 1000).toFixed(8);
   };
 
   const handleInAppPurchase = async () => {

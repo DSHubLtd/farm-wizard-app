@@ -12,9 +12,23 @@ export const getUser = async (id: string) => {
   }
 };
 
-export const updateUser = async (id: string, updates: any) => {
+export const updateUser = async (
+  token: string,
+  fullName: string,
+  password: string,
+  selectedIndex: string
+) => {
   try {
-    const res = await client.patch(`/user/${id}`, updates);
+    const res = await client.patch(
+      `/user/update`,
+      { fullName, newPassword: password, avatar: selectedIndex },
+      {
+        headers: {
+          Authorization: `JWT ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return res.data;
   } catch (error: any) {
     console.error("PATCH Error:", error?.response?.data);
@@ -71,6 +85,28 @@ export const updatePlantLevels = async (
     return res.data;
   } catch (error: any) {
     console.error("user plant Error:", error?.response?.data);
+    throw error;
+  }
+};
+
+export const submitConversion = async (token: string, amount: number) => {
+  try {
+    const response = await client.post(
+      "/user/submit-conversion",
+      {
+        amount,
+      },
+      {
+        headers: {
+          Authorization: `JWT ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response;
+  } catch (error: any) {
+    console.log("Error inside conversion method", error.message);
     throw error;
   }
 };

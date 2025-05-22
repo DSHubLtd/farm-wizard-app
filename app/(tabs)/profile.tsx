@@ -233,7 +233,7 @@ const Profile = () => {
         )}
       </View>
       <Text className="text-yellow-300 font-secondary text-base my-2">
-        {user?.score || 0}
+        Score: {user?.score || 0} || USD: {user?.usdBalance || 0}
       </Text>
 
       {/* Tabs */}

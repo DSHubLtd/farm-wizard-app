@@ -6,6 +6,7 @@ export const submitWithdrwal = async (
   provider: string,
   withdrawType: string,
   reference: string,
+  network: string,
   token: string
 ) => {
   try {
@@ -17,6 +18,7 @@ export const submitWithdrwal = async (
         provider,
         withdrawType,
         reference,
+        network,
       },
       {
         headers: {
