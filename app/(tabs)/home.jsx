@@ -34,6 +34,7 @@ export default Home = () => {
 
   useFocusEffect(
     useCallback(() => {
+      fetchNotification();
       if (Platform.OS !== 'android') return;
 
       const onBackPress = () => {
@@ -99,9 +100,7 @@ export default Home = () => {
     }
   };
 
-  useEffect(() => {
-    fetchNotification();
-  }, []);
+
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">
 

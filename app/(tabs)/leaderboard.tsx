@@ -11,10 +11,11 @@ import { avatars, icons, images } from "@/constants";
 import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
+import { useFocusEffect } from "expo-router";
 
 const { height, width } = Dimensions.get("window");
 
@@ -33,43 +34,46 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let isMounted = true; // Track if component is still mounted
-    const fetchTopUsers = async (pageNumber: number) => {
-      try {
-        const response = await axios.get(
-          `https://farm-wizard-api.onrender.com/api/v1/leaderboard/all`,
-          {
-            params: { page: pageNumber, limit: 50 },
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true; // Track if component is still mounted
+
+      const fetchTopUsers = async (pageNumber: number) => {
+        try {
+          const response = await axios.get(
+            `https://farm-wizard-api.onrender.com/api/v1/leaderboard/all`,
+            {
+              params: { page: pageNumber, limit: 50 },
+            }
+          );
+          const newUsers = response.data;
+
+          // Check if there are more users to load
+          if (newUsers.length < 100) {
+            setHasMore(false);
           }
-        );
-        const newUsers = response.data;
 
-        // Check if there are more users to load
-        if (newUsers.length < 100) {
-          setHasMore(false);
+          if (isMounted) {
+            setTopUsers((prevUsers: any) => [...prevUsers, ...newUsers]);
+          }
+        } catch (err: any) {
+          if (isMounted) {
+            setError(err);
+          }
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
         }
+      };
 
-        if (isMounted) {
-          setTopUsers((prevUsers: any) => [...prevUsers, ...newUsers]);
-        }
-      } catch (err: any) {
-        if (isMounted) {
-          setError(err);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+      fetchTopUsers(page);
 
-    fetchTopUsers(page);
-
-    return () => {
-      isMounted = false; // Cleanup on unmount
-    };
-  }, [page]);
+      return () => {
+        isMounted = false; // Cleanup on unfocus
+      };
+    }, [page])
+  );
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -77,6 +81,7 @@ export default function Leaderboard() {
       setPage((prevPage: any) => prevPage + 1);
     }
   };
+
   const handleRefresh = () => {
     setLoading(true);
     setPage(1);

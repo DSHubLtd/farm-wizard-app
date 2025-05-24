@@ -30,16 +30,20 @@ const SignIn = () => {
     try {
 
       const result = await signInUser(form.email.toLowerCase(), form.password);
-      if (result.data.success === false) {
-        Alert.alert("Error", result.data.message)
-        return;
+      if (result !== undefined) {
+        if (result?.data.success === false) {
+          Alert.alert("Error", result?.data.message)
+          return;
+        }
+        setUser(result.data.data.user);
+
+        setIsLogged(true);
+
+        Alert.alert("Success", "User signed in successfully");
+        router.replace("/(tabs)/home");
+      } else {
+        Alert.alert("Error", "Server Down, please try again later")
       }
-      setUser(result.data.data.user);
-
-      setIsLogged(true);
-
-      Alert.alert("Success", "User signed in successfully");
-      router.replace("/(tabs)/home");
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
@@ -87,7 +91,7 @@ const SignIn = () => {
           />
 
           <CustomButton
-            title={t("buttons.sign_up")}
+            title={t("buttons.sign_in")}
             handlePress={submit}
             // handlePress={() => router.push("/(tabs)/home")}
             containerStyles="w-full"
