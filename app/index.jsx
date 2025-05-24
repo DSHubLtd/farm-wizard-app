@@ -9,6 +9,7 @@ import CustomButton from "../components/CustomButton";
 import { images } from "../constants";
 import { useLoginContext } from "../context/LoginProvider";
 import BackgroundImage from "../components/BackgroundImage";
+import { useTranslation } from "react-i18next";
 const { height } = Dimensions.get("window");
 
 export default function Index() {
@@ -48,6 +49,7 @@ export default function Index() {
       };
     }, [backPressedOnce])
   )
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView className="bg-primary h-full" edges={['left', 'right', 'bottom']} style={{ flex: 1 }}>
@@ -58,7 +60,7 @@ export default function Index() {
 
         <View className="my-20 ">
           <Text className="text-3xl text-white font-primary text-center">
-            TERM AND CONDITION
+            {t("settings.terms_and_condition")}
           </Text>
         </View>
 
@@ -68,23 +70,12 @@ export default function Index() {
           className="min-h-50">
           {/* <Text className="text-xl font-semibold text-gray-50 my-5 text-center border-r-4 border-r-[#E1CE67]"> */}
           <Text className="text-lg font-secondary text-gray-50 text-center border-r-4 border-r-[#E1CE67]">
-            By using Farm Wizard, you agree to our Terms and Conditions. This app is designed for fun and educational
-            use only. Users are expected to use the app responsibly and not engage in harmful or illegal behavior.
-            All game content, including graphics and sounds, is owned by the Farm Wizard team and may not be copied or
-            shared without permission. We are committed to protecting your privacy and will not collect personal information
-            without your consent. These terms may be updated as the app grows, and continued use means you accept any changes.
-            For questions, contact us at support@farmwizard.com.
-            By using Farm Wizard, you agree to our Terms and Conditions. This app is designed for fun and educational
-            use only. Users are expected to use the app responsibly and not engage in harmful or illegal behavior.
-            All game content, including graphics and sounds, is owned by the Farm Wizard team and may not be copied or
-            shared without permission. We are committed to protecting your privacy and will not collect personal information
-            without your consent. These terms may be updated as the app grows, and continued use means you accept any changes.
-            For questions, contact us at support@farmwizard.com.
+            {t("messages.terms_and_condition_text")}
           </Text>
         </ScrollView>
 
         <CustomButton
-          title="Agree & Continue "
+          title={t("buttons.agree_continue")}
           handlePress={() => router.push("/sign-in")}
           containerStyles="w-full"
           textStyles={"font-pbold text-white"}

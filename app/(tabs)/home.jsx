@@ -117,7 +117,7 @@ export default Home = () => {
 
       {/* Top Buttons */}
       <HeaderNavigation
-        onLeftPress={() => router.push("/(tabs)/(sub-tabs)/settings")}
+        onLeftPress={() => null}
         onRightPress={handlsShowNotifcation}
         leftIcon={useFramedAvatarArray(user.avatar || 0)}
         rightIcon={icons.bell}
@@ -146,7 +146,7 @@ export default Home = () => {
         {/* Play Button */}
 
         <CustomButton
-          title="Play"
+          title={t("buttons.play")}
           handlePress={() => router.push('/(screens)/selectSeed')}
           containerStyles="w-[200px]"
           textStyles={"font-pbold text-white"}

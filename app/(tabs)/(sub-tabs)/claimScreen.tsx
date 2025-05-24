@@ -114,6 +114,7 @@ const ClaimScreen = () => {
   if (!user) {
     router.replace("/");
   }
+  const isAdmin = user?.userType === "admin";
   const [activeTab, setActiveTab] = useState<keyof typeof providers>("Token");
   const [selectedProvider, setSelectedProvider] = useState<Provider>();
   const [modalVisible, setModalVisible] = useState(false);
@@ -260,7 +261,7 @@ const ClaimScreen = () => {
     if (token !== null) {
       try {
         const result = await submitConversion(token, Number(user.score));
-        console.log("result ", result.data);
+        // console.log("result ", result.data.userDetails);
         if (result.status !== 200) {
           Alert.alert("Warning!", result.data.message);
           return;
@@ -278,7 +279,16 @@ const ClaimScreen = () => {
       }
     }
   };
+
+  const handleWithdrawalHistory = () => {
+    if (user.userType === "user") {
+      //router.push("/(tabs)/(sub-tabs)/requestReceived");
+    } else {
+      router.push("/(tabs)/(sub-tabs)/withdrawalRequest");
+    }
+  };
   const { t } = useTranslation();
+
   return (
     <View className="flex-1 bg-green-200 items-center justify-start relative">
       <BackgroundImage
@@ -289,13 +299,15 @@ const ClaimScreen = () => {
       {/* Header */}
       <HeaderNavigation
         onLeftPress={() => router.push("/(tabs)/profile")}
-        onRightPress={() => router.push("/(tabs)/(sub-tabs)/withdrawalRequest")}
+        onRightPress={() => handleWithdrawalHistory()}
         leftIcon={icons.back}
-        rightIcon={icons.settings}
+        rightIcon={images.requestPending}
         showLeftButton={true}
-        showRightButton={true}
+        showRightButton={isAdmin}
       />
-      <Text className="text-white text-2xl font-primary">CLAIM</Text>
+      <Text className="text-white text-2xl font-primary">
+        {t("menu.claim")}
+      </Text>
 
       {/* Balance Box */}
       <TouchableOpacity
@@ -310,7 +322,7 @@ const ClaimScreen = () => {
             1000 = 0.00001 USD
           </Text>
           <Text className="text-white/80 text-xs text-center">
-            (Widrawal Eligibility = 0.005 USD)
+            ({t("messages.withdrawal_eligiblity")} = 0.005 USD)
           </Text>
         </View>
       </TouchableOpacity>
@@ -338,7 +350,7 @@ const ClaimScreen = () => {
 
       {/* Choose Provider */}
       <Text className="text-white text-base font-primary ">
-        Choose provider
+        {t("messages.choose_provider")}
       </Text>
 
       {/* Provider Buttons */}
@@ -474,12 +486,12 @@ const ClaimScreen = () => {
               {selectedProvider?.name}
             </Text>
             <Text className="text-gray-200 text-center mb-6">
-              {t("messages.confirm_claim")}
-              {selectedProvider?.name}?
+              {t("messages.confirm_claim")} {selectedProvider?.name}?
             </Text>
             <Text className="text-xl text-white font-bold mb-2 text-center">
-              Enter your destination address below to withdraw your{" "}
-              {user.usdBalance} USD balance
+              {t("comfirmation.token_address", {
+                amount: ` ${user.usdBalance} `,
+              })}{" "}
             </Text>
             <FormField
               type="text"
@@ -501,7 +513,7 @@ const ClaimScreen = () => {
 
             <View className="flex-row space-x-4">
               <CustomButton
-                title="Submit "
+                title={t("buttons.submit")}
                 handlePress={submitWithdrawal}
                 containerStyles="w-[200px]"
                 textStyles={"font-pbold text-white"}
@@ -543,7 +555,7 @@ const ClaimScreen = () => {
             className="bg-black-200 rounded-2xl w-[80%] p-6 items-center shadow-2xl"
           >
             <Text className="text-xl text-white font-bold mb-2 text-center">
-              Convert Your Wizpoints To Usd
+              {t("comfirmation.convert_to_usd")}
             </Text>
             <Text className="text-xl text-white font-bold mb-2 text-center">
               {user.score.toFixed(2)}

@@ -20,43 +20,20 @@ import { getUserPlantLevels } from "@/services/user";
 import { BlurView } from "expo-blur";
 import { HomeIcon } from "lucide-react-native";
 import { Picker } from "@react-native-picker/picker";
-import { plantGrowth as seedInventory } from "@/constants/plants";
+import { usePlantGrowth as seedInventory } from "@/constants/plants";
 import { router } from "expo-router";
 import uuid from "react-native-uuid";
 import { useLoginContext } from "@/context/LoginProvider";
 import { getUserPIventory } from "@/services/userInventory";
 import checkCurrency from "@/utils/checkCurrency";
+import { useTranslation } from "react-i18next";
 
 type Inventory = {
   name: string;
+  diplayName: string;
   icon: any;
   iconLg: any;
   bg: string;
-};
-const inventory = {
-  items: [
-    {
-      name: "Fertilizer",
-      icon: images.fertilizer,
-      level: 3,
-      progress: 0.65,
-      count: 1,
-    },
-    {
-      name: "Pesticide",
-      icon: images.pesticied,
-      level: 2,
-      progress: 0.4,
-      count: 1,
-    },
-    {
-      name: "Water",
-      icon: images.kettle,
-      level: 1,
-      progress: 0.2,
-      count: 1,
-    },
-  ],
 };
 
 const Inventory = () => {
@@ -64,6 +41,36 @@ const Inventory = () => {
   if (!user) {
     router.replace("/");
   }
+  const { t } = useTranslation();
+  const inventory = {
+    items: [
+      {
+        name: "Fertilizer",
+        diplayName: t("inventory.fertilizer"),
+        icon: images.fertilizer,
+        level: 3,
+        progress: 0.65,
+        count: 1,
+      },
+      {
+        name: "Pesticide",
+        diplayName: t("inventory.pesticide"),
+        icon: images.pesticied,
+        level: 2,
+        progress: 0.4,
+        count: 1,
+      },
+      {
+        name: "Water",
+        diplayName: t("inventory.water"),
+        icon: images.kettle,
+        level: 1,
+        progress: 0.2,
+        count: 1,
+      },
+    ],
+  };
+
   const [userInventory, setUserInventory] = useState({
     fertilizerQty: 0,
     pesticideQty: 0,
@@ -168,6 +175,8 @@ const Inventory = () => {
     fetchUserInventotyData();
     fetchUserPlantLevel();
   }, []);
+
+  const seedData = seedInventory();
   if (invloading)
     return (
       <View className="flex-1 justify-center items-center">
@@ -310,8 +319,8 @@ const Inventory = () => {
         style={{ width: "100vw", height: "100vh", position: "absolute" }}
       />
 
-      <Text className="text-white text-2xl font-primary font-bold text-center my-8">
-        INVENTORY
+      <Text className="text-white text-2xl font-primary text-center my-8">
+        {t("menu.inventory")}
       </Text>
 
       <View className="flex-row gap-2 justify-end my-2">
@@ -330,7 +339,7 @@ const Inventory = () => {
       <ScrollView className="pb-10">
         <View className="bg-[#78693952] p-4 rounded-xl">
           <InventoryGrid
-            data={activeTab === "items" ? inventory.items : seedInventory}
+            data={activeTab === "items" ? inventory.items : seedData}
             onOpenModal={openModal}
             userInventory={userInventory}
           />
@@ -362,7 +371,7 @@ const Inventory = () => {
               <TouchableWithoutFeedback onPress={() => {}}>
                 <View className="bg-[#857f6e85] rounded-2xl p-8 flex justify-center items-center">
                   <Text className="text-gray-100 text-center mb-6">
-                    Select Quantity
+                    {t("inventory.select_quantity")}
                   </Text>
                   <Image
                     source={
@@ -373,7 +382,7 @@ const Inventory = () => {
                     className="w-40 h-40"
                   />
                   <Text className="text-xs font-bold text-center">
-                    {selectedItem?.name}
+                    {selectedItem?.diplayName}
                   </Text>
 
                   <View className="flex-row my-1 gap-14">
@@ -463,10 +472,14 @@ const Inventory = () => {
                   className="font-secondary font-bold italic"
                   style={{ fontSize: 22 }}
                 >
-                  {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.name} `}
+                  {t("inventory.confirm_payment", {
+                    amount: `${usdEquivalent} ${currency}`,
+                    purchaseQty: `${purchaseQty} qty`,
+                    item: `${selectedItem?.diplayName} `,
+                  })}
                 </Text>
                 <Text style={{ fontSize: 18 }} className="my-4">
-                  Select Currency To Continue
+                  {t("inventory.select_currency")}
                 </Text>
                 <Picker
                   selectedValue={currency}
@@ -510,7 +523,7 @@ const Inventory = () => {
             ) : (
               <>
                 <CustomButton
-                  title={`Pay ${usdEquivalent} ${currency}`}
+                  title={`${t("inventory.pay")} ${usdEquivalent} ${currency}`}
                   handlePress={() => setShowFlutterwave(true)}
                   containerStyles="w-[100%]"
                   textStyles={"font-pbold text-white"}
@@ -536,7 +549,7 @@ const Inventory = () => {
                   className="font-secondary font-bold italic"
                   style={{ fontSize: 22 }}
                 >
-                  {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.name} Using your Wizpoint`}
+                  {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`}
                 </Text>
                 <Text style={{ fontSize: 16 }} className="my-4">
                   Note! 1000 Wizpoint = 0.00001 USD
@@ -597,7 +610,7 @@ const Inventory = () => {
             <TouchableWithoutFeedback onPress={() => {}}>
               <View className="bg-[#857f6e85] opacity-2 rounded-lg p-2 flex justify-center items-center">
                 <Text className="text-md text-white font-bold text-center">
-                  Select Payment Option To Continue
+                  {t("inventory.select_payment_option")}
                 </Text>
                 <View className="flex-row p-4 my-8">
                   <TouchableOpacity
@@ -687,7 +700,8 @@ const InventoryGrid = ({ data, onOpenModal, userInventory }: any) => {
                 />
                 <View className="mt-6">
                   <Text className="text-[#56411A] font-primary text-2xl">
-                    {item.name}
+                    {/* {item.name} */}
+                    {item.diplayName}
                   </Text>
                 </View>
               </View>

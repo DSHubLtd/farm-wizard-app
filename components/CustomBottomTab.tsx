@@ -27,15 +27,15 @@ export default function CustomBottomTab() {
           className="w-16 h-16 rounded-full bg-[#d1a635] items-center justify-center border-2 border-white"
           onPress={() => router.push("/(tabs)/profile")}
         >
-          <Image source={icons.claim} className="w-6 h-6 tint-white" />
+          <Image source={icons.claim} className="w-12 h-12 tint-white" />
         </Pressable>
 
         {/* Center Tab */}
         <Pressable
-          className="w-20 h-20 rounded-full bg-[#d1a635] items-center justify-center border-4 border-white mb-2 shadow-lg shadow-black"
+          className="w-24 h-24 rounded-full bg-[#d1a635] items-center justify-center border-4 border-white mb-2 shadow-lg shadow-black"
           onPress={() => router.push("/(tabs)/home")}
         >
-          <Image source={icons.home} className="w-12 h-8 tint-white" />
+          <Image source={icons.home} className="w-12 h-12 tint-white" />
         </Pressable>
 
         {/* Right Tab */}
@@ -43,7 +43,7 @@ export default function CustomBottomTab() {
           className="w-16 h-16 rounded-full bg-[#d1a635] items-center justify-center border-2 border-white"
           onPress={() => router.push("/(tabs)/leaderboard")}
         >
-          <Image source={icons.stats} className="w-6 h-6 tint-white" />
+          <Image source={icons.stats} className="w-8 h-8 tint-white" />
         </Pressable>
       </View>
     </View>

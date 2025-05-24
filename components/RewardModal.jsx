@@ -20,10 +20,10 @@ const RewardModal = ({ visible, onClose }) => {
                 >
                     <View className="w-full items-end my-20">
                         <TouchableOpacity
-                            className="bg-yellow-300 rounded-full items-center justify-center w-20 h-20"
+                            className="bg-[#D5B85A] rounded-full items-center justify-center w-14 h-14"
                             onPress={onClose}
                         >
-                            <Image source={icons.close} className="w-10 h-10" />
+                            <Image source={icons.close} className="w-8 h-8" />
                         </TouchableOpacity>
                     </View>
                     <Image

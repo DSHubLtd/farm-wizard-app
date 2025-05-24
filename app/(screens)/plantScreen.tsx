@@ -1,6 +1,13 @@
 // pause & resume button physically
 // higher level, the higher the score - later
 
+// gif image for pause and resume
+// modal message in each growth
+// font style
+// growth message & cancel icon
+// spanish, portugaL, indonusia, chinise(madarine), hindu, russia
+// icons and weather messages
+
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -16,7 +23,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
-import { plantGrowth } from "@/constants/plants";
+import { usePlantGrowth, usePlantGrowthMessages } from "@/constants/plants";
 import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -31,7 +38,10 @@ import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 import ConfirmModal from "@/components/ConfirmDialog";
-import { useThrottleWithState } from "@/hooks/useThrottle";
+import MessageDialog from "@/components/MessageDialog";
+import { useThrottle } from "@/hooks/useThrottle";
+import { useTranslation } from "react-i18next";
+import { getThreatPanelty } from "@/utils/getThreatPanelty";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -51,6 +61,7 @@ const PlantScreen = () => {
     router.replace("/");
   }
   const isPremiumUser = user?.isPremium === true;
+  const { t } = useTranslation();
 
   const [userInventory, setUserInventory] = useState({
     fertilizerQty: 0,
@@ -59,10 +70,17 @@ const PlantScreen = () => {
   });
   const [userLevel, setUserLevel] = useState(1);
   const MAX_BUGS = userLevel; //2;
-  const plant = plantGrowth.filter((plant) => plant.name === name)[0];
-  const plantImages = plant.plantImages; // Healthy (Normal session)
-  const plantRainImages = plant.plantRainImages; // Rain (raining session)
-  const plantSickImages = plant.plantSickImages;
+  const plants = usePlantGrowth();
+  const plant = plants.find((plant) => plant.name === name);
+
+  if (!plant) {
+    router.replace("/(screens)/selectSeed");
+    return null;
+  }
+
+  const plantImages = plant?.plantImages; // Healthy (Normal session)
+  const plantRainImages = plant?.plantRainImages; // Rain (raining session)
+  const plantSickImages = plant?.plantSickImages;
 
   const plantScale = useRef(new Animated.Value(1)).current;
   const [showPopup, setShowPopup] = useState(false);
@@ -106,6 +124,9 @@ const PlantScreen = () => {
   const [showAd, setShowAd] = useState(true);
   const [showGiftMessage, setShowGiftMessage] = useState("");
   const [isThrottled, setIsThrottled] = useState(false);
+  const [isThrottledW, setIsThrottledW] = useState(false);
+  const [isThrottledF, setIsThrottledF] = useState(false);
+  const [growthModal, setGrowthModal] = useState(false);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -113,8 +134,9 @@ const PlantScreen = () => {
       const token = await AsyncStorage.getItem("token");
       if (token !== null) {
         const res = await getUserPlantLevel(token, plant.name);
+        // console.log("res ", res);
 
-        if (res.data.plantLevel) {
+        if (res.data.plantLevel !== null) {
           setUserLevel(res.data.plantLevel.level);
         } else {
           setUserLevel(1);
@@ -125,7 +147,7 @@ const PlantScreen = () => {
         setLoading(false);
       }
     } catch (error) {
-      console.log("no error");
+      console.log("error user plant level error", error);
     } finally {
       setLoading(false);
     }
@@ -201,6 +223,15 @@ const PlantScreen = () => {
     return { currentStage, phaseElapsedTime };
   };
   const getPlantStage = () => getPhaseInfo().currentStage;
+  // growth modal message
+  const growthCycles = usePlantGrowthMessages();
+  const growthCycle = growthCycles.find(
+    (cycle) => cycle.stage === getPlantStage()
+  );
+  if (!growthCycle) {
+    router.replace("/(screens)/selectSeed");
+    return null;
+  }
 
   const getCurrentSeason = (): SeasonType => {
     const elapsed = TEN_MINUTES - timeLeft;
@@ -213,25 +244,6 @@ const PlantScreen = () => {
     if (season === "raining") return 0.15;
     return 0.1;
   };
-  /*
-  useEffect(() => {
-    if (!isTimerActive) return;
-
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-
-      setCurrentSeason(getCurrentSeason());
-      handlePlantLifeCycle();
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isTimerActive, waterLevel, nutrientLevel]);*/
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const prevPathRef = useRef<string>("");
@@ -338,17 +350,19 @@ const PlantScreen = () => {
       if (!activeThreat.resolved) {
         if (activeThreat.type === "disease" && timeSinceThreat > 10000) {
           // angoing health drain
-          setPlantHealth((h) => Math.max(0, h - 10));
+          setPlantHealth((h) => Math.max(0, h - getThreatPanelty(userLevel)));
           //handleToolUse("☠️ Disease is hurting your plant!");
           setPlantDamaged(true);
         }
 
-        if (activeThreat.type === "storm" && timeSinceThreat > 5000) {
-          // One-time hit
-          setPlantHealth((h) => Math.max(0, h - 20));
-          //handleToolUse("🌩️ Storm hit your plant!");
-          //setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
-          setPlantDamaged(true);
+        if (userLevel > 1) {
+          if (activeThreat.type === "storm" && timeSinceThreat > 6000) {
+            // One-time hit
+            setPlantHealth((h) => Math.max(0, h - getThreatPanelty(userLevel)));
+            //handleToolUse("🌩️ Storm hit your plant!");
+            setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
+            setPlantDamaged(true);
+          }
         }
         // Remove threat after 15s regardless
         /*if (timeSinceThreat > 15000) {
@@ -380,12 +394,21 @@ const PlantScreen = () => {
       setIsTimerActive(false);
       router.replace({
         pathname: "/(screens)/harvest",
-        params: { name, score, userLevel },
+        params: { name, score, userLevel, plantHealth },
       });
     }
 
+    // initial modal popup
     if (timeLeft === 595 && getPlantStage() === 0) {
       setSoilVisible(false);
+      setGrowthModal(true);
+      setIsTimerActive(false);
+    }
+    const { phaseElapsedTime } = getPhaseInfo();
+    // each growth stage
+    if (phaseElapsedTime === 0 && getPlantStage() > 0) {
+      setGrowthModal(true);
+      setIsTimerActive(false);
     }
   };
 
@@ -468,6 +491,10 @@ const PlantScreen = () => {
 
   const triggerSpray = async () => {
     if (!activeThreat || activeThreat.resolved) return;
+    setIsThrottled(true); // Disable further click
+    setTimeout(() => {
+      setIsThrottled(false);
+    }, 2000);
 
     const currentQty = userInventory.pesticideQty;
 
@@ -481,15 +508,16 @@ const PlantScreen = () => {
     if (currentQty > 0) {
       await handleUpdateInventory("Pesticide", 1);
     } else {
-      handleToolUse("Insufficient pesticide item, Please purchase");
+      handleToolUse(
+        t("game.insufficient_item", { item: `${t("inventory.pesticide")}` })
+      );
       return;
     }
-    setIsThrottled(true); // Disable further click
 
     setTimeout(() => {
       setActiveThreat(null);
-      setIsThrottled(false);
-    }, 2000);
+    }, 1000);
+
     setPlantDamaged(false);
     setSpraying(true);
     sprayAnim.setValue(0);
@@ -511,7 +539,10 @@ const PlantScreen = () => {
   };
   const triggerFertilizer = async () => {
     if (nutrientLevel > 50) return;
-
+    setIsThrottledF(true); // Disable further click
+    setTimeout(() => {
+      setIsThrottledF(false);
+    }, 2000);
     const currentQty = userInventory.fertilizerQty;
 
     // Gifting logic
@@ -524,7 +555,9 @@ const PlantScreen = () => {
     if (currentQty > 0) {
       await handleUpdateInventory("Fertilizer", 1);
     } else {
-      handleToolUse("Insufficient Fertilizer item, Please purchase");
+      handleToolUse(
+        t("game.insufficient_item", { item: `${t("inventory.fertilizer")}` })
+      );
       return;
     }
 
@@ -547,6 +580,10 @@ const PlantScreen = () => {
   };
   const triggerWater = async () => {
     if (waterLevel > 40) return;
+    setIsThrottledW(true); // Disable further click
+    setTimeout(() => {
+      setIsThrottledW(false);
+    }, 2000);
     const currentQty = userInventory.waterQty;
 
     // Gifting logic
@@ -559,7 +596,9 @@ const PlantScreen = () => {
     if (currentQty > 0) {
       await handleUpdateInventory("Water", 1);
     } else {
-      handleToolUse("Insufficient Water item, Please purchase");
+      handleToolUse(
+        t("game.insufficient_item", { item: `${t("inventory.water")}` })
+      );
       return;
     }
 
@@ -588,18 +627,9 @@ const PlantScreen = () => {
     return levelmages.lv1;
   };
   // Wrap in throttle (once every 1 second)
-  const [throttledTriggerSpray, isThrottledS] = useThrottleWithState(
-    triggerSpray,
-    1000
-  );
-  const [throttledTriggerFertilizer, isThrottledF] = useThrottleWithState(
-    triggerFertilizer,
-    1000
-  );
-  const [throttledTriggerWater, isThrottledW] = useThrottleWithState(
-    triggerWater,
-    1000
-  );
+  const throttledTriggerSpray = useThrottle(triggerSpray, 1000);
+  const throttledTriggerFertilizer = useThrottle(triggerFertilizer, 1000);
+  const throttledTriggerWater = useThrottle(triggerWater, 1000);
 
   if (loading || invloading)
     return (
@@ -663,31 +693,88 @@ const PlantScreen = () => {
               />
             </TouchableOpacity>
             <View className="flex my-4">
-              <Text className="text-white text-md">Hi, {user.fullName}</Text>
+              <Text className="text-white text-md">
+                {t("hi_user", { name: `${user.fullName}` })}
+              </Text>
               <Text className="text-white text-md">{user.score}</Text>
             </View>
           </View>
           <TouchableOpacity
-            className="bg-yellow-300 p-2 rounded-full"
+            className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full"
             onPress={() => setConfirmModal(true)}
           >
-            <Image source={icons.close} className="w-10 h-10" />
+            <Image source={icons.close} className="w-8 h-8" />
           </TouchableOpacity>
         </View>
 
-        {/* Points */}
         <View className="absolute top-28 left-0 right-0 items-center">
-          <Text className="text-white text-3xl font-bold">{score}</Text>
+          <View className="w-full relative items-center mb-1">
+            <View
+              className="w-full rounded-t-[40px] pb-8 pt-6 flex-row justify-between items-end px-20"
+              style={{
+                borderBottomLeftRadius: 80,
+                borderBottomRightRadius: 80,
+                height: 180,
+                transform: [{ scaleY: 0.9 }],
+              }}
+            >
+              {/* nutrient */}
+              <View className="items-center w-1/4 -mb-8">
+                <>
+                  <Image
+                    source={images.nutrient}
+                    className="w-20 h-20 rounded-full"
+                  />
+                  <Text className="text-black text-lg mt-2 font-primary">
+                    {t("game.nutrient")}
+                  </Text>
+                  <Text className="text-black text-lg font-primary">
+                    {nutrientLevel}%
+                  </Text>
+                </>
+              </View>
 
-          <Text className="text-2xl text-gray-700">
-            {"🌦️"} Current Season: {currentSeason.toUpperCase()}
+              {/* Health (center) */}
+              <View className="items-center w-1/3 -mt-4">
+                <>
+                  <Image
+                    source={images.heart}
+                    className="w-20 h-20 rounded-full"
+                  />
+                  <Text className="text-black text-lg mt-2 font-primary">
+                    {t("game.health")}
+                  </Text>
+                  <Text className="text-black text-lg font-primary">
+                    {plantHealth}%
+                  </Text>
+                </>
+              </View>
+
+              {/* water 3 */}
+              <View className="items-center w-1/4 -mb-8">
+                <>
+                  <Image
+                    source={images.water}
+                    className="w-20 h-22 rounded-full"
+                  />
+                  <Text className="text-black text-lg font-primary ">
+                    {t("game.water")}
+                  </Text>
+                  <Text className="text-black text-lg font-primary">
+                    {waterLevel}%
+                  </Text>
+                </>
+              </View>
+            </View>
+          </View>
+
+          {/* <Text>❤️ {t("game.health", { health: `${plantHealth}` })}</Text>
+          <Text>
+            💧{t("game.water_level", { waterLevel: `${waterLevel}` })}
           </Text>
-        </View>
-
-        <View className="absolute top-48 left-0 right-0 items-center">
-          <Text>❤️ Health: {plantHealth}</Text>
-          <Text>💧 Water Level: {waterLevel}</Text>
-          <Text>🌿 Nutrient Level: {nutrientLevel}</Text>
+          <Text>
+            🌿 {t("game.nutrient_level", { nutrientLevel: `${nutrientLevel}` })}
+          </Text> */}
 
           {activeThreat && !activeThreat.resolved && (
             <Text style={{ color: "red", marginTop: 10 }}>
@@ -696,17 +783,30 @@ const PlantScreen = () => {
             </Text>
           )}
           {waterLevel < 20 && (
-            <Text className="text-red text-md">
-              ⚠️ Your plant is drying out of water!
-            </Text>
+            <Text className="text-red text-md">⚠️ {t("game.low_water")}</Text>
           )}
           {nutrientLevel < 20 && (
             <Text className="text-red text-md">
-              ⚠️ Your plant lacks nutrients!
+              ⚠️ {t("game.low_nutrient")}
             </Text>
           )}
           <Text className="text-yellow-600 text-lg">{showGiftMessage}</Text>
+          <Text className="text-white text-3xl font-bold">{score}</Text>
         </View>
+        {/* Points */}
+        {/* <View className="absolute top-28 left-0 right-0 items-center">
+          <Text className="text-white text-3xl font-bold">{score}</Text>
+
+          <Text className="text-2xl text-gray-700">
+            {"🌦️"}
+            {currentSeason === "normal" &&
+              t("game.current_session", { session: t("game.normal") })}
+            {currentSeason === "raining" &&
+              t("game.current_session", { session: t("game.raining") })}
+            {currentSeason === "dry" &&
+              t("game.current_session", { session: t("game.dry") })}
+          </Text>
+        </View> */}
 
         {spraying && (
           <Animated.View
@@ -853,7 +953,7 @@ const PlantScreen = () => {
             itemQty={userInventory.pesticideQty}
             icon={images.pesticied}
             onPress={throttledTriggerSpray}
-            disabled={isThrottledS}
+            disabled={isThrottled}
           />
 
           <ToolIcon
@@ -888,23 +988,53 @@ const PlantScreen = () => {
             icon={getLevelImage()}
             // icon={images/levelDoc}
             label={`LV ${userLevel}`}
-            onPress={() => handleToolUse(`Level info ${userLevel}`)}
+            onPress={() =>
+              handleToolUse(t("game.level_info", { level: userLevel }))
+            }
           />
+          {isTimerActive && (
+            <ActionButton
+              icon={images.countdown}
+              label=""
+              onPress={() => {
+                setIsTimerActive(false);
+                handleToolUse(
+                  t("game.growth_cycle", { type: `${t("game.pause")}` })
+                );
+              }}
+            />
+          )}
+          {!isTimerActive && (
+            <ActionButton
+              icon={images.timer}
+              label=""
+              onPress={() => {
+                setIsTimerActive(true);
+                handleToolUse(
+                  t("game.growth_cycle", { type: `${t("game.resume")}` })
+                );
+              }}
+            />
+          )}
 
-          <ActionButton
+          {/* <ActionButton
             icon={images.timer}
             label=""
             onPress={() => {
               if (!isTimerActive) {
                 setIsTimerActive(true);
-                handleToolUse("Growth cycle resumed");
+                handleToolUse(
+                  t("game.growth_cycle", { type: `${t("game.resume")}` })
+                );
               }
               if (isTimerActive) {
                 setIsTimerActive(false);
-                handleToolUse("Growth cycle paused");
+                handleToolUse(
+                  t("game.growth_cycle", { type: `${t("game.pause")}` })
+                );
               }
             }}
-          />
+          /> */}
 
           <ActionButton
             icon={images.inventory}
@@ -926,7 +1056,10 @@ const PlantScreen = () => {
         </Modal>
         <ConfirmModal
           visible={confirmModal}
-          message="Are you sure you want to close the game?"
+          message={t("comfirmation.close_game")}
+          confirmTitle={t("comfirmation.title")}
+          confirmBtnText={t("buttons.ok")}
+          cancelBtnText={t("buttons.cancel")}
           onConfirm={() => {
             router.replace("/(tabs)/home");
             setConfirmModal(false);
@@ -935,6 +1068,17 @@ const PlantScreen = () => {
             console.log("Cancelled");
             setConfirmModal(false);
           }}
+        />
+        <MessageDialog
+          visible={growthModal}
+          onClose={() => setGrowthModal(false)}
+          onPress={() => {
+            setIsTimerActive(true);
+            setGrowthModal(false);
+          }}
+          messageText={growthCycle.message}
+          imageSource={growthCycle.image}
+          buttonText={t("buttons.ok")}
         />
       </View>
     </TouchableWithoutFeedback>

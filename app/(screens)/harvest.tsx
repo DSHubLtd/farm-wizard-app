@@ -4,7 +4,7 @@ import { images } from "@/constants";
 import { View, Text, Image, Dimensions, Alert } from "react-native";
 import { CustomButton } from "../../components";
 import { router, useLocalSearchParams } from "expo-router";
-import { plantGrowth } from "@/constants/plants";
+import { usePlantGrowth } from "@/constants/plants";
 import { updatePlantLevels } from "@/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLoginContext } from "@/context/LoginProvider";
@@ -18,9 +18,17 @@ const Harvest = () => {
     router.replace("/");
   }
   const [isSubmitting, setSubmitting] = useState(false);
-  const { name, userLevel, score } = useLocalSearchParams();
-  const plant = plantGrowth.filter((plant) => plant.name === name)[0];
-  let level = parseInt(userLevel as string) + 1;
+  const { name, userLevel, score, plantHealth } = useLocalSearchParams();
+  // const plant = plantGrowth.filter((plant) => plant.name === name)[0];
+  const plants = usePlantGrowth();
+  const plant = plants.find((plant) => plant.name === name);
+  if (!plant) {
+    router.replace("/(screens)/selectSeed");
+    return null;
+  }
+
+  let level = parseInt(userLevel as string) + 1; // next level
+  let bonus = (parseInt(plantHealth as string) / 100).toFixed(2);
 
   const updateLevel = async () => {
     if (!plant || !level || !score) {
@@ -28,12 +36,7 @@ const Harvest = () => {
       return;
     }
 
-    const totalSocre = Number(score) + 500;
-
-    // if (level > 4) {
-    //   Alert.alert("Warning!!!", "Your level can't be greater than 4");
-    //   return;
-    // }
+    const totalSocre = Number(score) + bonus + 500;
     setSubmitting(true);
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
@@ -71,6 +74,7 @@ const Harvest = () => {
   useEffect(() => {
     updateLevel();
   }, []);
+
   const { t } = useTranslation();
 
   return (

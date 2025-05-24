@@ -92,7 +92,7 @@ const Settings = () => {
       url: "",
     },
     {
-      label: "Inventory", //t("edit_profile"),
+      label: t("menu.inventory"),
       icon: icons.plus,
       link: "inventory",
       url: "",
@@ -213,6 +213,10 @@ const Settings = () => {
 
       <ConfirmModal
         visible={confirmModal}
+        message={t("comfirmation.delete_account")}
+        confirmTitle={t("comfirmation.title")}
+        confirmBtnText={t("buttons.ok")}
+        cancelBtnText={t("buttons.cancel")}
         onConfirm={() => {
           console.log("Confirmed!");
           setConfirmModal(false);

@@ -74,7 +74,7 @@ const GameOver = () => {
         />
 
         <Text
-          className="text-center text-xl px-2"
+          className="text-center text-xl px-2 font-secondary"
           style={{
             color: "#fff",
             textAlign: "center",

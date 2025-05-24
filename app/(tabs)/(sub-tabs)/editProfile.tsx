@@ -63,10 +63,10 @@ const EditProfile = () => {
             form.password,
             selectedIndex
           );
-          if (result.status !== 200 || result.success === false) {
-            Alert.alert("Error", result.message);
-            return;
-          }
+          // if (result.status !== 200 || result.success === false) {
+          //   Alert.alert("Error", result.message);
+          //   return;
+          // }
 
           Alert.alert("Success", result.message);
           setUser(result.userDetails);

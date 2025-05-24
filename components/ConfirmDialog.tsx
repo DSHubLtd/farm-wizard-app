@@ -6,6 +6,9 @@ const ConfirmModal = ({
   onConfirm,
   onCancel,
   message = "Are you sure you want to proceed?",
+  confirmTitle = "Confirm",
+  confirmBtnText = "OK",
+  cancelBtnText = "Cancel",
 }: any) => (
   <Modal
     transparent
@@ -15,15 +18,15 @@ const ConfirmModal = ({
   >
     <View style={styles.overlay}>
       <View style={styles.modal}>
-        <Text style={styles.title}>Confirm</Text>
+        <Text style={styles.title}>{confirmTitle}</Text>
         <Text style={styles.message}>{message}</Text>
 
         <View style={styles.actions}>
           <TouchableOpacity style={styles.button} onPress={onCancel}>
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={styles.cancelText}>{cancelBtnText}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
-            <Text style={styles.confirmText}>OK</Text>
+            <Text style={styles.confirmText}>{confirmBtnText}</Text>
           </TouchableOpacity>
         </View>
       </View>

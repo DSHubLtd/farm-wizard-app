@@ -23,6 +23,10 @@ import FlutterwaveModal from "@/components/FlutterwaveModal";
 import checkCurrency from "@/utils/checkCurrency";
 import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 import { ActivityIndicator } from "react-native";
+import { useTranslation } from "react-i18next";
+import MessageDialog from "@/components/MessageDialog";
+import { Dimensions } from "react-native";
+const { width } = Dimensions.get("window");
 
 const tabs = ["Daily", "Weekly", "Monthly"] as const;
 type TabType = (typeof tabs)[number];
@@ -67,6 +71,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [showFlutterwave, setShowFlutterwave] = useState(false);
+  const [showUpgradeModale, setShowUpgradeModale] = useState(false);
   const [currency, setCurrency] = useState("USD");
   const [usdEquivalent, setUsdEquivalent] = useState<string | null>(null);
   const [exchangeLoading, setExchangeLoading] = useState(false);
@@ -104,6 +109,7 @@ const Profile = () => {
   }, [activeTab]);
 
   const openModal = () => {
+    setShowUpgradeModale(false);
     setModalVisible(true);
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -165,6 +171,8 @@ const Profile = () => {
     }
   }, [currency, upgradeAmount]);
 
+  const { t } = useTranslation();
+
   return (
     <View className="flex-1 bg-green-200 items-center">
       <BackgroundImage
@@ -183,7 +191,7 @@ const Profile = () => {
       />
 
       <Text className="text-white text-2xl font-primary font-bold mt-4">
-        PROFILE
+        {t("profile")}
       </Text>
 
       {/* Avatar + Info */}
@@ -211,7 +219,7 @@ const Profile = () => {
                 Humble Farmstead
               </Text>
             </View>
-            <TouchableOpacity onPress={() => openModal()}>
+            <TouchableOpacity onPress={() => setShowUpgradeModale(true)}>
               <Text className="text-center text-buttonColor underline">
                 Upgrade To premium
               </Text>
@@ -311,7 +319,7 @@ const Profile = () => {
 
       {/* Withdraw */}
       <CustomButton
-        title="Claim"
+        title={t("buttons.claim")}
         handlePress={() => router.push("/(tabs)/(sub-tabs)/claimScreen")}
         containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}
@@ -341,12 +349,13 @@ const Profile = () => {
           >
             <View className="bg-white rounded-2xl w-[90%] p-6 ">
               <Text className="text-gray-600 text-2xl text-center mb-6">
-                Your account is currently not upgraded, Pay sum of {currency}{" "}
-                {usdEquivalent} to upgrade
+                {t("comfirmation.confirm_upgrade", {
+                  amount: ` ${usdEquivalent} ${currency}`,
+                })}
               </Text>
 
               <Text style={{ fontSize: 18 }} className="my-4">
-                Select Currency To Continue
+                {t("inventory.select_currency")}
               </Text>
               <Picker
                 selectedValue={currency}
@@ -414,6 +423,48 @@ const Profile = () => {
         onSuccess={handleSuccess}
         onCancel={handleCancel}
       />
+
+      <Modal transparent visible={showUpgradeModale} animationType="fade">
+        <BlurView
+          intensity={50}
+          tint="dark"
+          className="flex-1 items-center justify-center"
+        >
+          <View className="bg-black/40 rounded-2xl w-[100%] h-[100%] p-2 items-center shadow-2xl">
+            <View className="w-full items-end my-20">
+              <TouchableOpacity
+                className="bg-[#D5B85A] rounded-full items-center justify-center w-14 h-14"
+                onPress={() => setShowUpgradeModale(false)}
+              >
+                <Image source={icons.close} className="w-8 h-8" />
+              </TouchableOpacity>
+            </View>
+            <Image
+              source={images.upgrade}
+              style={{
+                width: width * 0.5,
+                height: width * 0.5,
+              }}
+              resizeMode="contain"
+            />
+
+            <Text className="text-white text-xl text-center mb-6">
+              {t("messages.upgrade_message")}
+            </Text>
+
+            <View className="flex-row justify-center items-center">
+              <TouchableOpacity
+                className="bg-buttonColor flex-row rounded-xl items-center justify-center p-4 m-2"
+                onPress={() => openModal()}
+              >
+                <Text className="text-white text-lg">
+                  {t("buttons.upgrade")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
     </View>
   );
 };

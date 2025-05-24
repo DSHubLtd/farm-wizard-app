@@ -13,6 +13,7 @@ import premimUser from "../assets/images/premium-user.png";
 import nonPremimuUser from "../assets/images/non-premium-user.png";
 import adsBadge from "../assets/images/ads-badge.png";
 import bgTabs from "../assets/images/bg-tabs.png";
+import upgrade from "../assets/images/upgrade.png";
 
 import maize from "../assets/images/seed/maize.png";
 import apple from "../assets/images/seed/apple.png";
@@ -30,10 +31,18 @@ import plantGrowing from "../assets/images/gameplay/plant-growing.png";
 import inventory from "../assets/images/gameplay/inventory.png";
 import levelDoc from "../assets/images/gameplay/level-doc.png";
 import timer from "../assets/images/gameplay/timer.png";
+import growth1 from "../assets/images/gameplay/1.png";
+import growth2 from "../assets/images/gameplay/2.png";
+import growth3 from "../assets/images/gameplay/3.png";
+import growth4 from "../assets/images/gameplay/4.png";
 
 import gameOver from "../assets/images/gameplay/game-over.png";
 import sessionComplete from "../assets/images/gameplay/session-complete.png";
 import sessionStarted from "../assets/images/gameplay/session-started.png";
+import heart from "../assets/images/gameplay/heart.png";
+import nutrient from "../assets/images/gameplay/nutrient.png";
+import water from "../assets/images/gameplay/water.png";
+import countdown from "../assets/images/gameplay/countdown.png";
 
 import fertilizer from "../assets/images/inventory/fertilizers.png";
 import kettle from "../assets/images/inventory/kettle.png";
@@ -65,6 +74,7 @@ export default {
   empty,
   background1,
   fewCoinsMessage,
+  upgrade,
 
   maize,
   apple,
@@ -80,6 +90,10 @@ export default {
   inventory,
   levelDoc,
   timer,
+  growth1,
+  growth2,
+  growth3,
+  growth4,
 
   fertilizer,
   kettle,
@@ -105,4 +119,8 @@ export default {
   leaderboard1,
   leaderboard2,
   leaderboard3,
+  heart,
+  nutrient,
+  water,
+  countdown,
 };

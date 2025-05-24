@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { CustomButton } from "../../components";
 import { useRouter } from "expo-router";
-import { plantGrowth as seeds } from "@/constants/plants";
+import { usePlantGrowth as seeds } from "@/constants/plants";
 import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
@@ -23,7 +23,8 @@ const SelectSeed = () => {
   const [selectedIndex, setSelectedIndex] = useState(1); // Default: Maize
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const selectedSeed = seeds[selectedIndex];
+  const plantSeeds = seeds();
+  const selectedSeed = plantSeeds[selectedIndex];
 
   const handleSeedChange = (index: number) => {
     // Animate fade-out → change → fade-in
@@ -43,9 +44,13 @@ const SelectSeed = () => {
     });
   };
 
-  const nextSeed = () => handleSeedChange((selectedIndex + 1) % seeds.length);
+  const nextSeed = () =>
+    handleSeedChange((selectedIndex + 1) % plantSeeds.length);
+
   const prevSeed = () =>
-    handleSeedChange((selectedIndex - 1 + seeds.length) % seeds.length);
+    handleSeedChange(
+      (selectedIndex - 1 + plantSeeds.length) % plantSeeds.length
+    );
 
   const { t } = useTranslation();
   return (
@@ -74,7 +79,7 @@ const SelectSeed = () => {
           marginBottom: 20,
         }}
       >
-        {t("buttons.exit_to_menu")}
+        {t("buttons.select_seed")}
       </Text>
 
       {/* Scrollable Icons */}
@@ -90,7 +95,7 @@ const SelectSeed = () => {
           marginBottom: 20,
         }}
       >
-        {seeds.map((seed, index) => (
+        {plantSeeds.map((seed, index) => (
           <TouchableOpacity
             key={index}
             onPress={() => handleSeedChange(index)}
@@ -174,7 +179,7 @@ const SelectSeed = () => {
               marginBottom: 10,
             }}
           >
-            {selectedSeed.name}
+            {selectedSeed.diplayName}
           </Text>
           <Image
             source={selectedSeed.iconLg}
@@ -194,7 +199,7 @@ const SelectSeed = () => {
               paddingHorizontal: 10,
             }}
           >
-            Select your seed to plant. Each plant has four unique levels.
+            {t("messages.seed_info")}
           </Text>
         </View>
 
@@ -241,7 +246,7 @@ const SelectSeed = () => {
             params: { name: selectedSeed.name },
           })
         }
-        containerStyles="w-[200px] mb-1"
+        containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}
         isLoading={false}
       />

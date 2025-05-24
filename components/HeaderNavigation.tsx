@@ -19,7 +19,7 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
   showRightButton = true,
 }) => {
   return (
-    <View className="w-full px-5 flex-row justify-between items-center mt-20">
+    <View className="w-full px-5 flex-row justify-between items-center mt-10">
       {showLeftButton && (
         <TouchableOpacity
           className="w-10 h-10 rounded-full items-center justify-center"

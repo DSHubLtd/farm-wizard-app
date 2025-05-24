@@ -13,7 +13,6 @@ const SessionStarted = () => {
   const router = useRouter();
 
   const { t } = useTranslation();
-
   return (
     <View className="flex-1 bg-green-200 items-center justify-start pt-20">
       {/* Background */}
@@ -43,7 +42,7 @@ const SessionStarted = () => {
         />
 
         <Text
-          className="text-center text-xl px-2"
+          className="text-center text-xl px-2 font-secondary"
           style={{
             color: "#fff",
             textAlign: "center",
