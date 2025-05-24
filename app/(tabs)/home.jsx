@@ -32,6 +32,33 @@ export default Home = () => {
 
   const { t } = useTranslation();
 
+  const fetchNotification = async () => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+
+    if (token !== null) {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `https://farm-wizard-api.onrender.com/api/v1/notification/all/`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${token}`,
+            },
+          }
+        );
+        const json = await res.json();
+        setNotifications(json.notifications);
+      } catch (err) {
+        console.error("notifcations fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchNotification();
@@ -71,33 +98,6 @@ export default Home = () => {
   };
   const handlsShowNotifcation = () => {
     setShowNotification(!showNotifcation);
-  };
-
-  const fetchNotification = async () => {
-    setLoading(true);
-    const token = await AsyncStorage.getItem("token");
-
-    if (token !== null) {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `https://farm-wizard-api.onrender.com/api/v1/notification/all/`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `JWT ${token}`,
-            },
-          }
-        );
-        const json = await res.json();
-        setNotifications(json.notifications);
-      } catch (err) {
-        console.error("notifcations fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
   };
 
 

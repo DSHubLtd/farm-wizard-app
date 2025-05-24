@@ -40,6 +40,12 @@ export default function Leaderboard() {
 
       const fetchTopUsers = async (pageNumber: number) => {
         try {
+          setLoading(true);
+          setTopUsers([]);
+          setHasMore(true);
+          setPage(1);
+          setError(null);
+
           const response = await axios.get(
             `https://farm-wizard-api.onrender.com/api/v1/leaderboard/all`,
             {
@@ -80,13 +86,6 @@ export default function Leaderboard() {
       setLoading(true);
       setPage((prevPage: any) => prevPage + 1);
     }
-  };
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setPage(1);
-    setTopUsers([]);
-    setHasMore(true);
   };
 
   if (loading && topUsers.length === 0)
