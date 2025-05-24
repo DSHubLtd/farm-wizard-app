@@ -18,9 +18,14 @@ import { signOut } from "../../../services/auth";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
 import ConfirmModal from "@/components/ConfirmDialog";
+import { deleteUser } from "@/services/user";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Settings = () => {
-  const { setIsLogged } = useLoginContext();
+  const { user, setUser, setIsLogged } = useLoginContext();
+  if (!user) {
+    router.replace("/");
+  }
   const [isSubmitting, setSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [rewalVisible, setRewardVisible] = useState(false);
@@ -32,6 +37,26 @@ const Settings = () => {
     setModalVisible(true);
   };
 
+  const handleDeleteUser = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token !== null) {
+      try {
+        setSubmitting(true);
+        const result = await deleteUser(token, user.email);
+        if (!result) {
+          Alert.alert("Error", "Error while deleting user");
+          return;
+        }
+        Alert.alert("Success", "User deleted successfully");
+        setIsLogged(false);
+      } catch (error: any) {
+        Alert.alert("Error", error.message);
+      } finally {
+        setSubmitting(false);
+        router.replace("/");
+      }
+    }
+  };
   const logOut = async () => {
     setSubmitting(true);
     try {
@@ -218,11 +243,10 @@ const Settings = () => {
         confirmBtnText={t("buttons.ok")}
         cancelBtnText={t("buttons.cancel")}
         onConfirm={() => {
-          console.log("Confirmed!");
+          handleDeleteUser();
           setConfirmModal(false);
         }}
         onCancel={() => {
-          console.log("Cancelled");
           setConfirmModal(false);
         }}
       />

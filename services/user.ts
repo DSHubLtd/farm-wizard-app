@@ -110,3 +110,18 @@ export const submitConversion = async (token: string, amount: number) => {
     throw error;
   }
 };
+export const deleteUser = async (token: string, email: string) => {
+  try {
+    const response = await client.delete(`/user/delete/${email}`, {
+      headers: {
+        Authorization: `JWT ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response;
+  } catch (error: any) {
+    console.log("Error inside deleteuser method", error.message);
+    throw error;
+  }
+};

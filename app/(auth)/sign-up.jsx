@@ -14,6 +14,7 @@ import { validateForm } from "../../utils/validateForm";
 import { useCountryData } from "../../hooks/useCountryData";
 import { useLanguageData } from "../../hooks/useLanguageData";
 import { avatarsArr } from "../../hooks/useAvatarArray";
+import { useTranslation } from "react-i18next";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -80,7 +81,7 @@ const SignUp = () => {
   const handleNext = () => {
     setSelectedIndex((prev) => (prev + 1) % avatarsArr.length);
   };
-
+  const { t } = useTranslation();
   return (
     <SafeAreaView className="bg-primary h-full flex justify-center items-center">
       <BackgroundImage source={images.background} />
@@ -132,7 +133,7 @@ const SignUp = () => {
         <View className="border-r-4 border-r-[#E1CE67] p-4">
 
           <FormField
-            title="Full Name"
+            title={t("fullname")}
             value={form.fullName}
             handleChangeText={(e) => setForm({ ...form, fullName: e })}
             otherStyles="mt-2"
@@ -140,7 +141,7 @@ const SignUp = () => {
           {errors.fullName && <Text className="text-red-400 text-sm mt-1">{errors.fullName}</Text>}
 
           <FormField
-            title="Email"
+            title={t("email")}
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-2"
@@ -149,7 +150,8 @@ const SignUp = () => {
           {errors.email && <Text className="text-red-400 text-sm mt-1">{errors.email}</Text>}
 
           <FormField
-            title="Password"
+            title={t("password")}
+            placeholder="Password"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-2"
@@ -157,7 +159,8 @@ const SignUp = () => {
           {errors.password && <Text className="text-red-400 text-sm mt-1">{errors.password}</Text>}
 
           <FormField
-            title="Confirm Password"
+            title={t("confirm_password")}
+            placeholder="Confirm Password"
             value={form.cpassword}
             handleChangeText={(e) => setForm({ ...form, cpassword: e })}
             otherStyles="mt-2"
@@ -168,7 +171,7 @@ const SignUp = () => {
             <Text className="text-sm text-white italic">Loading countries...</Text>
           ) : (
             <SelectField
-              title="Select a Country"
+              title={t("select_country")}
               selectedValue={selectedCountry}
               options={countries}
               handleValueChange={setSelectedCountry}
@@ -181,7 +184,7 @@ const SignUp = () => {
             <Text className="text-sm text-white italic">Loading languages...</Text>
           ) : (
             <SelectField
-              title="Select a Language"
+              title={t("select_language")}
               selectedValue={selectedLanguage}
               options={languages}
               handleValueChange={setSelectedLanguage}
@@ -193,7 +196,7 @@ const SignUp = () => {
         </View>
       </KeyboardAwareScrollView>
       <CustomButton
-        title="Sign Up"
+        title={t("buttons.sign_up")}
         handlePress={submit}
         containerStyles="w-full"
         isLoading={isSubmitting}

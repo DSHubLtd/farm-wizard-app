@@ -495,8 +495,8 @@ const ClaimScreen = () => {
             </Text>
             <FormField
               type="text"
-              placeholder="Enter destination address"
-              title="Destination Wallet address"
+              placeholder={t("destination_wallet_addres")}
+              title={t("destination_wallet_addres")}
               value={form.phoneNo}
               handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
               otherStyles="my-2"
@@ -504,8 +504,8 @@ const ClaimScreen = () => {
 
             <FormField
               type="text"
-              placeholder="Enter Network / More details"
-              title="Withdrawal Netwiork"
+              placeholder={t("netword_details")}
+              title={t("netword_details")}
               value={form.network}
               handleChangeText={(e: any) => setForm({ ...form, network: e })}
               otherStyles=""
@@ -572,7 +572,7 @@ const ClaimScreen = () => {
 
             <View className="flex-row space-x-4">
               <CustomButton
-                title="Clock to confirm "
+                title={t("buttons.click_to_confirm")}
                 handlePress={handleSubmitConvertion}
                 containerStyles="w-[200px]"
                 textStyles={"font-pbold text-white"}

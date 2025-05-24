@@ -171,8 +171,8 @@ const EditProfile = () => {
           )}
 
           <FormField
-            title="Password"
-            placeholder="password"
+            title={t("password")}
+            placeholder="Password"
             value={form.password}
             handleChangeText={(e: any) => setForm({ ...form, password: e })}
             otherStyles="mt-2"
@@ -182,8 +182,8 @@ const EditProfile = () => {
           )}
 
           <FormField
-            title="Confirm Password"
-            placeholder="c password"
+            title={t("confirm_password")}
+            placeholder="Confirm Password"
             value={form.cpassword}
             handleChangeText={(e: any) => setForm({ ...form, cpassword: e })}
             otherStyles="mt-2"

@@ -221,7 +221,7 @@ const Profile = () => {
             </View>
             <TouchableOpacity onPress={() => setShowUpgradeModale(true)}>
               <Text className="text-center text-buttonColor underline">
-                Upgrade To premium
+                {t("messages.upgrade_to_premium")}
               </Text>
             </TouchableOpacity>
           </>
@@ -235,6 +235,9 @@ const Profile = () => {
               />
               <Text className="text-white font-secondary text-lg">
                 Enchanted Farmer
+              </Text>
+              <Text className="text-center text-buttonColor underline">
+                {t("messages.premium_user")}
               </Text>
             </View>
           </>

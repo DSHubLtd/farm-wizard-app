@@ -9,6 +9,7 @@ import { CustomButton, FormField } from "../../components";
 import { useLoginContext } from "@/context/LoginProvider";
 import { signInUser } from "../../services/auth";
 import BackgroundImage from "../../components/BackgroundImage";
+import { useTranslation } from "react-i18next";
 
 
 const SignIn = () => {
@@ -45,6 +46,7 @@ const SignIn = () => {
       setSubmitting(false);
     }
   };
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -69,7 +71,7 @@ const SignIn = () => {
           </Text> */}
 
           <FormField
-            title="Email"
+            title={t("email")}
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-7"
@@ -77,14 +79,15 @@ const SignIn = () => {
           />
 
           <FormField
-            title="Password"
+            title={t("password")}
+            placeholder="Password"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"
           />
 
           <CustomButton
-            title="Sign In"
+            title={t("buttons.sign_up")}
             handlePress={submit}
             // handlePress={() => router.push("/(tabs)/home")}
             containerStyles="w-full"
