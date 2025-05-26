@@ -174,10 +174,7 @@ const ClaimScreen = () => {
 
   const submitWithdrawal = async () => {
     if (Number(user.usdBalance) < 0.005) {
-      Alert.alert(
-        "Warning!!!",
-        "Ooops!! You don have enough USD balance to withdraw, Please play more game and convert your score to USD"
-      );
+      Alert.alert(t("messages.warning"), t("messages.withdrawal_warning"));
       return;
     }
 
@@ -219,7 +216,7 @@ const ClaimScreen = () => {
           token
         );
         if (result.status !== 200 || result.data.success === false) {
-          Alert.alert("Warning!", result.data.message);
+          Alert.alert(t("messages.warning"), result.data.message);
           // console.log("withdrawal", result.data.withdrawal);
           setTimeout(() => {
             router.push({
@@ -249,10 +246,7 @@ const ClaimScreen = () => {
 
   const handleSubmitConvertion = async () => {
     if (user.score <= 0) {
-      Alert.alert(
-        "Warning!!!",
-        "You dont have enough token to convert, Please play more game to earn token"
-      );
+      Alert.alert(t("messages.warning"), t("messages.convert_warning"));
       return;
     }
 
@@ -281,11 +275,11 @@ const ClaimScreen = () => {
   };
 
   const handleWithdrawalHistory = () => {
-    if (user.userType === "user") {
-      //router.push("/(tabs)/(sub-tabs)/requestReceived");
-    } else {
-      router.push("/(tabs)/(sub-tabs)/withdrawalRequest");
-    }
+    // if (user.userType === "user") {
+    //router.push("/(tabs)/(sub-tabs)/requestReceived");
+    // } else {
+    router.push("/(tabs)/(sub-tabs)/withdrawalRequest");
+    // }
   };
   const { t } = useTranslation();
 
@@ -303,7 +297,7 @@ const ClaimScreen = () => {
         leftIcon={icons.back}
         rightIcon={images.requestPending}
         showLeftButton={true}
-        showRightButton={isAdmin}
+        showRightButton={true}
       />
       <Text className="text-white text-2xl font-primary">
         {t("menu.claim")}

@@ -48,6 +48,7 @@ const Inventory = () => {
         name: "Fertilizer",
         diplayName: t("inventory.fertilizer"),
         icon: images.fertilizer,
+        iconLg: images.fertilizerLg,
         level: 3,
         progress: 0.65,
         count: 1,
@@ -56,6 +57,7 @@ const Inventory = () => {
         name: "Pesticide",
         diplayName: t("inventory.pesticide"),
         icon: images.pesticied,
+        iconLg: images.pesticiedLg,
         level: 2,
         progress: 0.4,
         count: 1,
@@ -64,6 +66,7 @@ const Inventory = () => {
         name: "Water",
         diplayName: t("inventory.water"),
         icon: images.kettle,
+        iconLg: images.kettleLg,
         level: 1,
         progress: 0.2,
         count: 1,
@@ -369,19 +372,20 @@ const Inventory = () => {
               className="bg-[#78693985] rounded-3xl w-[80%] p-2 items-center border border-yellow-300"
             >
               <TouchableWithoutFeedback onPress={() => {}}>
-                <View className="bg-[#857f6e85] rounded-2xl p-8 flex justify-center items-center">
-                  <Text className="text-gray-100 text-center mb-6">
+                <View className="bg-white rounded-2xl p-8 flex justify-center items-center">
+                  <Text className="text-[#80784A] font-smibold text-center mb-6">
                     {t("inventory.select_quantity")}
                   </Text>
                   <Image
-                    source={
-                      activeTab === "items"
-                        ? selectedItem?.icon
-                        : selectedItem?.iconLg
-                    }
+                    source={selectedItem?.iconLg}
+                    // source={
+                    //   activeTab === "items"
+                    //     ? selectedItem?.icon
+                    //     : selectedItem?.iconLg
+                    // }
                     className="w-40 h-40"
                   />
-                  <Text className="text-xs font-bold text-center">
+                  <Text className="text-md text-[#78693985] font-bold text-center">
                     {selectedItem?.diplayName}
                   </Text>
 
@@ -395,7 +399,7 @@ const Inventory = () => {
                         />
                       </View>
                     </TouchableOpacity>
-                    <Text className="text-white font-semibold">
+                    <Text className="text-[#80784A] text-lg font-semibold">
                       X {purchaseQty}
                     </Text>
                     <TouchableOpacity onPress={() => handleAmount("add")}>
@@ -412,7 +416,7 @@ const Inventory = () => {
                     <View className="bg-yellow-500 p-1 rounded-full">
                       <HomeIcon size={18} color={"#fff"} />
                     </View>
-                    <Text className="text-white text-2xl font-semibold">
+                    <Text className="text-[#80784A] text-2xl font-bold">
                       {totalAmount.toFixed(2)}
                     </Text>
                   </View>

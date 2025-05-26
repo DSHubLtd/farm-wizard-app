@@ -100,6 +100,8 @@ const PlantScreen = () => {
   const [fertilizerSound, setFertilizerSound] = useState<Audio.Sound | null>(
     null
   );
+  const [drySound, setDrySound] = useState<Audio.Sound | null>(null);
+  const [rainSound, setRainSound] = useState<Audio.Sound | null>(null);
   const [waterSound, setWaterSound] = useState<Audio.Sound | null>(null);
   const [spraying, setSpraying] = useState(false);
   const sprayAnim = useRef(new Animated.Value(0)).current;
@@ -410,13 +412,29 @@ const PlantScreen = () => {
       setGrowthModal(true);
       setIsTimerActive(false);
     }
+
+    if (currentSeason === "dry") {
+      if (drySound) {
+        drySound.replayAsync();
+      }
+    }
+    if (currentSeason === "raining") {
+      if (rainSound) {
+        rainSound.replayAsync();
+      }
+    }
   };
 
   useEffect(() => {
     const loadSounds = async () => {
       try {
-        const [pesticide, fertilizer, water] = await Promise.all([
-          Audio.Sound.createAsync({
+        const [pesticide, fertilizer, water, dry, rain] = await Promise.all([
+          Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3")),
+          Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3")),
+          Audio.Sound.createAsync(require("@/assets/sounds/water.mp3")),
+          Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3")),
+          Audio.Sound.createAsync(require("@/assets/sounds/rain.mp3")),
+          /*Audio.Sound.createAsync({
             uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
           }),
           Audio.Sound.createAsync({
@@ -424,12 +442,15 @@ const PlantScreen = () => {
           }),
           Audio.Sound.createAsync({
             uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
-          }),
+          }),*/
           // Audio.Sound.createAsync(require("@/assets/sounds/zapper.mp3")),
         ]);
+
         setSpraySound(pesticide.sound);
         setFertilizerSound(fertilizer.sound);
         setWaterSound(water.sound);
+        setDrySound(dry.sound);
+        setRainSound(rain.sound);
       } catch (e) {
         console.warn("Failed to load one or more sounds:", e);
       }
@@ -443,6 +464,8 @@ const PlantScreen = () => {
       spraySound?.unloadAsync();
       fertilizerSound?.unloadAsync();
       waterSound?.unloadAsync();
+      drySound?.unloadAsync();
+      rainSound?.unloadAsync();
     };
   }, []);
 
@@ -778,7 +801,13 @@ const PlantScreen = () => {
 
           {activeThreat && !activeThreat.resolved && (
             <Text style={{ color: "red", marginTop: 10 }}>
-              ⚠️{"🐛"} {activeThreat.type.toUpperCase()} - Respond within{" "}
+              {/* ⚠️{"🐛"} {activeThreat.type.toUpperCase()} - Respond within{" "} */}
+              ⚠️{"🐛"}
+              {activeThreat.type.toUpperCase() === "DISEASE"
+                ? t("game.disease")
+                : t("game.storm")}
+              - {t("game.respond_threat")}
+              {"  "}
               {activeThreat.type === "disease" ? "10" : "5"}s!
             </Text>
           )}

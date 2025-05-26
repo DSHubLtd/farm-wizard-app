@@ -6,9 +6,12 @@ import mobileAds from "react-native-google-mobile-ads";
 import LoginProvider from "@/context/LoginProvider";
 import CutomSplashScreen from "@/components/CutomSplashScreen";
 import "../global.css";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import i18n from "@/utils/i18n";
 
 // Keep the native splash until we're ready
 // SplashScreen.preventAutoHideAsync();
+const LANGUAGE_KEY = "user-language";
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
@@ -26,8 +29,19 @@ const RootLayout = () => {
   });
   const [isAppReady, setAppReady] = useState(false);
 
+  const loadSavedLanguage = async () => {
+    const savedLangCode = await AsyncStorage.getItem(LANGUAGE_KEY);
+    if (savedLangCode) {
+      await i18n.changeLanguage(savedLangCode);
+    } else {
+      await i18n.changeLanguage("en");
+    }
+    //console.log("Language set to:", i18n.language);
+  };
+
   useEffect(() => {
     // Initialize once at app startup
+    loadSavedLanguage();
     mobileAds()
       .initialize()
       .then(

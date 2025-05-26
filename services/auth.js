@@ -109,3 +109,44 @@ export const forgetPassword = async (email) => {
     console.log("Error inside forget password method", error.message);
   }
 };
+export const verifyOTP = async (email, code) => {
+  try {
+    const response = await client.post(
+      "/auth/verify-otp",
+      {
+        email,
+        code,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    console.log("Error inside verify otp method", error.message);
+  }
+};
+
+export const resetPassword = async (email, password) => {
+  try {
+    const response = await client.post(
+      "/auth/reset-password",
+      {
+        email,
+        newPassword: password,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    console.log("Error inside reset password method", error.message);
+  }
+};

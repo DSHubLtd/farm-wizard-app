@@ -58,6 +58,7 @@ export default function LanguageSwitching() {
         setSelectedLang(savedLangName);
       } else {
         setSelectedLang("English"); // default
+        await i18n.changeLanguage("en");
       }
       setLanguageLoaded(true);
 

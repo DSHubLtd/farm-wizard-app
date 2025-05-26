@@ -143,7 +143,7 @@ export default function WithdrawalRequest() {
           {withdrawals.map((withdrawal, index) => (
             <TouchableOpacity
               key={index}
-              className="flex-row items-center justify-between border-t border-b border-white rounded-none mx-4 px-4 py-2 mb-2"
+              className="flex-row items-center justify-between border-b rounded-none mx-4 px-4 py-2 mb-2"
               onPress={() => openModal(withdrawal)}
             >
               <View className="flex-row justify-center items-center gap-x-6">

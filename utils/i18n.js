@@ -13,7 +13,23 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: "en",
-    supportedLngs: ["en", "fr", "de", "ar", "he"],
+    supportedLngs: [
+      "en",
+      "fr",
+      "de",
+      "ar",
+      "he",
+      "es",
+      "pt",
+      "id",
+      "zh",
+      "hi",
+      "ru",
+      "ha",
+      "yo",
+      "ig",
+      "sw",
+    ],
     load: "languageOnly", // e.g. 'en-US' becomes 'en'
     lng: "en",
     debug: false, // turn off logs

@@ -44,6 +44,10 @@ import nutrient from "../assets/images/gameplay/nutrient.png";
 import water from "../assets/images/gameplay/water.png";
 import countdown from "../assets/images/gameplay/countdown.png";
 
+import fertilizerLg from "../assets/images/inventory/fertilizers-lg.png";
+import kettleLg from "../assets/images/inventory/kettle-lg.png";
+import pesticiedLg from "../assets/images/inventory/pesticied-lg.png";
+
 import fertilizer from "../assets/images/inventory/fertilizers.png";
 import kettle from "../assets/images/inventory/kettle.png";
 import pesticied from "../assets/images/inventory/pesticied.png";
@@ -95,6 +99,9 @@ export default {
   growth3,
   growth4,
 
+  fertilizerLg,
+  kettleLg,
+  pesticiedLg,
   fertilizer,
   kettle,
   pesticied,

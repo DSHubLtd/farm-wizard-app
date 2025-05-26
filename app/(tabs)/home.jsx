@@ -115,14 +115,37 @@ export default Home = () => {
       {/* {!isPremiumUser && <AdBanner />} */}
 
       {/* Top Buttons */}
-      <HeaderNavigation
+      {/* <HeaderNavigation
         onLeftPress={() => null}
         onRightPress={handlsShowNotifcation}
         leftIcon={useFramedAvatarArray(user.avatar || 0)}
         rightIcon={icons.bell}
         showLeftButton={true}
         showRightButton={true}
-      />
+      /> */}
+      {/* Top bar */}
+      <View className="w-full px-2 flex-row justify-between items-center mt-6">
+        <View className="flex-row">
+          <TouchableOpacity className="">
+            <Image
+              source={useFramedAvatarArray(user.avatar || 0)}
+              className="w-16 h-16 rounded-full"
+            />
+          </TouchableOpacity>
+          <View className="flex my-4">
+            <Text className="text-white text-md">
+              {t("hi_user", { name: `${user.fullName}` })}
+            </Text>
+            <Text className="text-white text-md">{user.score}</Text>
+          </View>
+        </View>
+        <TouchableOpacity
+          className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full"
+          onPress={handlsShowNotifcation}
+        >
+          <Image source={icons.bell} className="w-8 h-10" />
+        </TouchableOpacity>
+      </View>
 
       <View className="w-full px-5 flex-row justify-between items-center mt-10">
         <TouchableOpacity></TouchableOpacity>

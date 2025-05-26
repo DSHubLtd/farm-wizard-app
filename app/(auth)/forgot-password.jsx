@@ -9,9 +9,9 @@ import { CustomButton, FormField } from "../../components";
 import { useLoginContext } from "@/context/LoginProvider";
 import BackgroundImage from "../../components/BackgroundImage";
 import { forgetPassword } from "../../services/auth";
+import { useTranslation } from "react-i18next";
 
 const ForgotPassword = () => {
-    const { setUser, setIsLogged } = useLoginContext();
     const [isSubmitting, setSubmitting] = useState(false);
     const [form, setForm] = useState({
         email: "",
@@ -25,24 +25,30 @@ const ForgotPassword = () => {
         setSubmitting(true);
 
         try {
-            const result = await forgetPassword(form.email);
-            console.log("result ", result)
-            // if (result.data.success === false) {
-            //     Alert.alert("Error", result.data.message)
-            //     return;
-            // }
-            // setUser(result);
-            // setIsLogged(true);
+            const result = await forgetPassword(form.email.toLowerCase());
+            //console.log("result ", result)
+            if (!result) {
+                Alert.alert("Error", "User Not Found");
+                return
+            }
+            if (result.data.success === false) {
+                Alert.alert("Error", result.data.message)
+                return;
+            }
 
-            // Alert.alert("Success", "User signed in successfully");
-            // router.replace("/home");
+            Alert.alert("Success", "OTP Sent to your email");
+            router.replace({
+                pathname: "/(auth)/otp-validation",
+                params: { email: form.email.toLowerCase() },
+            })
+
         } catch (error) {
             Alert.alert("Error", error.message);
         } finally {
             setSubmitting(false);
         }
     };
-
+    const { t } = useTranslation();
     return (
         <SafeAreaView className="bg-primary h-full">
             <BackgroundImage source={images.background} />
@@ -66,7 +72,7 @@ const ForgotPassword = () => {
                     </Text>
 
                     <FormField
-                        title="Email"
+                        title={t("email")}
                         value={form.email}
                         handleChangeText={(e) => setForm({ ...form, email: e })}
                         otherStyles="mt-7"
@@ -74,7 +80,7 @@ const ForgotPassword = () => {
                     />
 
                     <CustomButton
-                        title="Submit"
+                        title={t("buttons.submit")}
                         handlePress={submit}
                         containerStyles="w-full"
                         isLoading={isSubmitting}
