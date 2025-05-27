@@ -11,6 +11,7 @@ import RewardedAdComponent from '../../utils/RewardedAdComponent';
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { playSound } from "../../utils/audio";
 
 
 export default Home = () => {
@@ -136,7 +137,7 @@ export default Home = () => {
             <Text className="text-white text-md">
               {t("hi_user", { name: `${user.fullName}` })}
             </Text>
-            <Text className="text-white text-md">{user.score}</Text>
+            <Text className="text-white text-md">{Number(user.score).toFixed(2)}</Text>
           </View>
         </View>
         <TouchableOpacity
@@ -169,7 +170,7 @@ export default Home = () => {
 
         <CustomButton
           title={t("buttons.play")}
-          handlePress={() => router.push('/(screens)/selectSeed')}
+          handlePress={() => { router.push('/(screens)/selectSeed'); playSound(require('@/assets/sounds/click.mp3'), 0.1) }}
           containerStyles="w-[200px]"
           textStyles={"font-pbold text-white"}
           isLoading={false}

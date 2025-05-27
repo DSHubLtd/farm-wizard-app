@@ -1,14 +1,6 @@
-// pause & resume button physically
-// higher level, the higher the score - later
+// higher level, the higher the score &  Seed purchase - later
 
-// gif image for pause and resume
-// modal message in each growth
-// font style
-// growth message & cancel icon
-// spanish, portugaL, indonusia, chinise(madarine), hindu, russia
-// icons and weather messages
-
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -21,10 +13,16 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  BackHandler,
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { usePlantGrowth, usePlantGrowthMessages } from "@/constants/plants";
-import { router, useLocalSearchParams, usePathname } from "expo-router";
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+  usePathname,
+} from "expo-router";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserPlantLevel } from "@/services/user";
@@ -55,6 +53,20 @@ type InventoryItemType = "Fertilizer" | "Pesticide" | "Water";
 type InventoryKey = "fertilizerQty" | "pesticideQty" | "waterQty";
 
 const PlantScreen = () => {
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        setConfirmModal(true);
+        return true; // Prevent default back action
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+    }, [router])
+  );
+
   const { name } = useLocalSearchParams();
   const { user } = useLoginContext();
   if (!user) {
@@ -719,7 +731,9 @@ const PlantScreen = () => {
               <Text className="text-white text-md">
                 {t("hi_user", { name: `${user.fullName}` })}
               </Text>
-              <Text className="text-white text-md">{user.score}</Text>
+              <Text className="text-white text-md">
+                {Number(user.score).toFixed(2)}
+              </Text>
             </View>
           </View>
           <TouchableOpacity
@@ -791,17 +805,8 @@ const PlantScreen = () => {
             </View>
           </View>
 
-          {/* <Text>❤️ {t("game.health", { health: `${plantHealth}` })}</Text>
-          <Text>
-            💧{t("game.water_level", { waterLevel: `${waterLevel}` })}
-          </Text>
-          <Text>
-            🌿 {t("game.nutrient_level", { nutrientLevel: `${nutrientLevel}` })}
-          </Text> */}
-
           {activeThreat && !activeThreat.resolved && (
             <Text style={{ color: "red", marginTop: 10 }}>
-              {/* ⚠️{"🐛"} {activeThreat.type.toUpperCase()} - Respond within{" "} */}
               ⚠️{"🐛"}
               {activeThreat.type.toUpperCase() === "DISEASE"
                 ? t("game.disease")
@@ -822,10 +827,8 @@ const PlantScreen = () => {
           <Text className="text-yellow-600 text-lg">{showGiftMessage}</Text>
           <Text className="text-white text-3xl font-bold">{score}</Text>
         </View>
-        {/* Points */}
-        {/* <View className="absolute top-28 left-0 right-0 items-center">
-          <Text className="text-white text-3xl font-bold">{score}</Text>
 
+        {/* <View className="absolute top-28 left-0 right-0 items-center">
           <Text className="text-2xl text-gray-700">
             {"🌦️"}
             {currentSeason === "normal" &&

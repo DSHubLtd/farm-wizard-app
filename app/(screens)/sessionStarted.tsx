@@ -5,6 +5,7 @@ import { View, Text, Image, Dimensions } from "react-native";
 import { CustomButton } from "../../components";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { playSound } from "@/utils/audio";
 
 const { width, height } = Dimensions.get("window");
 
@@ -55,12 +56,13 @@ const SessionStarted = () => {
 
       <CustomButton
         title={t("buttons.ok")}
-        handlePress={() =>
+        handlePress={() => {
           router.replace({
             pathname: "/(screens)/plantScreen",
             params: { name: name },
-          })
-        }
+          });
+          playSound(require("@/assets/sounds/click.mp3"), 0.1);
+        }}
         containerStyles="w-[200px] mb-1"
         textStyles={"font-pbold text-white"}
         isLoading={false}

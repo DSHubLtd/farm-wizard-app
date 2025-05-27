@@ -39,6 +39,12 @@ export default function CutomSplashScreen() {
                 resizeMode="cover" 
             /> */}
             <Image
+                source={images.background1}
+                className="absolute w-full h-full"
+                resizeMode="cover"
+                blurRadius={0.5}
+            />
+            <Image
                 source={images.logoLg}
                 resizeMode="contain"
                 className="w-[250px] h-[250px]"

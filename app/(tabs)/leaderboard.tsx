@@ -22,6 +22,7 @@ const { height, width } = Dimensions.get("window");
 interface User {
   fullName: string;
   score: string;
+  usdBalance: number;
   avatar: any;
   position: number;
 }
@@ -166,11 +167,14 @@ export default function Leaderboard() {
                     }
                     className="w-20 h-20 rounded-full"
                   />
-                  <Text className="text-white text-lg mt-2 font-primary">
+                  <Text className="text-white text-sm mt-2 font-primary">
                     {topUsers.find((p) => p.position === 2)?.fullName}
                   </Text>
-                  <Text className="text-[#FFDF76] text-lg font-primary">
-                    {topUsers.find((p) => p.position === 2)?.score} pts
+                  <Text className="text-[#FFDF76] text-sm font-primary">
+                    {Number(
+                      topUsers.find((p) => p.position === 2)?.score
+                    ).toFixed(2)}{" "}
+                    pts
                   </Text>
                 </>
               )}
@@ -193,11 +197,14 @@ export default function Leaderboard() {
                     }
                     className="w-28 h-28 rounded-full"
                   />
-                  <Text className="text-white text-base mt-2 font-secondary">
+                  <Text className="text-white text-sm mt-2 font-secondary">
                     {topUsers.find((p) => p.position === 1)?.fullName}
                   </Text>
-                  <Text className="text-[#FFDF76] text-lg font-primary">
-                    {topUsers.find((p) => p.position === 1)?.score} pts
+                  <Text className="text-[#FFDF76] text-sm font-primary">
+                    {Number(
+                      topUsers.find((p) => p.position === 1)?.score
+                    ).toFixed(2)}{" "}
+                    pts
                   </Text>
                 </>
               )}
@@ -223,8 +230,11 @@ export default function Leaderboard() {
                   <Text className="text-white text-sm mt-2">
                     {topUsers.find((p) => p.position === 3)?.fullName}
                   </Text>
-                  <Text className="text-[#FFDF76] text-lg font-primary">
-                    {topUsers.find((p) => p.position === 3)?.score} pts
+                  <Text className="text-[#FFDF76] text-sm font-primary">
+                    {Number(
+                      topUsers.find((p) => p.position === 3)?.score
+                    ).toFixed(2)}{" "}
+                    pts
                   </Text>
                 </>
               )}
@@ -251,12 +261,12 @@ export default function Leaderboard() {
                   }
                   className="w-16 h-16 rounded-full"
                 />
-                <Text className="text-white text-lg font-primary">
+                <Text className="text-white text-sm font-primary">
                   {player.fullName}
                 </Text>
               </View>
-              <Text className="text-[#FFDF76] text-lg font-primary">
-                {player.score} pts
+              <Text className="text-[#FFDF76] text-sm font-primary">
+                {Number(player.score).toFixed(2)} pts
               </Text>
             </View>
           ))}

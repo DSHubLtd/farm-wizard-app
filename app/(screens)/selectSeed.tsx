@@ -14,6 +14,7 @@ import { CustomButton } from "../../components";
 import { useRouter } from "expo-router";
 import { usePlantGrowth as seeds } from "@/constants/plants";
 import { useTranslation } from "react-i18next";
+import { playSound } from "../../utils/audio";
 
 const { width, height } = Dimensions.get("window");
 
@@ -240,12 +241,13 @@ const SelectSeed = () => {
 
       <CustomButton
         title={t("buttons.select_seed")}
-        handlePress={() =>
+        handlePress={() => {
           router.push({
             pathname: "/(screens)/sessionStarted",
             params: { name: selectedSeed.name },
-          })
-        }
+          });
+          playSound(require("@/assets/sounds/click.mp3"), 0.1);
+        }}
         containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}
         isLoading={false}

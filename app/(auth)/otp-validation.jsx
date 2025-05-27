@@ -16,8 +16,6 @@ const OTPValidation = () => {
         try {
             const res = await verifyOTP(email, code);
             const result = res.data
-            const isValidOTP = code === result.isCodeValid
-
             //const isValidOTP = code === "123456"; // Mock valid OTP
 
             // if (!isValidOTP) {

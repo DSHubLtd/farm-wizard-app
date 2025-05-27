@@ -26,6 +26,7 @@ import { ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
 import MessageDialog from "@/components/MessageDialog";
 import { Dimensions } from "react-native";
+import { playSound } from "@/utils/audio";
 const { width } = Dimensions.get("window");
 
 const tabs = ["Daily", "Weekly", "Monthly"] as const;
@@ -244,7 +245,8 @@ const Profile = () => {
         )}
       </View>
       <Text className="text-yellow-300 font-secondary text-base my-2">
-        Score: {user?.score || 0} || USD: {user?.usdBalance || 0}
+        Score: {Number(user?.score).toFixed(2) || 0} || USD:{" "}
+        {Number(user?.usdBalance).toFixed(5) || 0}
       </Text>
 
       {/* Tabs */}
@@ -323,7 +325,10 @@ const Profile = () => {
       {/* Withdraw */}
       <CustomButton
         title={t("buttons.claim")}
-        handlePress={() => router.push("/(tabs)/(sub-tabs)/claimScreen")}
+        handlePress={() => {
+          router.push("/(tabs)/(sub-tabs)/claimScreen");
+          playSound(require("@/assets/sounds/click.mp3"), 0.1);
+        }}
         containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}
         isLoading={false}

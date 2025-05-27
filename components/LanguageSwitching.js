@@ -5,6 +5,7 @@ import "../utils/i18n";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Updates from "expo-updates";
+import { languageMap } from "@/utils/languageMap";
 const LANGUAGE_KEY = "user-language";
 
 export default function LanguageSwitching() {
@@ -13,38 +14,6 @@ export default function LanguageSwitching() {
   const [selectedLang, setSelectedLang] = useState("English");
   const [loading, setLoading] = useState(false);
   const rtlLanguages = ["ar", "he"]; // Add more RTL languages if needed
-
-  const languageMap = {
-    English: { code: "en", nativeName: "English" },
-    French: { code: "fr", nativeName: "Français" },
-    // German: { code: "de", nativeName: "Deutsch" },
-    Arabic: { code: "ar", nativeName: "العربية" },
-    // Hebrew: { code: "he", nativeName: "עברית" },
-    Spanish: { code: "es", nativeName: "Español" },
-    Portuguese: { code: "pt", nativeName: "Português" },
-    Indonesian: { code: "id", nativeName: "Bahasa Indonesia" },
-    Chinese: { code: "zh", nativeName: "中文 (Mandarin)" },
-    Hindi: { code: "hi", nativeName: "हिन्दी" },
-    Russian: { code: "ru", nativeName: "Русский" },
-    Hausa: { code: "ha", nativeName: "Hausa" },
-    Yoruba: { code: "yo", nativeName: "Yorùbá" },
-    Igbo: { code: "ig", nativeName: "Asụsụ Igbo" },
-    Swahili: { code: "sw", nativeName: "Kiswahili" },
-    // Amharic: { code: "am", nativeName: "አማርኛ" },
-    // Oromo: { code: "om", nativeName: "Afaan Oromoo" },
-    // Tigrinya: { code: "ti", nativeName: "ትግርኛ" },
-    // Lingala: { code: "ln", nativeName: "Lingála" },
-    // Kinyarwanda: { code: "rw", nativeName: "Kinyarwanda" },
-    // Luganda: { code: "lg", nativeName: "Luganda" },
-    // Shona: { code: "sn", nativeName: "ChiShona" },
-    // Zulu: { code: "zu", nativeName: "isiZulu" },
-    // Xhosa: { code: "xh", nativeName: "isiXhosa" },
-    // Wolof: { code: "wo", nativeName: "Wolof" },
-    // Ewe: { code: "ee", nativeName: "Eʋegbe" },
-    // Fula: { code: "ff", nativeName: "Pulaar" },
-    // Tswana: { code: "tn", nativeName: "Setswana" },
-    // Berber: { code: "ber", nativeName: "Tamazight" },
-  };
 
   // 🔁 Load saved language on mount
   useEffect(() => {

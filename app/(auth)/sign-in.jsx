@@ -64,7 +64,7 @@ const SignIn = () => {
         >
           <View className="flex flex-row justify-center">
             <Image
-              source={images.logo}
+              source={images.logoLg}
               resizeMode="contain"
               className="w-[200px] h-[200px]"
             />
@@ -113,7 +113,7 @@ const SignIn = () => {
               href="/sign-up"
               className="text-lg font-secondary text-secondary"
             >
-              Sign up
+              Sign Up
             </Link>
           </View>
         </View>

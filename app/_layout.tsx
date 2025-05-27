@@ -8,12 +8,15 @@ import CutomSplashScreen from "@/components/CutomSplashScreen";
 import "../global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import i18n from "@/utils/i18n";
+import { useKeepAwake } from "expo-keep-awake";
 
 // Keep the native splash until we're ready
 // SplashScreen.preventAutoHideAsync();
 const LANGUAGE_KEY = "user-language";
 
 const RootLayout = () => {
+  useKeepAwake(); // This keeps the screen on while this component is mounted
+
   const [fontsLoaded, error] = useFonts({
     "BubblegumSans-Regular": require("../assets/fonts/BubblegumSans-Regular.ttf"),
     "NunitoSans-Regular": require("../assets/fonts/NunitoSans-Regular.ttf"),

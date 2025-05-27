@@ -261,11 +261,11 @@ const ClaimScreen = () => {
           return;
         }
 
-        setUser(result.data.userDetails);
         Alert.alert("Success", result.data.message);
         setTimeout(() => {
           router.replace("/(screens)/transactionSuccess");
         }, 2000);
+        setUser(result.data.userDetails);
       } catch (error: any) {
         Alert.alert("Error occured", error.message);
       } finally {
@@ -310,7 +310,7 @@ const ClaimScreen = () => {
       >
         <View className="px-6 py-2 bg-[#E0C145B8] rounded-xl">
           <Text className="text-white text-sm text-center">
-            USD: {user.usdBalance}
+            USD: {Number(user.usdBalance).toFixed(5)}
           </Text>
           <Text className="text-white/80 text-xs text-center">
             1000 = 0.00001 USD
