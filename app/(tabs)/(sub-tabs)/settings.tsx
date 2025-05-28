@@ -17,7 +17,7 @@ import RewardModal from "@/components/RewardModal";
 import { signOut } from "../../../services/auth";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
-import ConfirmModal from "@/components/ConfirmDialog";
+import ConfirmModal, { CustomConfirmDialog } from "@/components/ConfirmDialog";
 import { deleteUser } from "@/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -31,6 +31,7 @@ const Settings = () => {
   const [rewalVisible, setRewardVisible] = useState(false);
   const [url, setUrl] = useState("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
   const [confirmModal, setConfirmModal] = useState(false);
+  const [logoutModal, setLogoutModal] = useState(false);
 
   const openWebView = (url: string) => {
     setUrl(url);
@@ -94,7 +95,7 @@ const Settings = () => {
       openWebView(url);
     }
     if (itemLink === "logout") {
-      logOut();
+      setLogoutModal(true);
     }
     if (itemLink === "delete-account") {
       setConfirmModal(true);
@@ -126,13 +127,13 @@ const Settings = () => {
       label: t("settings.privacy_policy"),
       icon: icons.privacy,
       link: "privacy",
-      url: "www.google.com",
+      url: "https://drive.google.com/file/d/1yLKAOGRPHzaeXXf53bYGXAqrqckUtbvf/view?usp=sharing",
     },
     {
       label: t("settings.terms_and_condition"),
       icon: icons.termsNcondition,
       link: "terms",
-      url: "www.google.com",
+      url: "https://drive.google.com/file/d/16hn7MVwghhZ7n5ocXYxu3TVOZ5GPJOYX/view?usp=sharing",
     },
     {
       label: t("settings.contact_us"),
@@ -249,6 +250,21 @@ const Settings = () => {
         onCancel={() => {
           setConfirmModal(false);
         }}
+      />
+      <CustomConfirmDialog
+        visible={logoutModal}
+        onClose={() => setLogoutModal(false)}
+        onConfirmPress={() => {
+          logOut();
+          setLogoutModal(false);
+        }}
+        onCancelPress={() => {
+          setLogoutModal(false);
+        }}
+        messageText={t("comfirmation.logout")}
+        imageSource={images.confirmLogout}
+        confirmButtonText={t("buttons.yes")}
+        concelButtonText={t("buttons.no")}
       />
     </View>
   );

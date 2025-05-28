@@ -114,6 +114,7 @@ const PlantScreen = () => {
   );
   const [drySound, setDrySound] = useState<Audio.Sound | null>(null);
   const [rainSound, setRainSound] = useState<Audio.Sound | null>(null);
+  const [growthSound, setGrowthSound] = useState<Audio.Sound | null>(null);
   const [waterSound, setWaterSound] = useState<Audio.Sound | null>(null);
   const [spraying, setSpraying] = useState(false);
   const sprayAnim = useRef(new Animated.Value(0)).current;
@@ -141,6 +142,7 @@ const PlantScreen = () => {
   const [isThrottledW, setIsThrottledW] = useState(false);
   const [isThrottledF, setIsThrottledF] = useState(false);
   const [growthModal, setGrowthModal] = useState(false);
+  const [sickModal, setSickModal] = useState(false);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -349,12 +351,14 @@ const PlantScreen = () => {
       setPlantHealth((h) => Math.max(0, h - 5));
       //handleToolUse("⚠️ Your plant is drying out!");
       setPlantDamaged(true);
+      setSickModal(true);
     }
 
     if (nutrientLevel < 20) {
       setPlantHealth((h) => Math.max(0, h - 3));
       //handleToolUse("⚠️ Your plant lacks nutrients!");
       setPlantDamaged(true);
+      setSickModal(true);
     }
 
     // Threat logic
@@ -367,6 +371,7 @@ const PlantScreen = () => {
           setPlantHealth((h) => Math.max(0, h - getThreatPanelty(userLevel)));
           //handleToolUse("☠️ Disease is hurting your plant!");
           setPlantDamaged(true);
+          setSickModal(true);
         }
 
         if (userLevel > 1) {
@@ -376,6 +381,7 @@ const PlantScreen = () => {
             //handleToolUse("🌩️ Storm hit your plant!");
             setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
             setPlantDamaged(true);
+            setSickModal(true);
           }
         }
         // Remove threat after 15s regardless
@@ -415,14 +421,16 @@ const PlantScreen = () => {
     // initial modal popup
     if (timeLeft === 595 && getPlantStage() === 0) {
       setSoilVisible(false);
-      setGrowthModal(true);
       setIsTimerActive(false);
+      setGrowthModal(true);
+      if (growthSound) growthSound.replayAsync();
     }
     const { phaseElapsedTime } = getPhaseInfo();
     // each growth stage
     if (phaseElapsedTime === 0 && getPlantStage() > 0) {
-      setGrowthModal(true);
       setIsTimerActive(false);
+      setGrowthModal(true);
+      if (growthSound) growthSound.replayAsync();
     }
 
     if (currentSeason === "dry") {
@@ -440,13 +448,17 @@ const PlantScreen = () => {
   useEffect(() => {
     const loadSounds = async () => {
       try {
-        const [pesticide, fertilizer, water, dry, rain] = await Promise.all([
-          Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3")),
-          Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3")),
-          Audio.Sound.createAsync(require("@/assets/sounds/water.mp3")),
-          Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3")),
-          Audio.Sound.createAsync(require("@/assets/sounds/rain.mp3")),
-          /*Audio.Sound.createAsync({
+        const [pesticide, fertilizer, water, dry, rain, growth] =
+          await Promise.all([
+            Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3")),
+            Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3")),
+            Audio.Sound.createAsync(require("@/assets/sounds/water.mp3")),
+            Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3")),
+            Audio.Sound.createAsync(require("@/assets/sounds/rain.mp3")),
+            Audio.Sound.createAsync(
+              require("@/assets/sounds/growth-level-reach.mp3")
+            ),
+            /*Audio.Sound.createAsync({
             uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
           }),
           Audio.Sound.createAsync({
@@ -455,14 +467,14 @@ const PlantScreen = () => {
           Audio.Sound.createAsync({
             uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
           }),*/
-          // Audio.Sound.createAsync(require("@/assets/sounds/zapper.mp3")),
-        ]);
+          ]);
 
         setSpraySound(pesticide.sound);
         setFertilizerSound(fertilizer.sound);
         setWaterSound(water.sound);
         setDrySound(dry.sound);
         setRainSound(rain.sound);
+        setGrowthSound(growth.sound);
       } catch (e) {
         console.warn("Failed to load one or more sounds:", e);
       }
@@ -478,6 +490,7 @@ const PlantScreen = () => {
       waterSound?.unloadAsync();
       drySound?.unloadAsync();
       rainSound?.unloadAsync();
+      growthSound?.unloadAsync();
     };
   }, []);
 
@@ -1110,6 +1123,18 @@ const PlantScreen = () => {
           }}
           messageText={growthCycle.message}
           imageSource={growthCycle.image}
+          buttonText={t("buttons.ok")}
+        />
+        <MessageDialog
+          visible={sickModal}
+          onClose={() => setSickModal(false)}
+          onPress={() => {
+            setSickModal(false);
+          }}
+          messageText={
+            "Oh no! A strange blight has spread through your crops. Take action to heal your plants and protect your farm’s magic before it fades further."
+          }
+          imageSource={images.sickPlant}
           buttonText={t("buttons.ok")}
         />
       </View>

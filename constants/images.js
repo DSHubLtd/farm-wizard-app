@@ -14,6 +14,7 @@ import nonPremimuUser from "../assets/images/non-premium-user.png";
 import adsBadge from "../assets/images/ads-badge.png";
 import bgTabs from "../assets/images/bg-tabs.png";
 import upgrade from "../assets/images/upgrade.png";
+import confirmLogout from "../assets/images/confirm-logout.png";
 
 import maize from "../assets/images/seed/maize.png";
 import apple from "../assets/images/seed/apple.png";
@@ -53,6 +54,7 @@ import kettle from "../assets/images/inventory/kettle.png";
 import pesticied from "../assets/images/inventory/pesticied.png";
 import bugs from "../assets/plant-growth/bugs.gif";
 import soil from "../assets/plant-growth/soil.png";
+import sickPlant from "../assets/plant-growth/sick-plant.png";
 
 import bgDry from "../assets/plant-growth/background-dry.png";
 import bgRainfall from "../assets/plant-growth/bg-rainfall.png";
@@ -130,4 +132,6 @@ export default {
   nutrient,
   water,
   countdown,
+  sickPlant,
+  confirmLogout,
 };
