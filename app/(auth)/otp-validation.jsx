@@ -15,19 +15,23 @@ const OTPValidation = () => {
     const handleOTPSubmit = async (code) => {
         try {
             const res = await verifyOTP(email, code);
-            const result = res.data
-            //const isValidOTP = code === "123456"; // Mock valid OTP
+            if (res.data) {
+                const result = res.data
+                //const isValidOTP = code === "123456"; // Mock valid OTP
 
-            // if (!isValidOTP) {
-            if (result.isCodeValid !== true) {
-                Alert.alert('Error', 'Invalid OTP, please try again.');
-                //console.log("isValidOTP ", result)
+                // if (!isValidOTP) {
+                if (result.isCodeValid !== true) {
+                    Alert.alert('Error', 'Invalid OTP, please try again.');
+                    //console.log("isValidOTP ", result)
+                } else {
+                    Alert.alert('Success', 'OTP verified successfully!');
+                    router.replace({
+                        pathname: "/(auth)/reset-password",
+                        params: { code, email },
+                    })
+                }
             } else {
-                Alert.alert('Success', 'OTP verified successfully!');
-                router.replace({
-                    pathname: "/(auth)/reset-password",
-                    params: { code, email },
-                })
+                Alert.alert('Error', 'Invalid OTP, please try again.');
             }
 
         } catch (error) {

@@ -41,7 +41,7 @@ export default Home = () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://farm-wizard-api.onrender.com/api/v1/notification/all/`,
+          `https://farm-wizard-api-n68r.onrender.com/api/v1/notification/all/`,
           {
             method: "GET",
             headers: {

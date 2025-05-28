@@ -275,11 +275,11 @@ const ClaimScreen = () => {
   };
 
   const handleWithdrawalHistory = () => {
-    // if (user.userType === "user") {
-    //router.push("/(tabs)/(sub-tabs)/requestReceived");
-    // } else {
-    router.push("/(tabs)/(sub-tabs)/withdrawalRequest");
-    // }
+    if (user.userType === "user") {
+      router.push("/(tabs)/(sub-tabs)/requestReceived");
+    } else {
+      router.push("/(tabs)/(sub-tabs)/withdrawalRequest");
+    }
   };
   const { t } = useTranslation();
 

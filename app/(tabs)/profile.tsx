@@ -87,7 +87,7 @@ const Profile = () => {
         setLoading(true);
         try {
           const res = await fetch(
-            `https://farm-wizard-api.onrender.com/api/v1/earning/usd-chart/${activeTab}`,
+            `https://farm-wizard-api-n68r.onrender.com/api/v1/earning/usd-chart/${activeTab}`,
             {
               method: "GET",
               headers: {
@@ -134,7 +134,7 @@ const Profile = () => {
 
     try {
       const res = await fetch(
-        `https://farm-wizard-api.onrender.com/api/v1/payment/flutterwave/verify-upgrade-payment/${transaction_id}`
+        `https://farm-wizard-api-n68r.onrender.com/api/v1/payment/flutterwave/verify-upgrade-payment/${transaction_id}`
       );
       const json = await res.json();
 

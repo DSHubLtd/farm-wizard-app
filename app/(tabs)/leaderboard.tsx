@@ -48,7 +48,7 @@ export default function Leaderboard() {
           setError(null);
 
           const response = await axios.get(
-            `https://farm-wizard-api.onrender.com/api/v1/leaderboard/all`,
+            `https://farm-wizard-api-n68r.onrender.com/api/v1/leaderboard/all`,
             {
               params: { page: pageNumber, limit: 50 },
             }

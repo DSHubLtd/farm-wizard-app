@@ -238,7 +238,7 @@ const Inventory = () => {
 
     try {
       const res = await fetch(
-        `https://farm-wizard-api.onrender.com/api/v1/payment/flutterwave/verify-payment/${transaction_id}/${purchaseDetails}`
+        `https://farm-wizard-api-n68r.onrender.com/api/v1/payment/flutterwave/verify-payment/${transaction_id}/${purchaseDetails}`
       );
       const json = await res.json();
 
@@ -287,7 +287,7 @@ const Inventory = () => {
     if (token !== null) {
       try {
         const res = await fetch(
-          `https://farm-wizard-api.onrender.com/api/v1/payment/in-app-purchase/verify-purchase/${transaction_id}/${purchaseDetails}`,
+          `https://farm-wizard-api-n68r.onrender.com/api/v1/payment/in-app-purchase/verify-purchase/${transaction_id}/${purchaseDetails}`,
           {
             method: "GET",
             headers: {

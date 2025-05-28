@@ -52,7 +52,7 @@ export default function WithdrawalRequest() {
     const fetchWithdrawals = async (pageNumber: number) => {
       try {
         const response = await axios.get(
-          `https://farm-wizard-api.onrender.com/api/v1/withdrawal/all`,
+          `https://farm-wizard-api-n68r.onrender.com/api/v1/withdrawal/all`,
           {
             params: { page: pageNumber, limit: 50 },
           }

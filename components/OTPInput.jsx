@@ -19,6 +19,7 @@ const OTPInput = ({ onSubmit, email }) => {
     const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(''));
     const [timer, setTimer] = useState(OTP_EXPIRY_TIME);
     const [resendEnabled, setResendEnabled] = useState(false);
+    const [lastSubmittedOtp, setLastSubmittedOtp] = useState(null);
     const inputs = useRef([]);
 
     // Timer countdown for Resend OTP
@@ -77,7 +78,6 @@ const OTPInput = ({ onSubmit, email }) => {
         if (otp.every(val => val !== '')) {
             const code = otp.join('');
             if (/^\d{6}$/.test(code)) {
-                // Simulate server-side verification
                 onSubmit(code);
             } else {
                 Alert.alert('Invalid OTP', 'Please enter a valid 6-digit OTP.');
@@ -91,10 +91,13 @@ const OTPInput = ({ onSubmit, email }) => {
         try {
             const clipboardContent = await Clipboard.getString();
             if (/^\d{6}$/.test(clipboardContent)) {
-                const chars = clipboardContent.split('');
-                setOtp(chars);
-                Keyboard.dismiss();
-                onSubmit(clipboardContent);
+                if (clipboardContent !== lastSubmittedOtp) {
+                    const chars = clipboardContent.split('');
+                    setOtp(chars);
+                    Keyboard.dismiss();
+                    setLastSubmittedOtp(clipboardContent);
+                    onSubmit(clipboardContent);
+                }
             }
         } catch (error) {
             console.log('Clipboard error:', error);
