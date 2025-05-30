@@ -327,7 +327,9 @@ const Inventory = () => {
       </Text>
 
       <View className="flex-row gap-2 justify-end my-2">
-        <Text className="text-white text-lg font-semibold">{user?.score}</Text>
+        <Text className="text-white text-lg font-semibold">
+          {(user?.score).toFixed(2)}
+        </Text>
         <View className="bg-yellow-500 p-1 rounded-full">
           <HomeIcon size={16} color={"#fff"} />
         </View>

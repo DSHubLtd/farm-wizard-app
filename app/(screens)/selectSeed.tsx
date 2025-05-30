@@ -122,7 +122,7 @@ const SelectSeed = () => {
               source={seed.icon}
               // className="w-8 h-8"
               resizeMode="contain"
-              style={{ width: width * 0.08, height: width * 0.08 }}
+              style={{ width: width * 0.14, height: width * 0.14 }}
             />
           </TouchableOpacity>
         ))}
