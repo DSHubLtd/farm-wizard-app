@@ -440,7 +440,7 @@ const ClaimScreen = () => {
             <CustomButton
               title="Submit "
               handlePress={submitWithdrawal}
-              containerStyles="w-full mb-2"
+              containerStyles="w-full"
               textStyles={"font-pbold text-white"}
               isLoading={isSubmitting}
             />
