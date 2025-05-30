@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BackgroundImage from "@/components/BackgroundImage";
 import { images } from "@/constants";
 import { View, Text, Image, Dimensions, Alert } from "react-native";
 import { CustomButton } from "../../components";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { usePlantGrowth } from "@/constants/plants";
 import { updatePlantLevels } from "@/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
+import { Audio } from "expo-av";
 
 const { width, height } = Dimensions.get("window");
 
@@ -74,6 +75,40 @@ const Harvest = () => {
   useEffect(() => {
     updateLevel();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const stopAndPlayNewSound = async () => {
+        try {
+          // 1. Stop all previously playing sounds
+          await Audio.setIsEnabledAsync(false);
+          await Audio.setIsEnabledAsync(true);
+
+          // 2. Load and play a new sound
+          const { sound } = await Audio.Sound.createAsync(
+            require("@/assets/sounds/level-up.wav"),
+            {
+              volume: 1.0,
+              isLooping: false,
+            }
+          );
+
+          await sound.playAsync();
+
+          // Optional: unload the sound after it's done playing
+          sound.setOnPlaybackStatusUpdate((status) => {
+            if (status.isLoaded && status.didJustFinish) {
+              sound.unloadAsync();
+            }
+          });
+        } catch (e) {
+          console.warn("Error managing sound:", e);
+        }
+      };
+
+      stopAndPlayNewSound();
+    }, [])
+  );
 
   const { t } = useTranslation();
 

@@ -40,6 +40,7 @@ import MessageDialog from "@/components/MessageDialog";
 import { useThrottle } from "@/hooks/useThrottle";
 import { useTranslation } from "react-i18next";
 import { getThreatPanelty } from "@/utils/getThreatPanelty";
+import { stopAndResetSound } from "@/utils/stopAndResetSound";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -143,6 +144,7 @@ const PlantScreen = () => {
   const [isThrottledF, setIsThrottledF] = useState(false);
   const [growthModal, setGrowthModal] = useState(false);
   const [sickModal, setSickModal] = useState(false);
+  const [sickModalShown, setSickModalShown] = useState(false);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -257,7 +259,7 @@ const PlantScreen = () => {
 
   const getThreatChance = (season: SeasonType) => {
     if (season === "dry") return 0.2;
-    if (season === "raining") return 0.15;
+    if (season === "raining") return 0.25;
     return 0.1;
   };
 
@@ -335,6 +337,17 @@ const PlantScreen = () => {
     };
   }, [pathname, isTimerActive, waterLevel, nutrientLevel]);
 
+  const resetBackgroundSound = () => {
+    if (drySound) {
+      drySound.stopAsync();
+      drySound.unloadAsync();
+    }
+    if (rainSound) {
+      rainSound.stopAsync();
+      rainSound.unloadAsync();
+    }
+  };
+
   const handlePlantLifeCycle = () => {
     const now = Date.now();
 
@@ -351,14 +364,11 @@ const PlantScreen = () => {
       setPlantHealth((h) => Math.max(0, h - 5));
       //handleToolUse("⚠️ Your plant is drying out!");
       setPlantDamaged(true);
-      setSickModal(true);
     }
 
     if (nutrientLevel < 20) {
       setPlantHealth((h) => Math.max(0, h - 3));
-      //handleToolUse("⚠️ Your plant lacks nutrients!");
       setPlantDamaged(true);
-      setSickModal(true);
     }
 
     // Threat logic
@@ -371,19 +381,27 @@ const PlantScreen = () => {
           setPlantHealth((h) => Math.max(0, h - getThreatPanelty(userLevel)));
           //handleToolUse("☠️ Disease is hurting your plant!");
           setPlantDamaged(true);
-          setSickModal(true);
-        }
-
-        if (userLevel > 1) {
-          if (activeThreat.type === "storm" && timeSinceThreat > 6000) {
-            // One-time hit
-            setPlantHealth((h) => Math.max(0, h - getThreatPanelty(userLevel)));
-            //handleToolUse("🌩️ Storm hit your plant!");
-            setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
-            setPlantDamaged(true);
+          if (!sickModalShown) {
             setSickModal(true);
+            setSickModalShown(true);
           }
         }
+
+        // if (userLevel > 1) {
+        if (activeThreat.type === "storm" && timeSinceThreat > 5000) {
+          // One-time hit
+          setPlantHealth((h) =>
+            Math.max(0, h - getThreatPanelty(userLevel) + 5)
+          );
+          // setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
+          setPlantDamaged(true);
+          if (!sickModalShown) {
+            setSickModal(true);
+            setSickModalShown(true);
+          }
+        }
+        // }
+
         // Remove threat after 15s regardless
         /*if (timeSinceThreat > 15000) {
           setActiveThreat(null);
@@ -407,15 +425,21 @@ const PlantScreen = () => {
     if (plantHealth <= 0) {
       setIsDead(true);
       setIsTimerActive(false);
-      router.replace("/(screens)/gameOver");
+      resetBackgroundSound();
+      setTimeout(() => {
+        router.replace("/(screens)/gameOver");
+      }, 100);
     }
     // harvest time
     if (timeLeft === 1 || getPlantStage() > 3) {
       setIsTimerActive(false);
-      router.replace({
-        pathname: "/(screens)/harvest",
-        params: { name, score, userLevel, plantHealth },
-      });
+      resetBackgroundSound();
+      setTimeout(() => {
+        router.replace({
+          pathname: "/(screens)/harvest",
+          params: { name, score, userLevel, plantHealth },
+        });
+      }, 100);
     }
 
     // initial modal popup
@@ -435,40 +459,44 @@ const PlantScreen = () => {
 
     if (currentSeason === "dry") {
       if (drySound) {
-        drySound.replayAsync();
+        drySound.playAsync();
       }
     }
     if (currentSeason === "raining") {
       if (rainSound) {
-        rainSound.replayAsync();
+        rainSound.playAsync();
+      }
+      if (drySound) {
+        drySound.stopAsync();
       }
     }
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadSounds = async () => {
       try {
         const [pesticide, fertilizer, water, dry, rain, growth] =
           await Promise.all([
             Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3")),
-            Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3")),
+            Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3"), {
+              volume: 0.6,
+            }),
             Audio.Sound.createAsync(require("@/assets/sounds/water.mp3")),
-            Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3")),
-            Audio.Sound.createAsync(require("@/assets/sounds/rain.mp3")),
+            Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3"), {
+              volume: 0.8,
+              isLooping: true,
+            }),
+            Audio.Sound.createAsync(require("@/assets/sounds/rain-storm.mp3"), {
+              volume: 0.8,
+              isLooping: true,
+            }),
             Audio.Sound.createAsync(
               require("@/assets/sounds/growth-level-reach.mp3")
             ),
-            /*Audio.Sound.createAsync({
-            uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
-          }),
-          Audio.Sound.createAsync({
-            uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
-          }),
-          Audio.Sound.createAsync({
-            uri: "https://orangefreesounds.com/wp-content/uploads/2023/09/Bug-zapper-sound-effect.mp3",
-          }),*/
           ]);
-
+        if (!isMounted) return;
         setSpraySound(pesticide.sound);
         setFertilizerSound(fertilizer.sound);
         setWaterSound(water.sound);
@@ -485,11 +513,23 @@ const PlantScreen = () => {
     fetchUserPlantLevelData();
     fetchUserInventoryData();
     return () => {
+      isMounted = false;
+
+      // Stop and unload all sounds properly
       spraySound?.unloadAsync();
       fertilizerSound?.unloadAsync();
       waterSound?.unloadAsync();
-      drySound?.unloadAsync();
-      rainSound?.unloadAsync();
+
+      if (drySound) {
+        drySound.stopAsync();
+        drySound.unloadAsync();
+      }
+
+      if (rainSound) {
+        rainSound.stopAsync();
+        rainSound.unloadAsync();
+      }
+
       growthSound?.unloadAsync();
     };
   }, []);
@@ -567,6 +607,7 @@ const PlantScreen = () => {
     }, 1000);
 
     setPlantDamaged(false);
+    setSickModalShown(false);
     setSpraying(true);
     sprayAnim.setValue(0);
     // 🔊 Play spray sound
@@ -841,18 +882,6 @@ const PlantScreen = () => {
           <Text className="text-white text-3xl font-bold">{score}</Text>
         </View>
 
-        {/* <View className="absolute top-28 left-0 right-0 items-center">
-          <Text className="text-2xl text-gray-700">
-            {"🌦️"}
-            {currentSeason === "normal" &&
-              t("game.current_session", { session: t("game.normal") })}
-            {currentSeason === "raining" &&
-              t("game.current_session", { session: t("game.raining") })}
-            {currentSeason === "dry" &&
-              t("game.current_session", { session: t("game.dry") })}
-          </Text>
-        </View> */}
-
         {spraying && (
           <Animated.View
             style={{
@@ -1106,11 +1135,13 @@ const PlantScreen = () => {
           confirmBtnText={t("buttons.ok")}
           cancelBtnText={t("buttons.cancel")}
           onConfirm={() => {
-            router.replace("/(tabs)/home");
+            resetBackgroundSound();
             setConfirmModal(false);
+            setTimeout(() => {
+              router.replace("/(tabs)/home");
+            }, 100);
           }}
           onCancel={() => {
-            console.log("Cancelled");
             setConfirmModal(false);
           }}
         />
@@ -1156,9 +1187,9 @@ const ToolIcon = ({
   <TouchableOpacity
     onPress={onPress}
     disabled={disabled}
-    className="relative w-20 h-20 rounded-full bg-cream border-4 border-[#e6d6aa] flex items-center justify-center shadow-md"
+    className="relative w-26 h-26 rounded-full bg-cream border-4 border-[#e6d6aa] flex items-center justify-center shadow-md"
   >
-    <Image source={icon} className="w-26 h-26" resizeMode="contain" />
+    <Image source={icon} className="w-20 h-20" resizeMode="contain" />
 
     <Text className="absolute bottom-2 right-2 bg-[#9D863B] text-white text-sm font-bold w-6 h-6 rounded-full flex text-center items-center justify-center shadow">
       {itemQty}

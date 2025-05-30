@@ -12,6 +12,7 @@ import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "../../utils/audio";
+import { Audio } from "expo-av";
 
 
 export default Home = () => {
@@ -63,6 +64,16 @@ export default Home = () => {
   useFocusEffect(
     useCallback(() => {
       fetchNotification();
+      const stopAllSounds = async () => {
+        try {
+          await Audio.setIsEnabledAsync(false);  // Stops all playing sounds
+          await Audio.setIsEnabledAsync(true);   // Re-enables audio after stop
+        } catch (e) {
+          console.warn("Failed to stop sounds:", e);
+        }
+      };
+
+      stopAllSounds();
       if (Platform.OS !== 'android') return;
 
       const onBackPress = () => {
@@ -170,7 +181,7 @@ export default Home = () => {
 
         <CustomButton
           title={t("buttons.play")}
-          handlePress={() => { router.push('/(screens)/selectSeed'); playSound(require('@/assets/sounds/click.mp3'), 0.1) }}
+          handlePress={() => { router.push('/(screens)/selectSeed'); playSound(require('@/assets/sounds/click.mp3'), 0.9) }}
           containerStyles="w-[200px]"
           textStyles={"font-pbold text-white"}
           isLoading={false}
