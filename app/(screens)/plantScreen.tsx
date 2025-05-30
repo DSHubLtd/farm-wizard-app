@@ -431,7 +431,7 @@ const PlantScreen = () => {
       }, 100);
     }
     // harvest time
-    if (timeLeft === 1 || getPlantStage() > 3) {
+    if (timeLeft <= 2 || getPlantStage() > 3) {
       setIsTimerActive(false);
       resetBackgroundSound();
       setTimeout(() => {
@@ -439,7 +439,7 @@ const PlantScreen = () => {
           pathname: "/(screens)/harvest",
           params: { name, score, userLevel, plantHealth },
         });
-      }, 100);
+      }, 50);
     }
 
     // initial modal popup
@@ -864,7 +864,7 @@ const PlantScreen = () => {
               ⚠️{"🐛"}
               {activeThreat.type.toUpperCase() === "DISEASE"
                 ? t("game.disease")
-                : t("game.storm")}
+                : t("game.storm")}{" "}
               - {t("game.respond_threat")}
               {"  "}
               {activeThreat.type === "disease" ? "10" : "5"}s!
