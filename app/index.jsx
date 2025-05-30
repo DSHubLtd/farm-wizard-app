@@ -65,7 +65,45 @@ export default function Index() {
             {t("settings.terms_and_condition")}
           </Text>
         </View>
-        <View style={{ flex: 1, width: '100%', height: '100%' }}>
+        <View style={{ flex: 1, backgroundColor: '#fff', width: '100%', height: '100%' }}>
+          <WebView
+            source={{ uri: 'https://farm-wizard-api-n68r.onrender.com/terms-and-conditions/T&C.html' }}
+            originWhitelist={['*']}
+            javaScriptEnabled
+            domStorageEnabled
+            startInLoadingState
+            contentMode="mobile"
+            scalesPageToFit={Platform.OS === 'android'}
+            injectedJavaScript={`
+          const style = document.createElement('style');
+          style.innerHTML = \`
+            * {
+              -webkit-touch-callout: none;
+              -webkit-user-select: none;
+              user-select: none;
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+              font-size: 30px;
+              line-height: 1.6;
+              padding: 16px;
+              background-color: #ffffff;
+              color: #333333;
+            }
+          \`;
+          document.head.appendChild(style);
+          document.body.style.backgroundColor = 'transparent';
+        `}
+            style={{
+              flex: 1,
+              backgroundColor: 'transparent',
+            }}
+          />
+        </View>
+        {/* <View style={{ flex: 1, width: '100%', height: '100%' }}>
 
           <WebView
             source={{ uri: 'https://farm-wizard-api-n68r.onrender.com/terms-and-conditions/T&C.html' }}
@@ -98,7 +136,7 @@ export default function Index() {
               overflow: 'hidden',
             }}
           />
-        </View>
+        </View> */}
         {/* <TermsModal /> */}
 
         {/* <ScrollView style={{ flex: 1, width: '100%', }}
