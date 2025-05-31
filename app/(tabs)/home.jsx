@@ -160,7 +160,11 @@ export default Home = () => {
       </View>
 
       <View className="w-full px-5 flex-row justify-between items-center mt-10">
-        <TouchableOpacity></TouchableOpacity>
+        <TouchableOpacity className="w-10 h-10 bg-white/30 rounded-full items-center justify-center"
+          onPress={() => router.push("/(screens)/inventory")}
+        >
+          <Image source={images.inventory} className="w-20 h-20" />
+        </TouchableOpacity>
         <TouchableOpacity
           className="w-10 h-10 bg-white/30 rounded-full items-center justify-center"
           onPress={openModal}

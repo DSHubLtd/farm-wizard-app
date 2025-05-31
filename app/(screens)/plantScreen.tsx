@@ -145,6 +145,8 @@ const PlantScreen = () => {
   const [growthModal, setGrowthModal] = useState(false);
   const [sickModal, setSickModal] = useState(false);
   const [sickModalShown, setSickModalShown] = useState(false);
+  const [lowItemModal, setLowItemModal] = useState(false);
+  const [lowItemText, setLowItemText] = useState("");
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -562,6 +564,10 @@ const PlantScreen = () => {
     setShowPopup(true);
     setTimeout(() => setShowPopup(false), 1500);
   };
+  const handleLowItem = (message: string) => {
+    setLowItemText(message);
+    setLowItemModal(true);
+  };
 
   // FORMAT TIMER AS MM:SS
   const formatTime = (seconds: number) => {
@@ -601,7 +607,7 @@ const PlantScreen = () => {
     if (currentQty > 0) {
       await handleUpdateInventory("Pesticide", 1);
     } else {
-      handleToolUse(
+      handleLowItem(
         t("game.insufficient_item", { item: `${t("inventory.pesticide")}` })
       );
       return;
@@ -649,7 +655,7 @@ const PlantScreen = () => {
     if (currentQty > 0) {
       await handleUpdateInventory("Fertilizer", 1);
     } else {
-      handleToolUse(
+      handleLowItem(
         t("game.insufficient_item", { item: `${t("inventory.fertilizer")}` })
       );
       return;
@@ -690,7 +696,7 @@ const PlantScreen = () => {
     if (currentQty > 0) {
       await handleUpdateInventory("Water", 1);
     } else {
-      handleToolUse(
+      handleLowItem(
         t("game.insufficient_item", { item: `${t("inventory.water")}` })
       );
       return;
@@ -1116,6 +1122,7 @@ const PlantScreen = () => {
             </View>
           </View>
         </Modal>
+
         <ConfirmModal
           visible={confirmModal}
           message={t("comfirmation.close_game")}
@@ -1155,6 +1162,19 @@ const PlantScreen = () => {
           }
           imageSource={images.sickPlant}
           buttonText={t("buttons.ok")}
+        />
+        <MessageDialog
+          visible={lowItemModal}
+          onClose={() => setLowItemModal(false)}
+          onPress={() => {
+            setLowItemModal(false);
+            setIsTimerActive(false);
+            router.push("/(screens)/inventory");
+          }}
+          messageText={lowItemText}
+          imageSource={images.inventory}
+          // buttonText={t("buttons.ok")}
+          buttonText={"Oepen Inventory"}
         />
       </View>
     </TouchableWithoutFeedback>
