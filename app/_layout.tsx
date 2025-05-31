@@ -4,7 +4,9 @@ import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import mobileAds from "react-native-google-mobile-ads";
 import LoginProvider from "@/context/LoginProvider";
+import NetworkProvider from "@/context/NetworkProvider";
 import CutomSplashScreen from "@/components/CutomSplashScreen";
+import NoNetworkModal from "@/components/NoNetworkModal";
 import "../global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import i18n from "@/utils/i18n";
@@ -68,22 +70,25 @@ const RootLayout = () => {
 
   return (
     <LoginProvider>
-      <StatusBar style="light" hidden />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "white" },
-          animation: "slide_from_right",
-          header: () => null,
-          navigationBarHidden: true,
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="(screens)" />
-      </Stack>
-      {/* <StatusBar backgroundColor="#161622" style="light" /> */}
+      <NetworkProvider>
+        <StatusBar style="light" hidden />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: "white" },
+            animation: "slide_from_right",
+            header: () => null,
+            navigationBarHidden: true,
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(screens)" />
+        </Stack>
+        <NoNetworkModal />
+        {/* <StatusBar backgroundColor="#161622" style="light" /> */}
+      </NetworkProvider>
     </LoginProvider>
   );
 };

@@ -22,7 +22,7 @@ import hat from "../assets/icons/hat.png";
 import close from "../assets/icons/close.png";
 import cart from "../assets/icons/cart.png";
 
-import paypal from "../assets/icons/provider/paypal.png";
+import bybit from "../assets/icons/provider/bybit.png";
 import telegram from "../assets/icons/provider/telegram.png";
 import binance from "../assets/icons/provider/binance.png";
 
@@ -64,7 +64,7 @@ export default {
   close,
   cart,
 
-  paypal,
+  bybit,
   telegram,
   binance,
   nineMobile,

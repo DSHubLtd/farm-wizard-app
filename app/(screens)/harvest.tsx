@@ -88,7 +88,7 @@ const Harvest = () => {
           const { sound } = await Audio.Sound.createAsync(
             require("@/assets/sounds/level-up.wav"),
             {
-              volume: 1.0,
+              volume: 0.4,
               isLooping: false,
             }
           );

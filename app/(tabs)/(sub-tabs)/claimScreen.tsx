@@ -45,9 +45,9 @@ const providers = {
       bg: "bg-yellow-500",
     },
     {
-      name: "Paypal",
-      icon: icons.paypal,
-      bg: "bg-blue-900",
+      name: "Bybit",
+      icon: icons.bybit,
+      bg: "bg-gray-500",
     },
   ],
   Airtime: [
@@ -296,7 +296,7 @@ const ClaimScreen = () => {
         onRightPress={() => handleWithdrawalHistory()}
         leftIcon={icons.back}
         rightIcon={images.requestPending}
-        showLeftButton={true}
+        showLeftButton={isAdmin}
         showRightButton={true}
       />
       <Text className="text-white text-2xl font-primary">
@@ -313,7 +313,7 @@ const ClaimScreen = () => {
             USD: {Number(user.usdBalance).toFixed(5)}
           </Text>
           <Text className="text-white/80 text-xs text-center">
-            1000 = 0.00001 USD
+            1000 = 0.0001 USD
           </Text>
           <Text className="text-white/80 text-xs text-center">
             ({t("messages.withdrawal_eligiblity")} = 0.005 USD)

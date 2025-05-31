@@ -40,7 +40,7 @@ import MessageDialog from "@/components/MessageDialog";
 import { useThrottle } from "@/hooks/useThrottle";
 import { useTranslation } from "react-i18next";
 import { getThreatPanelty } from "@/utils/getThreatPanelty";
-import { stopAndResetSound } from "@/utils/stopAndResetSound";
+import { playSound } from "@/utils/audio";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -479,21 +479,26 @@ const PlantScreen = () => {
       try {
         const [pesticide, fertilizer, water, dry, rain, growth] =
           await Promise.all([
-            Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3")),
-            Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3"), {
-              volume: 0.6,
+            Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3"), {
+              volume: 0.4,
             }),
-            Audio.Sound.createAsync(require("@/assets/sounds/water.mp3")),
+            Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3"), {
+              volume: 0.4,
+            }),
+            Audio.Sound.createAsync(require("@/assets/sounds/water.mp3"), {
+              volume: 0.4,
+            }),
             Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3"), {
-              volume: 0.8,
+              volume: 0.4,
               isLooping: true,
             }),
             Audio.Sound.createAsync(require("@/assets/sounds/rain-storm.mp3"), {
-              volume: 0.8,
+              volume: 0.4,
               isLooping: true,
             }),
             Audio.Sound.createAsync(
-              require("@/assets/sounds/growth-level-reach.mp3")
+              require("@/assets/sounds/growth-level-reach.mp3"),
+              { volume: 0.4 }
             ),
           ]);
         if (!isMounted) return;
@@ -713,7 +718,7 @@ const PlantScreen = () => {
     if (userLevel === 2) return levelmages.lv2;
     if (userLevel === 3) return levelmages.lv3;
     if (userLevel === 4) return levelmages.lv4;
-    return levelmages.lv1;
+    return levelmages.level;
   };
   // Wrap in throttle (once every 1 second)
   const throttledTriggerSpray = useThrottle(triggerSpray, 1000);
@@ -1068,10 +1073,11 @@ const PlantScreen = () => {
           />
           {isTimerActive && (
             <ActionButton
-              icon={images.countdown}
+              icon={images.pause}
               label=""
               onPress={() => {
                 setIsTimerActive(false);
+                playSound(require("@/assets/sounds/pause.mp3"), 0.4);
                 handleToolUse(
                   t("game.growth_cycle", { type: `${t("game.pause")}` })
                 );
@@ -1080,35 +1086,17 @@ const PlantScreen = () => {
           )}
           {!isTimerActive && (
             <ActionButton
-              icon={images.timer}
+              icon={images.play}
               label=""
               onPress={() => {
                 setIsTimerActive(true);
+                playSound(require("@/assets/sounds/play.mp3"), 0.4);
                 handleToolUse(
                   t("game.growth_cycle", { type: `${t("game.resume")}` })
                 );
               }}
             />
           )}
-
-          {/* <ActionButton
-            icon={images.timer}
-            label=""
-            onPress={() => {
-              if (!isTimerActive) {
-                setIsTimerActive(true);
-                handleToolUse(
-                  t("game.growth_cycle", { type: `${t("game.resume")}` })
-                );
-              }
-              if (isTimerActive) {
-                setIsTimerActive(false);
-                handleToolUse(
-                  t("game.growth_cycle", { type: `${t("game.pause")}` })
-                );
-              }
-            }}
-          /> */}
 
           <ActionButton
             icon={images.inventory}

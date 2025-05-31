@@ -86,7 +86,7 @@ const Inventory = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState(false);
   const [purchaseQty, setPurchaseQty] = useState(1);
-  const [purchaseAmountPerItem, setPurchaseAmountPerItem] = useState(0.5);
+  const [purchaseAmountPerItem, setPurchaseAmountPerItem] = useState(0.01);
   const [totalAmount, setTotalAmount] = useState(
     purchaseQty * purchaseAmountPerItem
   );
@@ -180,12 +180,6 @@ const Inventory = () => {
   }, []);
 
   const seedData = seedInventory();
-  if (invloading)
-    return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
 
   const handleAmount = (type: string) => {
     setPurchaseQty((prevQty) => {
@@ -211,8 +205,8 @@ const Inventory = () => {
   const openModal = (item: any) => {
     setSelectedItem(item);
     setPurchaseQty(1);
-    setPurchaseAmountPerItem(0.5);
-    setTotalAmount(0.5);
+    setPurchaseAmountPerItem(0.01);
+    setTotalAmount(0.01);
     // setPurchaseAmountPerItem(item.amount)
     setModalVisible(true);
     Animated.timing(fadeAnim, {
@@ -277,7 +271,7 @@ const Inventory = () => {
   };
 
   const convertWizpointToUsd = (userBalance: number) => {
-    return (Number(userBalance * 0.00001) / 1000).toFixed(8);
+    return (Number(userBalance * 0.0001) / 1000).toFixed(8);
   };
 
   const handleInAppPurchase = async () => {
@@ -313,6 +307,13 @@ const Inventory = () => {
       }
     }
   };
+
+  if (invloading)
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
 
   return (
     <View className="flex-1 bg-green-200 pt-12 px-4">
@@ -558,7 +559,7 @@ const Inventory = () => {
                   {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`}
                 </Text>
                 <Text style={{ fontSize: 16 }} className="my-4">
-                  Note! 1000 Wizpoint = 0.00001 USD
+                  Note! 1000 Wizpoint = 0.0001 USD
                 </Text>
                 <Text style={{ fontSize: 14 }} className="">
                   your Wiz balance is {user.score} wiz ={" "}
