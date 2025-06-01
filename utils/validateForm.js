@@ -2,8 +2,8 @@ export const validateForm = (fields) => {
   const errors = {};
 
   // Full Name
-  if (!fields.fullName?.trim()) {
-    errors.fullName = "Full Name is required";
+  if (!fields.fullName?.trim() || fields.fullName.length < 4) {
+    errors.fullName = "Full Name is required, morethan 4 character ";
   }
 
   // Email

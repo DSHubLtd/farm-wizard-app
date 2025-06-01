@@ -14,6 +14,7 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
   BackHandler,
+  AppState,
 } from "react-native";
 import { icons, images, levelmages } from "@/constants";
 import { usePlantGrowth, usePlantGrowthMessages } from "@/constants/plants";
@@ -41,6 +42,7 @@ import { useThrottle } from "@/hooks/useThrottle";
 import { useTranslation } from "react-i18next";
 import { getThreatPanelty } from "@/utils/getThreatPanelty";
 import { playSound } from "@/utils/audio";
+import { API_BASE } from "@/config/client";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -265,6 +267,54 @@ const PlantScreen = () => {
     return 0.1;
   };
 
+  const saveGameState = async () => {
+    const token = await AsyncStorage.getItem("token");
+
+    if (!token || !plant?.name) {
+      console.warn("Missing token or plant name. Aborting save.");
+      return;
+    }
+
+    const plantName = plant.name;
+
+    const gameState = {
+      timeLeft,
+      plantHealth,
+      waterLevel,
+      nutrientLevel,
+      activeThreat,
+      score,
+      userLevel,
+      pausedAt: new Date().toISOString(),
+      plantName,
+    };
+
+    try {
+      // 🔄 Load existing saved states
+      const allStatesRaw = await AsyncStorage.getItem("gameStates");
+      const allStates = allStatesRaw ? JSON.parse(allStatesRaw) : {};
+
+      // 💾 Save the state under the current plant name
+      allStates[plantName] = gameState;
+
+      await AsyncStorage.setItem("gameStates", JSON.stringify(allStates));
+
+      // 🌐 Optional: sync only this plant to backend
+      await fetch(`${API_BASE}/game-state/save`, {
+        method: "POST",
+        headers: {
+          Authorization: `JWT ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(gameState), // single plant's state only
+      });
+
+      // console.log(`Saved state for ${plantName}`, gameState);
+    } catch (err) {
+      console.error("Failed to save game state", err);
+    }
+  };
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const prevPathRef = useRef<string>("");
   const pathname = usePathname();
@@ -428,20 +478,20 @@ const PlantScreen = () => {
       setIsDead(true);
       setIsTimerActive(false);
       resetBackgroundSound();
-      setTimeout(() => {
-        router.replace("/(screens)/gameOver");
-      }, 100);
+      // setTimeout(() => {
+      router.replace({ pathname: "/(screens)/gameOver", params: { name } });
+      // }, 50);
     }
     // harvest time
     if (timeLeft <= 2 || getPlantStage() > 3) {
       setIsTimerActive(false);
       resetBackgroundSound();
-      setTimeout(() => {
-        router.replace({
-          pathname: "/(screens)/harvest",
-          params: { name, score, userLevel, plantHealth },
-        });
-      }, 50);
+      // setTimeout(() => {
+      router.replace({
+        pathname: "/(screens)/harvest",
+        params: { name, score, userLevel, plantHealth },
+      });
+      // }, 50);
     }
 
     // initial modal popup
@@ -471,6 +521,58 @@ const PlantScreen = () => {
       if (drySound) {
         drySound.stopAsync();
       }
+    }
+  };
+
+  const restoreGameState = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const plantName = plant?.name;
+
+      if (!token || !plantName) {
+        console.warn("Missing token or plant name. Aborting restore.");
+        return;
+      }
+
+      // ✅ Try to load from local first
+      const allStatesRaw = await AsyncStorage.getItem("gameStates");
+      const allStates = allStatesRaw ? JSON.parse(allStatesRaw) : {};
+      let parsedState = allStates[plantName];
+
+      // 🔄 If local state doesn't exist, try backend
+      if (!parsedState) {
+        //console.log("Trying to restore from backend...");
+        const res = await fetch(`${API_BASE}/game-state/get/${plantName}`, {
+          headers: { Authorization: `JWT ${token}` },
+        });
+
+        if (res.ok) {
+          parsedState = await res.json();
+
+          // 💾 Optionally cache it locally for future offline use
+          allStates[plantName] = parsedState;
+          await AsyncStorage.setItem("gameStates", JSON.stringify(allStates));
+        } else {
+          console.warn("No saved game state found on backend.");
+          return;
+        }
+      }
+
+      // ✅ Restore the game state
+      setTimeLeft(parsedState.timeLeft);
+      setPlantHealth(parsedState.plantHealth);
+      setWaterLevel(parsedState.waterLevel);
+      setNutrientLevel(parsedState.nutrientLevel);
+      setActiveThreat(parsedState.activeThreat);
+      setScore(parsedState.score);
+      setUserLevel(parsedState.userLevel || 1);
+      if (parsedState.timeLeft >= 595) setSoilVisible(false);
+
+      setIsTimerActive(parsedState.timeLeft > 0);
+
+      //console.log(`Restored state for "${plantName}"`, parsedState);
+    } catch (err) {
+      console.error("Failed to restore game state", err);
     }
   };
 
@@ -515,6 +617,7 @@ const PlantScreen = () => {
       }
     };
     loadSounds();
+    restoreGameState();
     // PLANT ANIMATION
     // animatePlantGrowing();
     fetchUserPlantLevelData();
@@ -617,6 +720,7 @@ const PlantScreen = () => {
       setActiveThreat(null);
     }, 1000);
 
+    setSoilVisible(false);
     setPlantDamaged(false);
     setSickModalShown(false);
     setSpraying(true);
@@ -730,6 +834,19 @@ const PlantScreen = () => {
   const throttledTriggerSpray = useThrottle(triggerSpray, 1000);
   const throttledTriggerFertilizer = useThrottle(triggerFertilizer, 1000);
   const throttledTriggerWater = useThrottle(triggerWater, 1000);
+
+  /* useEffect(() => {
+    const subscription = AppState.addEventListener(
+      "change",
+      async (nextAppState) => {
+        if (nextAppState === "background") {
+          await saveGameState(); // Save when app goes to background
+          // console.log("saved");
+        }
+      }
+    );
+    return () => subscription.remove();
+  }, [timeLeft, waterLevel, nutrientLevel, activeThreat, score]);*/
 
   if (loading || invloading)
     return (
@@ -1132,6 +1249,7 @@ const PlantScreen = () => {
           onConfirm={() => {
             resetBackgroundSound();
             setConfirmModal(false);
+            saveGameState();
             setTimeout(() => {
               router.replace("/(tabs)/home");
             }, 100);

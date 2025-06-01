@@ -10,6 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
 import { Audio } from "expo-av";
+import { API_BASE } from "@/config/client";
 
 const { width, height } = Dimensions.get("window");
 
@@ -105,8 +106,26 @@ const Harvest = () => {
           console.warn("Error managing sound:", e);
         }
       };
+      const clearGame = async () => {
+        const raw = await AsyncStorage.getItem("gameStates");
+        const all = raw ? JSON.parse(raw) : {};
+        const params = useLocalSearchParams();
+        const name = Array.isArray(params.name) ? params.name[0] : params.name;
+        delete all[name];
+        await AsyncStorage.setItem("gameStates", JSON.stringify(all));
+
+        const token = await AsyncStorage.getItem("token");
+        if (!token) return;
+        await fetch(`${API_BASE}/game-state/clear/${name}`, {
+          method: "DELETE",
+          headers: { Authorization: `JWT ${token}` },
+        });
+
+        // console.log(`Cleared local save for ${name}`);
+      };
 
       stopAndPlayNewSound();
+      clearGame();
     }, [])
   );
 

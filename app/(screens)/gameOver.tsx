@@ -3,14 +3,18 @@ import BackgroundImage from "@/components/BackgroundImage";
 import { images } from "@/constants";
 import { View, Text, Image, Dimensions } from "react-native";
 import { CustomButton } from "../../components";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Audio } from "expo-av";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_BASE } from "@/config/client";
 
 const { width, height } = Dimensions.get("window");
 
 const GameOver = () => {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const name = Array.isArray(params.name) ? params.name[0] : params.name;
 
   useFocusEffect(
     useCallback(() => {
@@ -41,8 +45,25 @@ const GameOver = () => {
           console.warn("Error managing sound:", e);
         }
       };
+      const clearGame = async () => {
+        const raw = await AsyncStorage.getItem("gameStates");
+        const all = raw ? JSON.parse(raw) : {};
+
+        delete all[name];
+        await AsyncStorage.setItem("gameStates", JSON.stringify(all));
+
+        const token = await AsyncStorage.getItem("token");
+        if (!token) return;
+        await fetch(`${API_BASE}/game-state/clear/${name}`, {
+          method: "DELETE",
+          headers: { Authorization: `JWT ${token}` },
+        });
+
+        //console.log(`Cleared local save for ${name}`);
+      };
 
       stopAndPlayNewSound();
+      clearGame();
     }, [])
   );
 
