@@ -603,7 +603,7 @@ const Inventory = () => {
         amount={usdEquivalent}
         txRef={txRef}
         currency={currency}
-        publicKey="FLWPUBK_TEST-125e2223c946bd139ec43a273bf1f0f3-X"
+        publicKey="FLWPUBK-9bdd51ca22a021ad9d40dd455be36bc8-X"
         onSuccess={handleSuccess}
         onCancel={handleCancel}
       />
