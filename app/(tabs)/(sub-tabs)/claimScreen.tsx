@@ -237,7 +237,7 @@ const ClaimScreen = () => {
         setTimeout(() => {
           router.replace("/(screens)/transactionSuccess");
         }, 2000);
-        setUser(result.data.userDetails);
+        setUser(result.data.data.userDetails);
       } catch (error: any) {
         Alert.alert("Error occured", error.message);
       } finally {
@@ -277,10 +277,10 @@ const ClaimScreen = () => {
   };
 
   const handleWithdrawalHistory = () => {
-    if (user.userType === "user") {
-      router.push("/(tabs)/(sub-tabs)/requestReceived");
-    } else {
+    if (isAdmin || user.email === "dinisoft.dev@gmail.com") {
       router.push("/(tabs)/(sub-tabs)/withdrawalRequest");
+    } else {
+      router.push("/(tabs)/(sub-tabs)/userWithdrawals");
     }
   };
   const { t } = useTranslation();
@@ -299,7 +299,7 @@ const ClaimScreen = () => {
         leftIcon={icons.back}
         rightIcon={images.requestPending}
         showLeftButton={true}
-        showRightButton={isAdmin}
+        showRightButton={true}
       />
       <Text className="text-white text-2xl font-primary">
         {t("menu.claim")}

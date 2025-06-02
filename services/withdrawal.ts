@@ -34,3 +34,19 @@ export const submitWithdrwal = async (
     throw error;
   }
 };
+
+export const fetchWithdrawals = async (token: string) => {
+  try {
+    const response = await client.get("/withdrawal/user-withdrawals", {
+      headers: {
+        Authorization: `JWT ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response;
+  } catch (error: any) {
+    console.log("Error inside withdrawal method", error.message);
+    throw error;
+  }
+};

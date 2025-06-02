@@ -100,6 +100,12 @@ const TabsLayout = () => {
             tabBarButton: () => null,
           }}
         />
+        <Tabs.Screen
+          name="(sub-tabs)/userWithdrawals"
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
 
 
       </Tabs>
