@@ -18,6 +18,7 @@ import axios from "axios";
 import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 import { BlurView } from "expo-blur";
 import { CustomButton } from "@/components";
+import { API_BASE } from "@/config/client";
 
 const { height, width } = Dimensions.get("window");
 
@@ -51,12 +52,9 @@ export default function WithdrawalRequest() {
     let isMounted = true; // Track if component is still mounted
     const fetchWithdrawals = async (pageNumber: number) => {
       try {
-        const response = await axios.get(
-          `https://farm-wizard-api-n68r.onrender.com/api/v1/withdrawal/all`,
-          {
-            params: { page: pageNumber, limit: 50 },
-          }
-        );
+        const response = await axios.get(`${API_BASE}/api/v1/withdrawal/all`, {
+          params: { page: pageNumber, limit: 50 },
+        });
         const withdrawals = response.data;
 
         // Check if there are more users to load

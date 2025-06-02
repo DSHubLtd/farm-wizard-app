@@ -9,6 +9,8 @@ import {
   ScrollView,
   Dimensions,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { icons, images } from "@/constants";
@@ -296,8 +298,8 @@ const ClaimScreen = () => {
         onRightPress={() => handleWithdrawalHistory()}
         leftIcon={icons.back}
         rightIcon={images.requestPending}
-        showLeftButton={isAdmin}
-        showRightButton={true}
+        showLeftButton={true}
+        showRightButton={isAdmin}
       />
       <Text className="text-white text-2xl font-primary">
         {t("menu.claim")}
@@ -376,78 +378,86 @@ const ClaimScreen = () => {
 
       {(activeTab === "Airtime" || activeTab === "Data bundle") &&
         (user?.country === "ng" ? (
-          <ScrollView className="min-h-50 p-2" style={{ height: height * 0.5 }}>
-            <View className="flex-row justify-around space-x-6">
-              {providers["Airtime"].map((provider, index) => (
-                <ProviderCard
-                  key={provider.name || index}
-                  provider={provider}
-                  index={index}
-                  selectedNetwork={selectedNetwork}
-                  onNetworkSelect={handleNetworkSelect}
-                />
-              ))}
-            </View>
-            <FormField
-              type="text"
-              placeholder="Enter phone number"
-              title=""
-              value={form.phoneNo}
-              handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-              otherStyles=""
-            />
-            <Text className="text-white text-base font-primary text-center m-2">
-              Amount
-            </Text>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"} // or 'position'
+            style={{ flex: 1 }}
+          >
+            <ScrollView
+              className="min-h-50 p-2"
+              style={{ height: height * 0.5 }}
+            >
+              <View className="flex-row justify-around space-x-6">
+                {providers["Airtime"].map((provider, index) => (
+                  <ProviderCard
+                    key={provider.name || index}
+                    provider={provider}
+                    index={index}
+                    selectedNetwork={selectedNetwork}
+                    onNetworkSelect={handleNetworkSelect}
+                  />
+                ))}
+              </View>
+              <FormField
+                type="text"
+                placeholder="Enter phone number"
+                title=""
+                value={form.phoneNo}
+                handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+                otherStyles=""
+              />
+              <Text className="text-white text-base font-primary text-center m-2">
+                Amount
+              </Text>
 
-            <View className="flex-row justify-around space-x-6">
-              {activeTab === "Airtime" ? (
-                <>
-                  {airtimeAmount.map((amount, index) => (
-                    <AmountCard
-                      type="airtime"
-                      key={amount.id || index}
-                      amount={amount}
-                      index={index}
-                      selectedAmount={selectedAmount}
-                      onAmountSelect={handleAmountSelect}
-                    />
-                  ))}
-                </>
-              ) : (
-                <>
-                  {dataBundle.map((amount, index) => (
-                    <AmountCard
-                      type="data"
-                      key={amount.id || index}
-                      amount={amount}
-                      index={index}
-                      selectedAmount={selectedAmount}
-                      onAmountSelect={handleAmountSelect}
-                    />
-                  ))}
-                </>
-              )}
-            </View>
-            <FormField
-              type="text"
-              placeholder="Enter amount"
-              title=""
-              value={form.amount}
-              handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-              otherStyles=""
-            />
-            <CustomButton
-              title="Submit "
-              handlePress={submitWithdrawal}
-              containerStyles="w-full"
-              textStyles={"font-pbold text-white"}
-              isLoading={isSubmitting}
-            />
-            <Text className="text-md font-secondary text-white my-2">
-              {t("messages.available")}
-            </Text>
-          </ScrollView>
+              <View className="flex-row justify-around space-x-6">
+                {activeTab === "Airtime" ? (
+                  <>
+                    {airtimeAmount.map((amount, index) => (
+                      <AmountCard
+                        type="airtime"
+                        key={amount.id || index}
+                        amount={amount}
+                        index={index}
+                        selectedAmount={selectedAmount}
+                        onAmountSelect={handleAmountSelect}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {dataBundle.map((amount, index) => (
+                      <AmountCard
+                        type="data"
+                        key={amount.id || index}
+                        amount={amount}
+                        index={index}
+                        selectedAmount={selectedAmount}
+                        onAmountSelect={handleAmountSelect}
+                      />
+                    ))}
+                  </>
+                )}
+              </View>
+              <FormField
+                type="text"
+                placeholder="Enter amount"
+                title=""
+                value={form.amount}
+                handleChangeText={(e: any) => setForm({ ...form, amount: e })}
+                otherStyles=""
+              />
+              <CustomButton
+                title="Submit "
+                handlePress={submitWithdrawal}
+                containerStyles="w-full"
+                textStyles={"font-pbold text-white"}
+                isLoading={isSubmitting}
+              />
+              <Text className="text-md font-secondary text-white my-2">
+                {t("messages.available")}
+              </Text>
+            </ScrollView>
+          </KeyboardAvoidingView>
         ) : (
           <Text className="text-white text-base font-primary my-40 ">
             {t("messages.unavailable")}

@@ -36,7 +36,7 @@ const TermsModal = () => {
 
                         {/* WebView with border */}
                         <WebView
-                            source={{ uri: 'https://farm-wizard-api-n68r.onrender.com/terms-and-conditions/T&C.html' }}
+                            source={{ uri: `${API_BASE}/terms-and-conditions/T&C.html` }}
                             originWhitelist={['*']}
                             javaScriptEnabled
                             domStorageEnabled

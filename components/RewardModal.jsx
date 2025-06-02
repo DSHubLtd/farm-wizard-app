@@ -5,7 +5,7 @@ import { BlurView } from 'expo-blur';
 import { useTranslation } from 'react-i18next';
 const { width } = Dimensions.get("window");
 
-const RewardModal = ({ visible, onClose }) => {
+const RewardModal = ({ visible, onClose, onShowAd, remainingViews }) => {
     const { t } = useTranslation();
 
     return (
@@ -39,10 +39,14 @@ const RewardModal = ({ visible, onClose }) => {
                         {t("messages.watch_ads")}
                     </Text>
 
+                    <Text style={{ marginBottom: 10 }} className='text-white'>
+                        Remaining Ad Views: {remainingViews ?? "..."}
+                    </Text>
+
                     <View className="flex-row justify-center items-center">
                         <TouchableOpacity
                             className="bg-buttonColor flex-row rounded-xl items-center justify-center p-4 m-2"
-                            onPress={() => setShowAd(true)}
+                            onPress={() => onShowAd()}
                         >
                             <Image source={icons.play} className="w-10 h-10 mr-2" />
                             <Text className="text-white text-lg">Watch Ads</Text>
@@ -52,21 +56,6 @@ const RewardModal = ({ visible, onClose }) => {
                 </View>
             </BlurView>
         </Modal>
-        // <Modal
-        //     animationType="fade"
-        //     visible={visible}
-        //     onRequestClose={onClose}
-        //     transparent={false}
-        // >
-        //     <View style={styles.container}>
-        //         <View style={styles.header}>
-        //             <TouchableOpacity onPress={onClose}>
-        //                 <Text style={styles.closeText}>Close</Text>
-        //             </TouchableOpacity>
-        //         </View>
-        //         <WebView source={{ uri: url }} style={styles.webview} />
-        //     </View>
-        // </Modal>
     );
 };
 

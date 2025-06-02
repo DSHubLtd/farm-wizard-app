@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { View, Image, BackHandler, ToastAndroid, Platform, TouchableOpacity, Modal, Text, Dimensions, ScrollView, TouchableWithoutFeedback } from "react-native";
+import { View, Image, BackHandler, ToastAndroid, Platform, TouchableOpacity, Modal, Text, Dimensions, ScrollView, TouchableWithoutFeedback, Alert } from "react-native";
 import { icons, images } from "../../constants";
 import { router, useFocusEffect } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
@@ -9,14 +9,16 @@ import { useLoginContext } from "../../context/LoginProvider";
 import { BlurView } from "expo-blur";
 import RewardedAdComponent from '../../utils/RewardedAdComponent';
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
+import { canShowRewardedAd, getRemainingAdViews } from "@/utils/adLimit";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "../../utils/audio";
 import { Audio } from "expo-av";
+import { API_BASE } from "@/config/client";
 
-
+const REWARD_ADS_VIEW_LIMIT = 6
 export default Home = () => {
-  const { user } = useLoginContext();
+  const { user, setUser } = useLoginContext();
   if (!user) {
     router.replace('/');
   }
@@ -30,6 +32,8 @@ export default Home = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [showNotifcation, setShowNotification] = useState(false);
   const [backPressedOnce, setBackPressedOnce] = useState(false);
+  const [remainingViews, setRemainingViews] = useState(null);
+
   const timeoutRef = useRef(null);
 
   const { t } = useTranslation();
@@ -42,7 +46,7 @@ export default Home = () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://farm-wizard-api-n68r.onrender.com/api/v1/notification/all/`,
+          `${API_BASE}/api/v1/notification/all/`,
           {
             method: "GET",
             headers: {
@@ -112,6 +116,48 @@ export default Home = () => {
     setShowNotification(!showNotifcation);
   };
 
+  const handleUserRewardEarn = async () => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+
+    if (token !== null) {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/v1/user/reward-earned`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${token}`,
+            },
+            body: JSON.stringify({ amount: 50 }),
+          }
+        );
+        const json = await res.json();
+        setUser(json.userDetails);
+      } catch (err) {
+        console.error("reward eran fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }
+  const fetchRemainingViews = async () => {
+    const remaining = await getRemainingAdViews(REWARD_ADS_VIEW_LIMIT);
+    setRemainingViews(remaining);
+  };
+  const handleShowAd = async () => {
+    const allowed = await canShowRewardedAd(REWARD_ADS_VIEW_LIMIT);
+    if (allowed) {
+      setShowAd(true);
+    } else {
+      Alert.alert("Limit reached", "You have reached the daily ad limit.");
+    }
+  };
+  useEffect(() => {
+    fetchRemainingViews();
+  }, [showAd]);
 
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">
@@ -195,9 +241,11 @@ export default Home = () => {
       {showAd && !isPremiumUser &&
         <RewardedAdComponent
           onRewardEarned={(reward) => {
-            console.log('User earned:', reward);
+            //console.log('User earned:', reward);
             setShowAd(false);
+            setModalVisible(false)
             // Unlock feature or give coins here
+            handleUserRewardEarn()
           }}
           onClose={() => {
             console.log('Ad closed');
@@ -208,6 +256,8 @@ export default Home = () => {
       <RewardModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
+        onShowAd={handleShowAd}
+        remainingViews={remainingViews}
       />
 
       <Modal transparent visible={showNotifcation} animationType="fade">

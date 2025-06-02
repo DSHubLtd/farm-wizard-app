@@ -16,6 +16,7 @@ import axios from "axios";
 import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "expo-router";
+import { API_BASE } from "@/config/client";
 
 const { height, width } = Dimensions.get("window");
 
@@ -48,7 +49,7 @@ export default function Leaderboard() {
           setError(null);
 
           const response = await axios.get(
-            `https://farm-wizard-api-n68r.onrender.com/api/v1/leaderboard/all`,
+            `${API_BASE}/api/v1/leaderboard/all`,
             {
               params: { page: pageNumber, limit: 50 },
             }

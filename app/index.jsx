@@ -11,6 +11,7 @@ import { useLoginContext } from "../context/LoginProvider";
 import BackgroundImage from "../components/BackgroundImage";
 import { useTranslation } from "react-i18next";
 import WebView from "react-native-webview";
+import { API_BASE } from "@/config/client";
 // import TermsModal from "../components/TermsModal";
 const { height } = Dimensions.get("window");
 
@@ -67,7 +68,7 @@ export default function Index() {
         </View>
         <View style={{ flex: 1, backgroundColor: '#fff', width: '100%', height: '100%' }}>
           <WebView
-            source={{ uri: 'https://farm-wizard-api-n68r.onrender.com/terms-and-conditions/T&C.html' }}
+            source={{ uri: `${API_BASE}/terms-and-conditions/T&C.html` }}
             originWhitelist={['*']}
             javaScriptEnabled
             domStorageEnabled

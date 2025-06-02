@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -20,6 +20,9 @@ import { useTranslation } from "react-i18next";
 import ConfirmModal, { CustomConfirmDialog } from "@/components/ConfirmDialog";
 import { deleteUser } from "@/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { canShowRewardedAd, getRemainingAdViews } from "@/utils/adLimit";
+
+const REWARD_ADS_VIEW_LIMIT = 6;
 
 const Settings = () => {
   const { user, setUser, setIsLogged } = useLoginContext();
@@ -32,6 +35,8 @@ const Settings = () => {
   const [url, setUrl] = useState("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
   const [confirmModal, setConfirmModal] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
+  const [showAd, setShowAd] = useState(false);
+  const [remainingViews, setRemainingViews] = useState<number | null>(null);
 
   const openWebView = (url: string) => {
     setUrl(url);
@@ -162,6 +167,21 @@ const Settings = () => {
     },
   ];
 
+  const fetchRemainingViews = async () => {
+    const remaining = await getRemainingAdViews(REWARD_ADS_VIEW_LIMIT);
+    setRemainingViews(remaining);
+  };
+  const handleShowAd = async () => {
+    const allowed = await canShowRewardedAd(REWARD_ADS_VIEW_LIMIT);
+    if (allowed) {
+      setShowAd(true);
+    } else {
+      Alert.alert("Limit reached", "You have reached the daily ad limit.");
+    }
+  };
+  useEffect(() => {
+    fetchRemainingViews();
+  }, [showAd]);
   return (
     <View className="flex-1 items-center justify-start bg-green-200">
       {/* Background */}
@@ -230,6 +250,8 @@ const Settings = () => {
       <RewardModal
         visible={rewalVisible}
         onClose={() => setRewardVisible(false)}
+        onShowAd={handleShowAd}
+        remainingViews={remainingViews}
       />
       <WebViewModal
         visible={modalVisible}

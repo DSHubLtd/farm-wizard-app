@@ -2,7 +2,7 @@
 //paypal
 // const startPayment = async () => {
 //   const response = await fetch(
-//     "https://farm-wizard-api-n68r.onrender.com/api/v1/payment/paypal/create-order",
+//     "${API_BASE}/api/v1/payment/paypal/create-order",
 //     {
 //       method: "POST",
 //       headers: {

@@ -36,7 +36,7 @@ import {
 import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
-import ConfirmModal from "@/components/ConfirmDialog";
+import ConfirmModal, { CustomConfirmDialog } from "@/components/ConfirmDialog";
 import MessageDialog from "@/components/MessageDialog";
 import { useThrottle } from "@/hooks/useThrottle";
 import { useTranslation } from "react-i18next";
@@ -56,20 +56,6 @@ type InventoryItemType = "Fertilizer" | "Pesticide" | "Water";
 type InventoryKey = "fertilizerQty" | "pesticideQty" | "waterQty";
 
 const PlantScreen = () => {
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        setConfirmModal(true);
-        return true; // Prevent default back action
-      };
-
-      BackHandler.addEventListener("hardwareBackPress", onBackPress);
-
-      return () =>
-        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-    }, [router])
-  );
-
   const { name } = useLocalSearchParams();
   const { user } = useLoginContext();
   if (!user) {
@@ -306,7 +292,7 @@ const PlantScreen = () => {
           Authorization: `JWT ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(gameState), // single plant's state only
+        body: JSON.stringify(gameState),
       });
 
       // console.log(`Saved state for ${plantName}`, gameState);
@@ -576,7 +562,92 @@ const PlantScreen = () => {
     }
   };
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        setConfirmModal(true);
+        return true; // Prevent default back action
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      let isMounted = true;
+
+      const loadSounds = async () => {
+        try {
+          const [pesticide, fertilizer, water, dry, rain, growth] =
+            await Promise.all([
+              Audio.Sound.createAsync(
+                require("@/assets/sounds/pesticide.mp3"),
+                {
+                  volume: 0.4,
+                }
+              ),
+              Audio.Sound.createAsync(
+                require("@/assets/sounds/fertilizer.mp3"),
+                {
+                  volume: 0.4,
+                }
+              ),
+              Audio.Sound.createAsync(require("@/assets/sounds/water.mp3"), {
+                volume: 0.4,
+              }),
+              Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3"), {
+                volume: 0.4,
+                isLooping: true,
+              }),
+              Audio.Sound.createAsync(
+                require("@/assets/sounds/rain-storm.mp3"),
+                {
+                  volume: 0.4,
+                  isLooping: true,
+                }
+              ),
+              Audio.Sound.createAsync(
+                require("@/assets/sounds/growth-level-reach.mp3"),
+                { volume: 0.4 }
+              ),
+            ]);
+          if (!isMounted) return;
+          setSpraySound(pesticide.sound);
+          setFertilizerSound(fertilizer.sound);
+          setWaterSound(water.sound);
+          setDrySound(dry.sound);
+          setRainSound(rain.sound);
+          setGrowthSound(growth.sound);
+        } catch (e) {
+          console.warn("Failed to load one or more sounds:", e);
+        }
+      };
+      loadSounds();
+      restoreGameState();
+      // PLANT ANIMATION
+      // animatePlantGrowing();
+      fetchUserPlantLevelData();
+      fetchUserInventoryData();
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+        isMounted = false;
+
+        // Stop and unload all sounds properly
+        spraySound?.unloadAsync();
+        fertilizerSound?.unloadAsync();
+        waterSound?.unloadAsync();
+
+        if (drySound) {
+          drySound.stopAsync();
+          drySound.unloadAsync();
+        }
+
+        if (rainSound) {
+          rainSound.stopAsync();
+          rainSound.unloadAsync();
+        }
+
+        growthSound?.unloadAsync();
+      };
+    }, [router])
+  );
+  /* useEffect(() => {
     let isMounted = true;
 
     const loadSounds = async () => {
@@ -642,7 +713,7 @@ const PlantScreen = () => {
 
       growthSound?.unloadAsync();
     };
-  }, []);
+  }, []);*/
 
   // ANIMATION
   const animatePlantGrowing = () => {
@@ -834,19 +905,6 @@ const PlantScreen = () => {
   const throttledTriggerSpray = useThrottle(triggerSpray, 1000);
   const throttledTriggerFertilizer = useThrottle(triggerFertilizer, 1000);
   const throttledTriggerWater = useThrottle(triggerWater, 1000);
-
-  /* useEffect(() => {
-    const subscription = AppState.addEventListener(
-      "change",
-      async (nextAppState) => {
-        if (nextAppState === "background") {
-          await saveGameState(); // Save when app goes to background
-          // console.log("saved");
-        }
-      }
-    );
-    return () => subscription.remove();
-  }, [timeLeft, waterLevel, nutrientLevel, activeThreat, score]);*/
 
   if (loading || invloading)
     return (
@@ -1225,6 +1283,7 @@ const PlantScreen = () => {
             icon={images.inventory}
             label=""
             onPress={() => {
+              saveGameState();
               router.push("/(screens)/inventory");
               setIsTimerActive(false);
             }}
@@ -1281,18 +1340,24 @@ const PlantScreen = () => {
           imageSource={images.sickPlant}
           buttonText={t("buttons.ok")}
         />
-        <MessageDialog
+
+        <CustomConfirmDialog
           visible={lowItemModal}
           onClose={() => setLowItemModal(false)}
-          onPress={() => {
+          onConfirmPress={() => {
             setLowItemModal(false);
             setIsTimerActive(false);
+            saveGameState();
             router.push("/(screens)/inventory");
+          }}
+          onCancelPress={() => {
+            setIsTimerActive(false);
+            setLowItemModal(false);
           }}
           messageText={lowItemText}
           imageSource={images.inventory}
-          // buttonText={t("buttons.ok")}
-          buttonText={"Oepen Inventory"}
+          confirmButtonText={"Open Inventory"}
+          concelButtonText={"Pause & Exit"}
         />
       </View>
     </TouchableWithoutFeedback>

@@ -2,9 +2,10 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import HttpBackend from "i18next-http-backend";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_BASE } from "@/config/client";
 
 // Map your translation base URL
-const BASE_URL = "https://farm-wizard-api-n68r.onrender.com/translations/";
+const BASE_URL = `${API_BASE}/translations/`;
 // const BASE_URL =
 //   "https://raw.githubusercontent.com/your-username/expo-translations/main/";
 
