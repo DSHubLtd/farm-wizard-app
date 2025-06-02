@@ -191,14 +191,14 @@ const ClaimScreen = () => {
       return;
     }
 
-    if (type === "Airtime" && !form.amount) {
+    /*if (type === "Airtime" && !form.amount) {
       Alert.alert("Error", "Please enter amount");
       return;
     }
     if (type === "Data bundle" && !form.amount) {
       Alert.alert("Error", "Please enter data balance");
       return;
-    }
+    }*/
     if (!provider) {
       Alert.alert("Error", "Please select provider");
       return;
@@ -209,7 +209,8 @@ const ClaimScreen = () => {
     if (token !== null) {
       try {
         const result = await submitWithdrwal(
-          Number(form.amount),
+          // Number(form.amount),
+          Number(user.usdBalance),
           form.phoneNo,
           provider,
           type,

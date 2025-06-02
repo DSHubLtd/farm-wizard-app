@@ -12,6 +12,7 @@ interface Props {
 
 const InterstitialAdComponent = ({
   onClose,
+  // adUnitId = "ca-app-pub-4516568539037938/4288649621",
   adUnitId = TestIds.INTERSTITIAL,
 }: Props) => {
   useEffect(() => {

@@ -20,7 +20,8 @@ const RewardedAdComponent = ({
   onRewardEarned,
   onClose,
   adUnitId = TestIds.REWARDED,
-}: Props) => {
+}: // adUnitId = "ca-app-pub-4516568539037938/1775609882",
+Props) => {
   useEffect(() => {
     const now = Date.now();
     const rewarded = RewardedAd.createForAdRequest(adUnitId, {

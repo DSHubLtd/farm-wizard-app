@@ -169,6 +169,7 @@ const TabsLayout = () => {
       {!isPremiumUser &&
         <BannerAd
           unitId={TestIds.BANNER}
+          // unitId={'ca-app-pub-4516568539037938/3383596217'}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,

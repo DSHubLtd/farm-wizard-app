@@ -54,7 +54,7 @@ const GameOver = () => {
 
         const token = await AsyncStorage.getItem("token");
         if (!token) return;
-        await fetch(`${API_BASE}/game-state/clear/${name}`, {
+        await fetch(`${API_BASE}/api/v1/game-state/clear/${name}`, {
           method: "DELETE",
           headers: { Authorization: `JWT ${token}` },
         });

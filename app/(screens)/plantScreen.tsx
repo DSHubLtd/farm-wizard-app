@@ -286,7 +286,7 @@ const PlantScreen = () => {
       await AsyncStorage.setItem("gameStates", JSON.stringify(allStates));
 
       // 🌐 Optional: sync only this plant to backend
-      await fetch(`${API_BASE}/game-state/save`, {
+      await fetch(`${API_BASE}/api/v1/game-state/save`, {
         method: "POST",
         headers: {
           Authorization: `JWT ${token}`,
@@ -528,9 +528,12 @@ const PlantScreen = () => {
       // 🔄 If local state doesn't exist, try backend
       if (!parsedState) {
         //console.log("Trying to restore from backend...");
-        const res = await fetch(`${API_BASE}/game-state/get/${plantName}`, {
-          headers: { Authorization: `JWT ${token}` },
-        });
+        const res = await fetch(
+          `${API_BASE}/api/v1/game-state/get/${plantName}`,
+          {
+            headers: { Authorization: `JWT ${token}` },
+          }
+        );
 
         if (res.ok) {
           parsedState = await res.json();
