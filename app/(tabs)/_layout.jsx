@@ -106,6 +106,12 @@ const TabsLayout = () => {
             tabBarButton: () => null,
           }}
         />
+        <Tabs.Screen
+          name="(sub-tabs)/withdrawalCompleted"
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
 
 
       </Tabs>

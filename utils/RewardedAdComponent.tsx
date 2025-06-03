@@ -6,7 +6,7 @@ import {
   AdEventType,
 } from "react-native-google-mobile-ads";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import * as Notifications from "expo-notifications";
+import * as Notifications from "expo-notifications";
 
 const STORAGE_KEY = "REWARDED_AD_VIEW_COUNT";
 
@@ -50,7 +50,7 @@ Props) => {
 
         if (expired) {
           data = { timestamp: now, count: 0 };
-          // await scheduleAdResetNotification();
+          await scheduleAdResetNotification();
         }
 
         data.count += 1;
@@ -70,7 +70,6 @@ Props) => {
   return null;
 };
 
-/*
 const scheduleAdResetNotification = async () => {
   await Notifications.scheduleNotificationAsync({
     content: {
@@ -83,6 +82,5 @@ const scheduleAdResetNotification = async () => {
     },
   });
 };
-*/
 
 export default RewardedAdComponent;
