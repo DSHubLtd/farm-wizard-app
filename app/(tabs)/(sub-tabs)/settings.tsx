@@ -22,7 +22,7 @@ import { deleteUser } from "@/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { canShowRewardedAd, getRemainingAdViews } from "@/utils/adLimit";
 
-const REWARD_ADS_VIEW_LIMIT = 6;
+const REWARD_ADS_VIEW_LIMIT = 3;
 
 const Settings = () => {
   const { user, setUser, setIsLogged } = useLoginContext();

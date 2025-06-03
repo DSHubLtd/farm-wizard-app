@@ -43,6 +43,7 @@ import { useTranslation } from "react-i18next";
 import { getThreatPanelty } from "@/utils/getThreatPanelty";
 import { playSound } from "@/utils/audio";
 import { API_BASE } from "@/config/client";
+import analytics from "@react-native-firebase/analytics";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -567,6 +568,12 @@ const PlantScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
+      const logEvent = async () => {
+        await analytics().logEvent("screen_view", {
+          screen_name: "PlantScreen",
+          screen_class: "PlantScreen",
+        });
+      };
       const onBackPress = () => {
         setConfirmModal(true);
         return true; // Prevent default back action
@@ -621,6 +628,7 @@ const PlantScreen = () => {
           console.warn("Failed to load one or more sounds:", e);
         }
       };
+      logEvent();
       loadSounds();
       restoreGameState();
       // PLANT ANIMATION
@@ -650,73 +658,6 @@ const PlantScreen = () => {
       };
     }, [router])
   );
-  /* useEffect(() => {
-    let isMounted = true;
-
-    const loadSounds = async () => {
-      try {
-        const [pesticide, fertilizer, water, dry, rain, growth] =
-          await Promise.all([
-            Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3"), {
-              volume: 0.4,
-            }),
-            Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3"), {
-              volume: 0.4,
-            }),
-            Audio.Sound.createAsync(require("@/assets/sounds/water.mp3"), {
-              volume: 0.4,
-            }),
-            Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3"), {
-              volume: 0.4,
-              isLooping: true,
-            }),
-            Audio.Sound.createAsync(require("@/assets/sounds/rain-storm.mp3"), {
-              volume: 0.4,
-              isLooping: true,
-            }),
-            Audio.Sound.createAsync(
-              require("@/assets/sounds/growth-level-reach.mp3"),
-              { volume: 0.4 }
-            ),
-          ]);
-        if (!isMounted) return;
-        setSpraySound(pesticide.sound);
-        setFertilizerSound(fertilizer.sound);
-        setWaterSound(water.sound);
-        setDrySound(dry.sound);
-        setRainSound(rain.sound);
-        setGrowthSound(growth.sound);
-      } catch (e) {
-        console.warn("Failed to load one or more sounds:", e);
-      }
-    };
-    loadSounds();
-    restoreGameState();
-    // PLANT ANIMATION
-    // animatePlantGrowing();
-    fetchUserPlantLevelData();
-    fetchUserInventoryData();
-    return () => {
-      isMounted = false;
-
-      // Stop and unload all sounds properly
-      spraySound?.unloadAsync();
-      fertilizerSound?.unloadAsync();
-      waterSound?.unloadAsync();
-
-      if (drySound) {
-        drySound.stopAsync();
-        drySound.unloadAsync();
-      }
-
-      if (rainSound) {
-        rainSound.stopAsync();
-        rainSound.unloadAsync();
-      }
-
-      growthSound?.unloadAsync();
-    };
-  }, []);*/
 
   // ANIMATION
   const animatePlantGrowing = () => {

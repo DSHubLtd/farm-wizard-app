@@ -17,6 +17,7 @@ import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "expo-router";
 import { API_BASE } from "@/config/client";
+import analytics from "@react-native-firebase/analytics";
 
 const { height, width } = Dimensions.get("window");
 
@@ -39,6 +40,13 @@ export default function Leaderboard() {
   useFocusEffect(
     useCallback(() => {
       let isMounted = true; // Track if component is still mounted
+
+      const logEvent = async () => {
+        await analytics().logEvent("screen_view", {
+          screen_name: "Leaderboard",
+          screen_class: "Leaderboard",
+        });
+      };
 
       const fetchTopUsers = async (pageNumber: number) => {
         try {
@@ -75,6 +83,7 @@ export default function Leaderboard() {
         }
       };
 
+      logEvent();
       fetchTopUsers(page);
 
       return () => {
@@ -82,6 +91,12 @@ export default function Leaderboard() {
       };
     }, [page])
   );
+  /*const logLeaderboardTap = async (userId: string, rank: number) => {
+    await analytics().logEvent("leaderboard_user_tap", {
+      user_id: userId,
+      rank: rank,
+    });
+  };*/
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {

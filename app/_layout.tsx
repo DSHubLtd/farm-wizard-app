@@ -1,6 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { SplashScreen, Stack } from "expo-router";
+import {
+  SplashScreen,
+  Stack,
+  useNavigationContainerRef,
+  useRootNavigationState,
+} from "expo-router";
 import { useFonts } from "expo-font";
 import mobileAds from "react-native-google-mobile-ads";
 import LoginProvider from "@/context/LoginProvider";
@@ -11,6 +16,7 @@ import "../global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import i18n from "@/utils/i18n";
 import { useKeepAwake } from "expo-keep-awake";
+// import analytics from "@react-native-firebase/analytics";
 
 // Keep the native splash until we're ready
 // SplashScreen.preventAutoHideAsync();
@@ -18,6 +24,9 @@ const LANGUAGE_KEY = "user-language";
 
 const RootLayout = () => {
   useKeepAwake(); // This keeps the screen on while this component is mounted
+  // const navigationRef = useNavigationContainerRef();
+  // const routeNameRef = useRef<string | undefined>();
+  // const rootNavigationState = useRootNavigationState();
 
   const [fontsLoaded, error] = useFonts({
     "BubblegumSans-Regular": require("../assets/fonts/BubblegumSans-Regular.ttf"),
@@ -43,6 +52,30 @@ const RootLayout = () => {
     }
     //console.log("Language set to:", i18n.language);
   };
+
+  // 🔄 Firebase Analytics: Auto screen tracking
+  /*useEffect(() => {
+    if (!rootNavigationState?.key) return;
+
+    const currentRoute = navigationRef.getCurrentRoute();
+    const currentRouteName = currentRoute?.name;
+
+    if (routeNameRef.current === currentRouteName || !currentRouteName) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        await analytics().logScreenView({
+          screen_name: currentRouteName,
+          screen_class: currentRouteName,
+        });
+        routeNameRef.current = currentRouteName;
+      } catch (e) {
+        console.warn("🔥 Firebase Analytics screen_view log failed:", e);
+      }
+    }, 250); // Debounce to avoid render loop
+
+    return () => clearTimeout(timeout);
+  }, [rootNavigationState?.key]);*/
 
   useEffect(() => {
     // Initialize once at app startup

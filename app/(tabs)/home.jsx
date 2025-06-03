@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { View, Image, BackHandler, ToastAndroid, Platform, TouchableOpacity, Modal, Text, Dimensions, ScrollView, TouchableWithoutFeedback, Alert } from "react-native";
 import { icons, images } from "../../constants";
 import { router, useFocusEffect } from "expo-router";
-import HeaderNavigation from "@/components/HeaderNavigation";
 import RewardModal from "@/components/RewardModal";
 import { CustomButton } from "../../components";
 import { useLoginContext } from "../../context/LoginProvider";
@@ -15,8 +14,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "../../utils/audio";
 import { Audio } from "expo-av";
 import { API_BASE } from "@/config/client";
+const { height } = Dimensions.get("window");
+import analytics from "@react-native-firebase/analytics";
 
-const REWARD_ADS_VIEW_LIMIT = 6
+
+const REWARD_ADS_VIEW_LIMIT = 3
 export default Home = () => {
   const { user, setUser } = useLoginContext();
   if (!user) {
@@ -68,6 +70,12 @@ export default Home = () => {
   useFocusEffect(
     useCallback(() => {
       fetchNotification();
+      const logEvent = async () => {
+        await analytics().logEvent("screen_view", {
+          screen_name: "HomeScreen",
+          screen_class: "HomeScreen",
+        });
+      };
       const stopAllSounds = async () => {
         try {
           await Audio.setIsEnabledAsync(false);  // Stops all playing sounds
@@ -76,7 +84,7 @@ export default Home = () => {
           console.warn("Failed to stop sounds:", e);
         }
       };
-
+      logEvent();
       stopAllSounds();
       if (Platform.OS !== 'android') return;
 
@@ -170,17 +178,6 @@ export default Home = () => {
         blurRadius={0.5}
       />
 
-      {/* {!isPremiumUser && <AdBanner />} */}
-
-      {/* Top Buttons */}
-      {/* <HeaderNavigation
-        onLeftPress={() => null}
-        onRightPress={handlsShowNotifcation}
-        leftIcon={useFramedAvatarArray(user.avatar || 0)}
-        rightIcon={icons.bell}
-        showLeftButton={true}
-        showRightButton={true}
-      /> */}
       {/* Top bar */}
       <View className="w-full px-2 flex-row justify-between items-center mt-6">
         <View className="flex-row">
@@ -261,61 +258,73 @@ export default Home = () => {
       />
 
       <Modal transparent visible={showNotifcation} animationType="fade">
-        <TouchableWithoutFeedback onPress={handlsShowNotifcation}>
-          <View style={{ flex: 1 }}>
-            <BlurView
-              intensity={50}
-              tint="dark"
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'flex-start' }}>
+          {/* Modal Content */}
+          <BlurView
+            intensity={50}
+            tint="dark"
+            style={{
+              alignSelf: 'flex-end',
+              marginTop: 40,
+              marginRight: 20,
+              width: '80%',
+              borderRadius: 20,
+              overflow: 'hidden',
+              maxHeight: height * 0.45,
+            }}
+          >
+            <View
               style={{
-                position: 'absolute',
-                top: 40, // adjust as needed
-                right: 20, // adjust as needed
-                width: '80%',
-                borderRadius: 20,
-                overflow: 'hidden',
+                backgroundColor: 'rgba(0,0,0,0.4)',
+                borderRadius: 16,
+                padding: 16,
               }}
             >
-              <View
+              {/* Close Button */}
+              <TouchableOpacity
+                onPress={handlsShowNotifcation}
                 style={{
-                  backgroundColor: 'rgba(0,0,0,0.4)',
-                  borderRadius: 16,
-                  padding: 16,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
-                  elevation: 5,
-                  // maxHeight: '80%',
+                  position: 'absolute',
+                  top: 10,
+                  right: 10,
+                  zIndex: 10,
+                  padding: 4,
                 }}
               >
-                <ScrollView contentContainerStyle={{ paddingBottom: 90 }}>
-                  {notifications?.map((notification, index) => (
-                    <View
-                      key={index}
-                      style={{
-                        backgroundColor: 'rgba(255,255,255,0.2)',
-                        borderRadius: 12,
-                        paddingVertical: 8,
-                        paddingHorizontal: 16,
-                        marginBottom: 8,
-                      }}
-                    >
-                      <Text style={{ color: '#fff' }}>
-                        {index + 1}. {notification.message}
-                      </Text>
-                      <Text style={{ color: '#FCD34D', fontWeight: '600', marginTop: 4 }}>
-                        {(new Date(notification.createdAt)).toString()}
-                      </Text>
-                    </View>
-                  ))}
+                {/* If using icon library: <Icon name="close" size={24} color="#fff" /> */}
+                <Text style={{ fontSize: 20, color: '#fff' }}>✕</Text>
+              </TouchableOpacity>
 
-                </ScrollView>
-              </View>
-            </BlurView>
-          </View>
-        </TouchableWithoutFeedback>
+              <ScrollView
+                style={{ maxHeight: height * 0.45 }}
+                contentContainerStyle={{ paddingTop: 30, paddingBottom: 16 }}
+                showsVerticalScrollIndicator={true}
+              >
+                {notifications?.map((notification, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      borderRadius: 12,
+                      paddingVertical: 8,
+                      paddingHorizontal: 16,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text style={{ color: '#fff' }}>
+                      {index + 1}. {notification.message}
+                    </Text>
+                    <Text style={{ color: '#FCD34D', fontWeight: '600', marginTop: 4 }}>
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          </BlurView>
+        </View>
+
       </Modal>
-
 
     </View>
   );

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "31456730935",
+    "project_id": "dshub-f226b",
+    "storage_bucket": "dshub-f226b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31456730935:android:86bfd779b617fbace204b2",
+        "android_client_info": {
+          "package_name": "com.dshub.farmwizard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-V5g7jtyK09gp04UcZaXw6y1N9d-mt48"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      },
+      "admob_app_id": "ca-app-pub-4516568539037938~8691763214"
+    }
+  ],
+  "configuration_version": "1"
+}

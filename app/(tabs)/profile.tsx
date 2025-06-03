@@ -28,6 +28,8 @@ import MessageDialog from "@/components/MessageDialog";
 import { Dimensions } from "react-native";
 import { playSound } from "@/utils/audio";
 import { API_BASE } from "@/config/client";
+import analytics from "@react-native-firebase/analytics";
+
 const { width } = Dimensions.get("window");
 
 const tabs = ["Daily", "Weekly", "Monthly"] as const;
@@ -82,6 +84,13 @@ const Profile = () => {
   const upgradeAmount = 4.99;
 
   useEffect(() => {
+    const logEvent = async () => {
+      await analytics().logEvent("screen_view", {
+        screen_name: "Profile",
+        screen_class: "Profile",
+      });
+    };
+    logEvent();
     const fetchData = async () => {
       const token = await AsyncStorage.getItem("token");
       if (token !== null) {

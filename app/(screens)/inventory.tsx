@@ -28,6 +28,7 @@ import { getUserPIventory } from "@/services/userInventory";
 import checkCurrency from "@/utils/checkCurrency";
 import { useTranslation } from "react-i18next";
 import { API_BASE } from "@/config/client";
+import analytics from "@react-native-firebase/analytics";
 
 type Inventory = {
   name: string;
@@ -176,6 +177,13 @@ const Inventory = () => {
   }, [currency, totalAmount]);
 
   useEffect(() => {
+    const logEvent = async () => {
+      await analytics().logEvent("screen_view", {
+        screen_name: "Inventory",
+        screen_class: "Inventory",
+      });
+    };
+    logEvent();
     fetchUserInventotyData();
     fetchUserPlantLevel();
   }, []);

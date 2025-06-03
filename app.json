@@ -10,17 +10,19 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.avvas.farmwizardapp",
+      "bundleIdentifier": "com.dshub.farmwizard",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/splashscreen_logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.dshub.farmwizard"
+      "package": "com.dshub.farmwizard",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
