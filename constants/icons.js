@@ -21,6 +21,8 @@ import claim from "../assets/icons/claim.png";
 import hat from "../assets/icons/hat.png";
 import close from "../assets/icons/close.png";
 import cart from "../assets/icons/cart.png";
+import soundOn from "../assets/icons/sound-on.png";
+import soundOff from "../assets/icons/sound-off.png";
 
 import bybit from "../assets/icons/provider/bybit.png";
 import telegram from "../assets/icons/provider/telegram.png";
@@ -63,6 +65,8 @@ export default {
   hat,
   close,
   cart,
+  soundOn,
+  soundOff,
 
   bybit,
   telegram,

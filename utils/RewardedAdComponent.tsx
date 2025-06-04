@@ -50,7 +50,7 @@ Props) => {
 
         if (expired) {
           data = { timestamp: now, count: 0 };
-          await scheduleAdResetNotification();
+          // await scheduleAdResetNotification();
         }
 
         data.count += 1;
@@ -69,7 +69,7 @@ Props) => {
 
   return null;
 };
-
+/*
 const scheduleAdResetNotification = async () => {
   await Notifications.scheduleNotificationAsync({
     content: {
@@ -81,6 +81,6 @@ const scheduleAdResetNotification = async () => {
       seconds: 24 * 60 * 60,
     },
   });
-};
+};*/
 
 export default RewardedAdComponent;

@@ -45,6 +45,7 @@ import nutrient from "../assets/images/gameplay/nutrient.png";
 import water from "../assets/images/gameplay/water.png";
 import pause from "../assets/images/gameplay/pause.png";
 import play from "../assets/images/gameplay/play.png";
+import pauseModal from "../assets/images/gameplay/pause-modal.png";
 
 import fertilizerLg from "../assets/images/inventory/fertilizers-lg.png";
 import kettleLg from "../assets/images/inventory/kettle-lg.png";
@@ -102,6 +103,7 @@ export default {
   growth4,
   pause,
   play,
+  pauseModal,
 
   fertilizerLg,
   kettleLg,

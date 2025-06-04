@@ -24,6 +24,8 @@ const Harvest = () => {
   // const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   const plants = usePlantGrowth();
   const plant = plants.find((plant) => plant.name === name);
+  const params = useLocalSearchParams();
+  const plantName = Array.isArray(params.name) ? params.name[0] : params.name;
   if (!plant) {
     router.replace("/(screens)/selectSeed");
     return null;
@@ -31,6 +33,7 @@ const Harvest = () => {
 
   let level = parseInt(userLevel as string) + 1; // next level
   let bonus = (parseInt(plantHealth as string) / 100).toFixed(2);
+  const totalSocre = Number(score) + bonus + 500 * Number(userLevel);
 
   const updateLevel = async () => {
     if (!plant || !level || !score) {
@@ -38,7 +41,6 @@ const Harvest = () => {
       return;
     }
 
-    const totalSocre = Number(score) + bonus + 500;
     setSubmitting(true);
     const token = await AsyncStorage.getItem("token");
     if (token !== null) {
@@ -73,10 +75,6 @@ const Harvest = () => {
     }
   };
 
-  useEffect(() => {
-    updateLevel();
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       const stopAndPlayNewSound = async () => {
@@ -89,7 +87,7 @@ const Harvest = () => {
           const { sound } = await Audio.Sound.createAsync(
             require("@/assets/sounds/level-up.wav"),
             {
-              volume: 0.4,
+              volume: 0.1,
               isLooping: false,
             }
           );
@@ -109,21 +107,20 @@ const Harvest = () => {
       const clearGame = async () => {
         const raw = await AsyncStorage.getItem("gameStates");
         const all = raw ? JSON.parse(raw) : {};
-        const params = useLocalSearchParams();
-        const name = Array.isArray(params.name) ? params.name[0] : params.name;
-        delete all[name];
+
+        delete all[plantName];
         await AsyncStorage.setItem("gameStates", JSON.stringify(all));
 
         const token = await AsyncStorage.getItem("token");
         if (!token) return;
-        await fetch(`${API_BASE}/api/v1/game-state/clear/${name}`, {
+        await fetch(`${API_BASE}/api/v1/game-state/clear/${plantName}`, {
           method: "DELETE",
           headers: { Authorization: `JWT ${token}` },
         });
 
-        // console.log(`Cleared local save for ${name}`);
+        // console.log(`Cleared local save for ${plantName}`);
       };
-
+      updateLevel();
       stopAndPlayNewSound();
       clearGame();
     }, [])
@@ -165,7 +162,8 @@ const Harvest = () => {
         </Text>
 
         <Text className="text-center text-5xl font-bold font-secondary p-4 text-[#FEDA42]">
-          {score}
+          {Number(totalSocre).toFixed(2)}
+          {/* {score} */}
         </Text>
         <Text className="text-center text-xl p-4 my-2 text-white">
           {t("messages.harvest")}

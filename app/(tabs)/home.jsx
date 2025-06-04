@@ -245,7 +245,7 @@ export default Home = () => {
             handleUserRewardEarn()
           }}
           onClose={() => {
-            console.log('Ad closed');
+            //console.log('Ad closed');
           }}
         />
       }
@@ -275,7 +275,7 @@ export default Home = () => {
           >
             <View
               style={{
-                backgroundColor: 'rgba(0,0,0,0.4)',
+                backgroundColor: 'rgba(0,0,0,0.1)',
                 borderRadius: 16,
                 padding: 16,
               }}
@@ -304,7 +304,7 @@ export default Home = () => {
                   <View
                     key={index}
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      backgroundColor: '#7D6D3D',
                       borderRadius: 12,
                       paddingVertical: 8,
                       paddingHorizontal: 16,
@@ -312,7 +312,7 @@ export default Home = () => {
                     }}
                   >
                     <Text style={{ color: '#fff' }}>
-                      {index + 1}. {notification.message}
+                      {notification.message}
                     </Text>
                     <Text style={{ color: '#FCD34D', fontWeight: '600', marginTop: 4 }}>
                       {new Date(notification.createdAt).toLocaleString()}

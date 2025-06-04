@@ -37,7 +37,7 @@ import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useFramedAvatarArray } from "../../hooks/useAvatarArray";
 import ConfirmModal, { CustomConfirmDialog } from "@/components/ConfirmDialog";
-import MessageDialog from "@/components/MessageDialog";
+import MessageDialog, { CustomPauseDialog } from "@/components/MessageDialog";
 import { useThrottle } from "@/hooks/useThrottle";
 import { useTranslation } from "react-i18next";
 import { getThreatPanelty } from "@/utils/getThreatPanelty";
@@ -102,6 +102,7 @@ const PlantScreen = () => {
   const [fertilizerSound, setFertilizerSound] = useState<Audio.Sound | null>(
     null
   );
+  const [normalSound, setNormalSound] = useState<Audio.Sound | null>(null);
   const [drySound, setDrySound] = useState<Audio.Sound | null>(null);
   const [rainSound, setRainSound] = useState<Audio.Sound | null>(null);
   const [growthSound, setGrowthSound] = useState<Audio.Sound | null>(null);
@@ -136,6 +137,8 @@ const PlantScreen = () => {
   const [sickModalShown, setSickModalShown] = useState(false);
   const [lowItemModal, setLowItemModal] = useState(false);
   const [lowItemText, setLowItemText] = useState("");
+  const [pauseModal, setPauseModal] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -377,6 +380,10 @@ const PlantScreen = () => {
   }, [pathname, isTimerActive, waterLevel, nutrientLevel]);
 
   const resetBackgroundSound = () => {
+    if (normalSound) {
+      normalSound.stopAsync();
+      normalSound.unloadAsync();
+    }
     if (drySound) {
       drySound.stopAsync();
       drySound.unloadAsync();
@@ -496,9 +503,17 @@ const PlantScreen = () => {
       if (growthSound) growthSound.replayAsync();
     }
 
+    if (currentSeason === "normal") {
+      if (normalSound) {
+        normalSound.playAsync();
+      }
+    }
     if (currentSeason === "dry") {
       if (drySound) {
         drySound.playAsync();
+      }
+      if (normalSound) {
+        normalSound.stopAsync();
       }
     }
     if (currentSeason === "raining") {
@@ -566,6 +581,50 @@ const PlantScreen = () => {
     }
   };
 
+  // Function to retrieve the saved mute state from AsyncStorage
+  const getMuteState = async () => {
+    try {
+      const muteState = await AsyncStorage.getItem("isMuted");
+      if (muteState !== null) {
+        setIsMuted(JSON.parse(muteState));
+      }
+    } catch (error) {
+      console.error("Error retrieving mute state:", error);
+    }
+  };
+
+  // Function to persist mute state to AsyncStorage
+  const setMuteState = async (newMuteState: boolean) => {
+    try {
+      await AsyncStorage.setItem("isMuted", JSON.stringify(newMuteState));
+    } catch (error) {
+      console.error("Error saving mute state:", error);
+    }
+  };
+
+  // Function to apply the mute state to all sounds
+  const applyMuteState = async () => {
+    try {
+      const volume = isMuted ? 0 : 0.1; // 0 for mute, 0.4 for unmute
+      if (spraySound) await spraySound.setVolumeAsync(volume);
+      if (fertilizerSound) await fertilizerSound.setVolumeAsync(volume);
+      if (waterSound) await waterSound.setVolumeAsync(volume);
+      if (normalSound) await normalSound.setVolumeAsync(volume);
+      if (drySound) await drySound.setVolumeAsync(volume);
+      if (rainSound) await rainSound.setVolumeAsync(volume);
+      if (growthSound) await growthSound.setVolumeAsync(volume);
+    } catch (error) {
+      console.error("Error applying mute state to sounds:", error);
+    }
+  };
+
+  // Toggle mute functionality
+  const toggleMute = async () => {
+    const newMuteState = !isMuted;
+    setIsMuted(newMuteState);
+    await setMuteState(newMuteState); // Persist the new mute state
+    await applyMuteState(); // Apply the mute state to all sounds
+  };
   useFocusEffect(
     useCallback(() => {
       const logEvent = async () => {
@@ -581,46 +640,55 @@ const PlantScreen = () => {
 
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       let isMounted = true;
+      const soundVolume = isMuted ? 0 : 0.1;
 
       const loadSounds = async () => {
         try {
-          const [pesticide, fertilizer, water, dry, rain, growth] =
+          const [pesticide, fertilizer, water, normal, dry, rain, growth] =
             await Promise.all([
               Audio.Sound.createAsync(
                 require("@/assets/sounds/pesticide.mp3"),
                 {
-                  volume: 0.4,
+                  volume: soundVolume,
                 }
               ),
               Audio.Sound.createAsync(
                 require("@/assets/sounds/fertilizer.mp3"),
                 {
-                  volume: 0.4,
+                  volume: soundVolume,
                 }
               ),
               Audio.Sound.createAsync(require("@/assets/sounds/water.mp3"), {
-                volume: 0.4,
+                volume: soundVolume,
               }),
+              Audio.Sound.createAsync(
+                require("@/assets/sounds/sound-track.mp3"),
+                {
+                  volume: soundVolume,
+                  isLooping: true,
+                }
+              ),
               Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3"), {
-                volume: 0.4,
+                volume: soundVolume,
                 isLooping: true,
               }),
               Audio.Sound.createAsync(
                 require("@/assets/sounds/rain-storm.mp3"),
                 {
-                  volume: 0.4,
+                  volume: soundVolume,
                   isLooping: true,
                 }
               ),
               Audio.Sound.createAsync(
                 require("@/assets/sounds/growth-level-reach.mp3"),
-                { volume: 0.4 }
+                { volume: soundVolume }
               ),
             ]);
           if (!isMounted) return;
           setSpraySound(pesticide.sound);
           setFertilizerSound(fertilizer.sound);
           setWaterSound(water.sound);
+          setNormalSound(normal.sound);
           setDrySound(dry.sound);
           setRainSound(rain.sound);
           setGrowthSound(growth.sound);
@@ -628,6 +696,7 @@ const PlantScreen = () => {
           console.warn("Failed to load one or more sounds:", e);
         }
       };
+      getMuteState();
       logEvent();
       loadSounds();
       restoreGameState();
@@ -644,6 +713,10 @@ const PlantScreen = () => {
         fertilizerSound?.unloadAsync();
         waterSound?.unloadAsync();
 
+        if (normalSound) {
+          normalSound.stopAsync();
+          normalSound.unloadAsync();
+        }
         if (drySound) {
           drySound.stopAsync();
           drySound.unloadAsync();
@@ -920,12 +993,24 @@ const PlantScreen = () => {
               </Text>
             </View>
           </View>
-          <TouchableOpacity
-            className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full"
-            onPress={() => setConfirmModal(true)}
-          >
-            <Image source={icons.close} className="w-8 h-8" />
-          </TouchableOpacity>
+          <View className="flex-col">
+            <TouchableOpacity
+              className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full"
+              onPress={() => setConfirmModal(true)}
+            >
+              <Image source={icons.close} className="w-8 h-8" />
+            </TouchableOpacity>
+            {/* <TouchableOpacity
+              className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full my-4"
+              onPress={toggleMute}
+            >
+              {isMuted ? (
+                <Image source={icons.soundOn} className="w-8 h-8" />
+              ) : (
+                <Image source={icons.soundOff} className="w-8 h-8" />
+              )}
+            </TouchableOpacity> */}
+          </View>
         </View>
 
         <View className="absolute top-28 left-0 right-0 items-center">
@@ -1203,9 +1288,10 @@ const PlantScreen = () => {
               onPress={() => {
                 setIsTimerActive(false);
                 playSound(require("@/assets/sounds/pause.mp3"), 0.4);
-                handleToolUse(
-                  t("game.growth_cycle", { type: `${t("game.pause")}` })
-                );
+                // handleToolUse(
+                //   t("game.growth_cycle", { type: `${t("game.pause")}` })
+                // );
+                setPauseModal(true);
               }}
             />
           )}
@@ -1302,6 +1388,25 @@ const PlantScreen = () => {
           imageSource={images.inventory}
           confirmButtonText={"Open Inventory"}
           concelButtonText={"Pause & Exit"}
+        />
+
+        <CustomPauseDialog
+          visible={pauseModal}
+          onClose={() => setPauseModal(false)}
+          onConfirmPress={() => {
+            setPauseModal(false);
+            setIsTimerActive(true);
+          }}
+          onCancelPress={() => {
+            // setPauseModal(false);
+            setConfirmModal(true);
+          }}
+          messageText={"Game Paused"}
+          imageSource={images.pauseModal}
+          confirmButtonText={"Resume"}
+          concelButtonText={"Exit to menu"}
+          ontoggleMute={toggleMute}
+          isMuted={isMuted}
         />
       </View>
     </TouchableWithoutFeedback>
