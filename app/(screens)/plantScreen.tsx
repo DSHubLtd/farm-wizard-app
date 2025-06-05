@@ -605,7 +605,7 @@ const PlantScreen = () => {
   // Function to apply the mute state to all sounds
   const applyMuteState = async () => {
     try {
-      const volume = isMuted ? 0 : 0.1; // 0 for mute, 0.4 for unmute
+      const volume = isMuted ? 0 : 0.01; // 0 for mute, 0.4 for unmute
       if (spraySound) await spraySound.setVolumeAsync(volume);
       if (fertilizerSound) await fertilizerSound.setVolumeAsync(volume);
       if (waterSound) await waterSound.setVolumeAsync(volume);
@@ -640,7 +640,7 @@ const PlantScreen = () => {
 
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       let isMounted = true;
-      const soundVolume = isMuted ? 0 : 0.1;
+      const soundVolume = isMuted ? 0 : 0.01;
 
       const loadSounds = async () => {
         try {
@@ -1287,7 +1287,7 @@ const PlantScreen = () => {
               label=""
               onPress={() => {
                 setIsTimerActive(false);
-                playSound(require("@/assets/sounds/pause.mp3"), 0.4);
+                playSound(require("@/assets/sounds/pause.mp3"), 0.01);
                 // handleToolUse(
                 //   t("game.growth_cycle", { type: `${t("game.pause")}` })
                 // );
@@ -1301,7 +1301,7 @@ const PlantScreen = () => {
               label=""
               onPress={() => {
                 setIsTimerActive(true);
-                playSound(require("@/assets/sounds/play.mp3"), 0.4);
+                playSound(require("@/assets/sounds/play.mp3"), 0.01);
                 handleToolUse(
                   t("game.growth_cycle", { type: `${t("game.resume")}` })
                 );

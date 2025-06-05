@@ -28,7 +28,7 @@ const GameOver = () => {
           const { sound } = await Audio.Sound.createAsync(
             require("@/assets/sounds/game-over.wav"),
             {
-              volume: 0.1,
+              volume: 0.01,
               isLooping: false,
             }
           );

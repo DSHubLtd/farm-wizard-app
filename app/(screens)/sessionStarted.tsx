@@ -61,7 +61,7 @@ const SessionStarted = () => {
             pathname: "/(screens)/plantScreen",
             params: { name: name },
           });
-          playSound(require("@/assets/sounds/click.mp3"), 0.4);
+          playSound(require("@/assets/sounds/click.mp3"), 0.01);
         }}
         containerStyles="w-[200px] mb-1"
         textStyles={"font-pbold text-white"}
