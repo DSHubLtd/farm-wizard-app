@@ -228,7 +228,7 @@ export default Home = () => {
 
         <CustomButton
           title={t("buttons.play")}
-          handlePress={() => { router.push('/(screens)/selectSeed'); playSound(require('@/assets/sounds/click.mp3'), 0.01) }}
+          handlePress={() => { router.push('/(screens)/selectSeed'); playSound(require('@/assets/sounds/click.mp3'), 0.05) }}
           containerStyles="w-[200px]"
           textStyles={"font-pbold text-white"}
           isLoading={false}

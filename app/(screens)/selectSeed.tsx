@@ -246,7 +246,7 @@ const SelectSeed = () => {
             pathname: "/(screens)/sessionStarted",
             params: { name: selectedSeed.name },
           });
-          playSound(require("@/assets/sounds/click.mp3"), 0.01);
+          playSound(require("@/assets/sounds/click.mp3"), 0.05);
         }}
         containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}

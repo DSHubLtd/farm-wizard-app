@@ -28,7 +28,7 @@ export default function CustomBottomTab() {
           className="w-16 h-16 rounded-full bg-[#d1a635] items-center justify-center border-2 border-white"
           onPress={() => {
             router.push("/(tabs)/profile");
-            playSound(require("@/assets/sounds/click.mp3"), 0.01);
+            playSound(require("@/assets/sounds/click.mp3"), 0.05);
           }}
         >
           <Image source={icons.claim} className="w-12 h-12 tint-white" />
@@ -39,7 +39,7 @@ export default function CustomBottomTab() {
           className="w-20 h-20 rounded-full bg-[#d1a635] items-center justify-center border-4 border-white mb-2 shadow-lg shadow-black"
           onPress={() => {
             router.push("/(tabs)/home");
-            playSound(require("@/assets/sounds/click.mp3"), 0.01);
+            playSound(require("@/assets/sounds/click.mp3"), 0.05);
           }}
         >
           <Image source={icons.home} className="w-10 h-10 tint-white" />
@@ -50,7 +50,7 @@ export default function CustomBottomTab() {
           className="w-16 h-16 rounded-full bg-[#d1a635] items-center justify-center border-2 border-white"
           onPress={() => {
             router.push("/(tabs)/leaderboard");
-            playSound(require("@/assets/sounds/click.mp3"), 0.01);
+            playSound(require("@/assets/sounds/click.mp3"), 0.05);
           }}
         >
           <Image source={icons.stats} className="w-8 h-8 tint-white" />

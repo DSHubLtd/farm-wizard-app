@@ -337,7 +337,7 @@ const Profile = () => {
         title={t("buttons.claim")}
         handlePress={() => {
           router.push("/(tabs)/(sub-tabs)/claimScreen");
-          playSound(require("@/assets/sounds/click.mp3"), 0.01);
+          playSound(require("@/assets/sounds/click.mp3"), 0.05);
         }}
         containerStyles="w-[200px]"
         textStyles={"font-pbold text-white"}
