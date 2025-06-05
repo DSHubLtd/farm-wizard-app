@@ -102,7 +102,9 @@ const PlantScreen = () => {
   const [fertilizerSound, setFertilizerSound] = useState<Audio.Sound | null>(
     null
   );
-  const [normalSound, setNormalSound] = useState<Audio.Sound | null>(null);
+  const [normalSound1, setNormalSound1] = useState<Audio.Sound | null>(null);
+  const [normalSound2, setNormalSound2] = useState<Audio.Sound | null>(null);
+  const [normalSound3, setNormalSound3] = useState<Audio.Sound | null>(null);
   const [drySound, setDrySound] = useState<Audio.Sound | null>(null);
   const [rainSound, setRainSound] = useState<Audio.Sound | null>(null);
   const [growthSound, setGrowthSound] = useState<Audio.Sound | null>(null);
@@ -139,6 +141,7 @@ const PlantScreen = () => {
   const [lowItemText, setLowItemText] = useState("");
   const [pauseModal, setPauseModal] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [randomNormalSound, setRandomNormalSound] = useState(1);
 
   const fetchUserPlantLevelData = async (): Promise<void> => {
     setLoading(true);
@@ -380,9 +383,17 @@ const PlantScreen = () => {
   }, [pathname, isTimerActive, waterLevel, nutrientLevel]);
 
   const resetBackgroundSound = () => {
-    if (normalSound) {
-      normalSound.stopAsync();
-      normalSound.unloadAsync();
+    if (normalSound1) {
+      normalSound1.stopAsync();
+      normalSound1.unloadAsync();
+    }
+    if (normalSound2) {
+      normalSound2.stopAsync();
+      normalSound2.unloadAsync();
+    }
+    if (normalSound3) {
+      normalSound3.stopAsync();
+      normalSound3.unloadAsync();
     }
     if (drySound) {
       drySound.stopAsync();
@@ -504,16 +515,34 @@ const PlantScreen = () => {
     }
 
     if (currentSeason === "normal") {
-      if (normalSound) {
-        normalSound.playAsync();
+      if (randomNormalSound === 1) {
+        if (normalSound1) {
+          normalSound1.playAsync();
+        }
+      }
+      if (randomNormalSound === 2) {
+        if (normalSound2) {
+          normalSound2.playAsync();
+        }
+      }
+      if (randomNormalSound === 3) {
+        if (normalSound3) {
+          normalSound3.playAsync();
+        }
       }
     }
     if (currentSeason === "dry") {
       if (drySound) {
         drySound.playAsync();
       }
-      if (normalSound) {
-        normalSound.stopAsync();
+      if (normalSound1) {
+        normalSound1.stopAsync();
+      }
+      if (normalSound2) {
+        normalSound2.stopAsync();
+      }
+      if (normalSound3) {
+        normalSound3.stopAsync();
       }
     }
     if (currentSeason === "raining") {
@@ -605,11 +634,13 @@ const PlantScreen = () => {
   // Function to apply the mute state to all sounds
   const applyMuteState = async () => {
     try {
-      const volume = isMuted ? 0 : 0.01; // 0 for mute, 0.4 for unmute
+      const volume = isMuted ? 0 : 0.05; // 0 for mute, 0.4 for unmute
       if (spraySound) await spraySound.setVolumeAsync(volume);
       if (fertilizerSound) await fertilizerSound.setVolumeAsync(volume);
       if (waterSound) await waterSound.setVolumeAsync(volume);
-      if (normalSound) await normalSound.setVolumeAsync(volume);
+      if (normalSound1) await normalSound1.setVolumeAsync(volume);
+      if (normalSound2) await normalSound2.setVolumeAsync(volume);
+      if (normalSound3) await normalSound3.setVolumeAsync(volume);
       if (drySound) await drySound.setVolumeAsync(volume);
       if (rainSound) await rainSound.setVolumeAsync(volume);
       if (growthSound) await growthSound.setVolumeAsync(volume);
@@ -640,55 +671,73 @@ const PlantScreen = () => {
 
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       let isMounted = true;
-      const soundVolume = isMuted ? 0 : 0.01;
+      const soundVolume = isMuted ? 0 : 0.05;
 
       const loadSounds = async () => {
         try {
-          const [pesticide, fertilizer, water, normal, dry, rain, growth] =
-            await Promise.all([
-              Audio.Sound.createAsync(
-                require("@/assets/sounds/pesticide.mp3"),
-                {
-                  volume: soundVolume,
-                }
-              ),
-              Audio.Sound.createAsync(
-                require("@/assets/sounds/fertilizer.mp3"),
-                {
-                  volume: soundVolume,
-                }
-              ),
-              Audio.Sound.createAsync(require("@/assets/sounds/water.mp3"), {
-                volume: soundVolume,
-              }),
-              Audio.Sound.createAsync(
-                require("@/assets/sounds/sound-track.mp3"),
-                {
-                  volume: soundVolume,
-                  isLooping: true,
-                }
-              ),
-              Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3"), {
+          const [
+            pesticide,
+            fertilizer,
+            water,
+            normal1,
+            normal2,
+            normal3,
+            dry,
+            rain,
+            growth,
+          ] = await Promise.all([
+            Audio.Sound.createAsync(require("@/assets/sounds/pesticide.mp3"), {
+              volume: soundVolume,
+            }),
+            Audio.Sound.createAsync(require("@/assets/sounds/fertilizer.mp3"), {
+              volume: soundVolume,
+            }),
+            Audio.Sound.createAsync(require("@/assets/sounds/water.mp3"), {
+              volume: soundVolume,
+            }),
+            Audio.Sound.createAsync(
+              require("@/assets/sounds/sound-track1.mp3"),
+              {
                 volume: soundVolume,
                 isLooping: true,
-              }),
-              Audio.Sound.createAsync(
-                require("@/assets/sounds/rain-storm.mp3"),
-                {
-                  volume: soundVolume,
-                  isLooping: true,
-                }
-              ),
-              Audio.Sound.createAsync(
-                require("@/assets/sounds/growth-level-reach.mp3"),
-                { volume: soundVolume }
-              ),
-            ]);
+              }
+            ),
+            Audio.Sound.createAsync(
+              require("@/assets/sounds/sound-track2.mp3"),
+              {
+                volume: soundVolume,
+                isLooping: true,
+              }
+            ),
+            Audio.Sound.createAsync(
+              require("@/assets/sounds/sound-track3.mp3"),
+              {
+                volume: soundVolume,
+                isLooping: true,
+              }
+            ),
+            Audio.Sound.createAsync(require("@/assets/sounds/dry.mp3"), {
+              volume: soundVolume,
+              isLooping: true,
+            }),
+            Audio.Sound.createAsync(require("@/assets/sounds/rain-storm.mp3"), {
+              volume: soundVolume,
+              isLooping: true,
+            }),
+            Audio.Sound.createAsync(
+              require("@/assets/sounds/growth-level-reach.mp3"),
+              { volume: soundVolume }
+            ),
+          ]);
           if (!isMounted) return;
+          const number = Math.floor(Math.random() * 3) + 1;
+          setRandomNormalSound(number);
           setSpraySound(pesticide.sound);
           setFertilizerSound(fertilizer.sound);
           setWaterSound(water.sound);
-          setNormalSound(normal.sound);
+          setNormalSound1(normal1.sound);
+          setNormalSound2(normal2.sound);
+          setNormalSound3(normal3.sound);
           setDrySound(dry.sound);
           setRainSound(rain.sound);
           setGrowthSound(growth.sound);
@@ -713,9 +762,17 @@ const PlantScreen = () => {
         fertilizerSound?.unloadAsync();
         waterSound?.unloadAsync();
 
-        if (normalSound) {
-          normalSound.stopAsync();
-          normalSound.unloadAsync();
+        if (normalSound1) {
+          normalSound1.stopAsync();
+          normalSound1.unloadAsync();
+        }
+        if (normalSound2) {
+          normalSound2.stopAsync();
+          normalSound2.unloadAsync();
+        }
+        if (normalSound3) {
+          normalSound3.stopAsync();
+          normalSound3.unloadAsync();
         }
         if (drySound) {
           drySound.stopAsync();
@@ -1287,7 +1344,7 @@ const PlantScreen = () => {
               label=""
               onPress={() => {
                 setIsTimerActive(false);
-                playSound(require("@/assets/sounds/pause.mp3"), 0.01);
+                playSound(require("@/assets/sounds/pause.mp3"), 0.05);
                 // handleToolUse(
                 //   t("game.growth_cycle", { type: `${t("game.pause")}` })
                 // );
@@ -1301,7 +1358,7 @@ const PlantScreen = () => {
               label=""
               onPress={() => {
                 setIsTimerActive(true);
-                playSound(require("@/assets/sounds/play.mp3"), 0.01);
+                playSound(require("@/assets/sounds/play.mp3"), 0.05);
                 handleToolUse(
                   t("game.growth_cycle", { type: `${t("game.resume")}` })
                 );
