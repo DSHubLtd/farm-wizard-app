@@ -44,6 +44,11 @@ import { getThreatPanelty } from "@/utils/getThreatPanelty";
 import { playSound } from "@/utils/audio";
 import { API_BASE } from "@/config/client";
 import analytics from "@react-native-firebase/analytics";
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -616,6 +621,8 @@ const PlantScreen = () => {
       const muteState = await AsyncStorage.getItem("isMuted");
       if (muteState !== null) {
         setIsMuted(JSON.parse(muteState));
+        await applyMuteState(muteState ? 0 : 0.05);
+        // console.log("muteState ", JSON.parse(muteState));
       }
     } catch (error) {
       console.error("Error retrieving mute state:", error);
@@ -632,9 +639,8 @@ const PlantScreen = () => {
   };
 
   // Function to apply the mute state to all sounds
-  const applyMuteState = async () => {
+  const applyMuteState = async (volume: number) => {
     try {
-      const volume = isMuted ? 0 : 0.05; // 0 for mute, 0.4 for unmute
       if (spraySound) await spraySound.setVolumeAsync(volume);
       if (fertilizerSound) await fertilizerSound.setVolumeAsync(volume);
       if (waterSound) await waterSound.setVolumeAsync(volume);
@@ -654,10 +660,11 @@ const PlantScreen = () => {
     const newMuteState = !isMuted;
     setIsMuted(newMuteState);
     await setMuteState(newMuteState); // Persist the new mute state
-    await applyMuteState(); // Apply the mute state to all sounds
+    await applyMuteState(newMuteState ? 0 : 0.05); // Apply the mute state to all sounds
   };
   useFocusEffect(
     useCallback(() => {
+      getMuteState();
       const logEvent = async () => {
         await analytics().logEvent("screen_view", {
           screen_name: "PlantScreen",
@@ -671,6 +678,7 @@ const PlantScreen = () => {
 
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
       let isMounted = true;
+
       const soundVolume = isMuted ? 0 : 0.05;
 
       const loadSounds = async () => {
@@ -745,7 +753,7 @@ const PlantScreen = () => {
           console.warn("Failed to load one or more sounds:", e);
         }
       };
-      getMuteState();
+
       logEvent();
       loadSounds();
       restoreGameState();
@@ -987,77 +995,78 @@ const PlantScreen = () => {
       </View>
     );
   return (
-    <TouchableWithoutFeedback
-      onPress={throttledTriggerSpray}
-      disabled={isThrottled}
-    >
-      <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
-        {/* Background  */}
-        {currentSeason === "normal" && (
-          <Image
-            source={images.background1}
-            className="absolute w-full h-full"
-            resizeMode="cover"
-          />
-        )}
-        {currentSeason === "raining" && (
-          <ImageBackground
-            source={images.bgRainfall}
-            style={styles.background}
-            resizeMode="cover"
-            className="absolute w-full h-full"
-          >
-            <ExpoImage
-              source={images.storm}
-              style={styles.rain}
-              pointerEvents="none"
+    <>
+      <TouchableWithoutFeedback
+        onPress={throttledTriggerSpray}
+        disabled={isThrottled}
+      >
+        <View className="flex-1 relative bg-green-200" pointerEvents="box-none">
+          {/* Background  */}
+          {currentSeason === "normal" && (
+            <Image
+              source={images.background1}
+              className="absolute w-full h-full"
+              resizeMode="cover"
             />
-          </ImageBackground>
-        )}
-        {currentSeason === "dry" && (
-          <Image
-            source={images.bgDry}
-            className="absolute w-full h-full"
-            resizeMode="cover"
-          />
-        )}
-
-        {/* control show ads  */}
-        {showAd && !isPremiumUser && (
-          <InterstitialAdComponent
-            onClose={() => {
-              setShowAd(false); // Hide the component after ad closes
-              //console.log("Ad finished!");
-            }}
-          />
-        )}
-
-        {/* Top bar */}
-        <View className="flex-row justify-between items-center px-4 pt-10">
-          <View className="flex-row">
-            <TouchableOpacity className="">
-              <Image
-                source={useFramedAvatarArray(user.avatar || 0)}
-                className="w-16 h-16 rounded-full"
-              />
-            </TouchableOpacity>
-            <View className="flex my-4">
-              <Text className="text-white text-md">
-                {t("hi_user", { name: `${user.fullName}` })}
-              </Text>
-              <Text className="text-white text-md">
-                {Number(user.score).toFixed(2)}
-              </Text>
-            </View>
-          </View>
-          <View className="flex-col">
-            <TouchableOpacity
-              className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full"
-              onPress={() => setConfirmModal(true)}
+          )}
+          {currentSeason === "raining" && (
+            <ImageBackground
+              source={images.bgRainfall}
+              style={styles.background}
+              resizeMode="cover"
+              className="absolute w-full h-full"
             >
-              <Image source={icons.close} className="w-8 h-8" />
-            </TouchableOpacity>
-            {/* <TouchableOpacity
+              <ExpoImage
+                source={images.storm}
+                style={styles.rain}
+                pointerEvents="none"
+              />
+            </ImageBackground>
+          )}
+          {currentSeason === "dry" && (
+            <Image
+              source={images.bgDry}
+              className="absolute w-full h-full"
+              resizeMode="cover"
+            />
+          )}
+
+          {/* control show ads  */}
+          {showAd && !isPremiumUser && (
+            <InterstitialAdComponent
+              onClose={() => {
+                setShowAd(false); // Hide the component after ad closes
+                //console.log("Ad finished!");
+              }}
+            />
+          )}
+
+          {/* Top bar */}
+          <View className="flex-row justify-between items-center px-4 pt-10">
+            <View className="flex-row">
+              <TouchableOpacity className="">
+                <Image
+                  source={useFramedAvatarArray(user.avatar || 0)}
+                  className="w-16 h-16 rounded-full"
+                />
+              </TouchableOpacity>
+              <View className="flex my-4">
+                <Text className="text-white text-md">
+                  {t("hi_user", { name: `${user.fullName}` })}
+                </Text>
+                <Text className="text-white text-md">
+                  {Number(user.score).toFixed(2)}
+                </Text>
+              </View>
+            </View>
+            <View className="flex-col">
+              <TouchableOpacity
+                className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full"
+                onPress={() => setConfirmModal(true)}
+              >
+                <Image source={icons.close} className="w-8 h-8" />
+              </TouchableOpacity>
+              {/* <TouchableOpacity
               className="bg-[#D5B85A] w-14 h-14 items-center justify-center rounded-full my-4"
               onPress={toggleMute}
             >
@@ -1067,406 +1076,418 @@ const PlantScreen = () => {
                 <Image source={icons.soundOff} className="w-8 h-8" />
               )}
             </TouchableOpacity> */}
-          </View>
-        </View>
-
-        <View className="absolute top-28 left-0 right-0 items-center">
-          <View className="w-full relative items-center mb-1">
-            <View
-              className="w-full rounded-t-[40px] pb-8 pt-6 flex-row justify-between items-end px-20"
-              style={{
-                borderBottomLeftRadius: 80,
-                borderBottomRightRadius: 80,
-                height: 180,
-                transform: [{ scaleY: 0.9 }],
-              }}
-            >
-              {/* nutrient */}
-              <View className="items-center w-1/4 -mb-8">
-                <>
-                  <Image
-                    source={images.nutrient}
-                    className="w-20 h-20 rounded-full"
-                  />
-                  <Text className="text-black text-lg mt-2 font-primary">
-                    {t("game.nutrient")}
-                  </Text>
-                  <Text className="text-black text-lg font-primary">
-                    {nutrientLevel}%
-                  </Text>
-                </>
-              </View>
-
-              {/* Health (center) */}
-              <View className="items-center w-1/3 -mt-4">
-                <>
-                  <Image
-                    source={images.heart}
-                    className="w-20 h-20 rounded-full"
-                  />
-                  <Text className="text-black text-lg mt-2 font-primary">
-                    {t("game.health")}
-                  </Text>
-                  <Text className="text-black text-lg font-primary">
-                    {plantHealth}%
-                  </Text>
-                </>
-              </View>
-
-              {/* water 3 */}
-              <View className="items-center w-1/4 -mb-8">
-                <>
-                  <Image
-                    source={images.water}
-                    className="w-20 h-22 rounded-full"
-                  />
-                  <Text className="text-black text-lg font-primary ">
-                    {t("game.water")}
-                  </Text>
-                  <Text className="text-black text-lg font-primary">
-                    {waterLevel}%
-                  </Text>
-                </>
-              </View>
             </View>
           </View>
 
-          {activeThreat && !activeThreat.resolved && (
-            <Text style={{ color: "red", marginTop: 10 }}>
-              ⚠️{"🐛"}
-              {activeThreat.type.toUpperCase() === "DISEASE"
-                ? t("game.disease")
-                : t("game.storm")}{" "}
-              - {t("game.respond_threat")}
-              {"  "}
-              {activeThreat.type === "disease" ? "10" : "5"}s!
-            </Text>
-          )}
-          {waterLevel < 20 && (
-            <Text className="text-red text-md">⚠️ {t("game.low_water")}</Text>
-          )}
-          {nutrientLevel < 20 && (
-            <Text className="text-red text-md">
-              ⚠️ {t("game.low_nutrient")}
-            </Text>
-          )}
-          <Text className="text-yellow-600 text-lg">{showGiftMessage}</Text>
-          <Text className="text-white text-3xl font-bold">{score}</Text>
-        </View>
+          <View className="absolute top-28 left-0 right-0 items-center">
+            <View className="w-full relative items-center mb-1">
+              <View
+                className="w-full rounded-t-[40px] pb-8 pt-6 flex-row justify-between items-end px-20"
+                style={{
+                  borderBottomLeftRadius: 80,
+                  borderBottomRightRadius: 80,
+                  height: 180,
+                  transform: [{ scaleY: 0.9 }],
+                }}
+              >
+                {/* nutrient */}
+                <View className="items-center w-1/4 -mb-8">
+                  <>
+                    <Image
+                      source={images.nutrient}
+                      className="w-20 h-20 rounded-full"
+                    />
+                    <Text className="text-black text-lg mt-2 font-primary">
+                      {t("game.nutrient")}
+                    </Text>
+                    <Text className="text-black text-lg font-primary">
+                      {nutrientLevel}%
+                    </Text>
+                  </>
+                </View>
 
-        {spraying && (
-          <Animated.View
-            style={{
-              position: "absolute",
-              top: SCREEN_HEIGHT / 2 - 5,
-              left: SCREEN_WIDTH / 2 - 80,
-              width: 160,
-              height: 160,
-              backgroundColor: "rgba(200,255,200,0.3)",
-              borderRadius: 80,
-              transform: [
-                {
-                  scale: sprayAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.2, 1.2],
-                  }),
-                },
-              ],
-              opacity: sprayAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.8, 0],
-              }),
-            }}
-          />
-        )}
+                {/* Health (center) */}
+                <View className="items-center w-1/3 -mt-4">
+                  <>
+                    <Image
+                      source={images.heart}
+                      className="w-20 h-20 rounded-full"
+                    />
+                    <Text className="text-black text-lg mt-2 font-primary">
+                      {t("game.health")}
+                    </Text>
+                    <Text className="text-black text-lg font-primary">
+                      {plantHealth}%
+                    </Text>
+                  </>
+                </View>
 
-        {watering && (
-          <Animated.View
-            style={{
-              position: "absolute",
-              top: SCREEN_HEIGHT / 2,
-              left: SCREEN_WIDTH / 2 - 30,
-              width: 60,
-              height: 100,
-              opacity: waterAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 0],
-              }),
-              transform: [
-                {
-                  translateY: waterAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 100],
-                  }),
-                },
-              ],
-              backgroundColor: "rgba(100, 180, 200, 0.4)",
-              borderRadius: 20,
-            }}
-          />
-        )}
+                {/* water 3 */}
+                <View className="items-center w-1/4 -mb-8">
+                  <>
+                    <Image
+                      source={images.water}
+                      className="w-20 h-22 rounded-full"
+                    />
+                    <Text className="text-black text-lg font-primary ">
+                      {t("game.water")}
+                    </Text>
+                    <Text className="text-black text-lg font-primary">
+                      {waterLevel}%
+                    </Text>
+                  </>
+                </View>
+              </View>
+            </View>
 
-        {fertilizing && (
-          <Animated.View
-            style={{
-              position: "absolute",
-              top: SCREEN_HEIGHT / 2 - 80,
-              left: SCREEN_WIDTH / 2 - 80,
-              width: 160,
-              height: 160,
-              backgroundColor: "rgba(100,200,100,0.3)",
-              borderRadius: 80,
-              opacity: fertAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.8, 0],
-              }),
-              transform: [
-                {
-                  scale: fertAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.5, 1.5],
-                  }),
-                },
-              ],
-            }}
-          />
-        )}
+            {activeThreat && !activeThreat.resolved && (
+              <Text style={{ color: "red", marginTop: 10 }}>
+                ⚠️{"🐛"}
+                {activeThreat.type.toUpperCase() === "DISEASE"
+                  ? t("game.disease")
+                  : t("game.storm")}{" "}
+                - {t("game.respond_threat")}
+                {"  "}
+                {activeThreat.type === "disease" ? "10" : "5"}s!
+              </Text>
+            )}
+            {waterLevel < 20 && (
+              <Text className="text-red text-md">⚠️ {t("game.low_water")}</Text>
+            )}
+            {nutrientLevel < 20 && (
+              <Text className="text-red text-md">
+                ⚠️ {t("game.low_nutrient")}
+              </Text>
+            )}
+            <Text className="text-yellow-600 text-lg">{showGiftMessage}</Text>
+            <Text className="text-white text-3xl font-bold">{score}</Text>
+          </View>
 
-        {/* Plant */}
-        <View
-          className={`flex-1 justify-center items-center mt-80`}
-          style={{
-            borderRadius: 100,
-            padding: 2,
-            // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
-          }}
-        >
-          {soilVisible && (
-            <Animated.Image
-              source={images.soil}
+          {spraying && (
+            <Animated.View
               style={{
-                width: 100,
-                height: 130,
-                bottom: 80,
                 position: "absolute",
+                top: SCREEN_HEIGHT / 2 - 5,
+                left: SCREEN_WIDTH / 2 - 80,
+                width: 160,
+                height: 160,
+                backgroundColor: "rgba(200,255,200,0.3)",
+                borderRadius: 80,
+                transform: [
+                  {
+                    scale: sprayAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.2, 1.2],
+                    }),
+                  },
+                ],
+                opacity: sprayAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.8, 0],
+                }),
               }}
-              resizeMode="contain"
-              className={`w-48 `}
             />
           )}
-          {activeThreat && !activeThreat.resolved && (
-            <ExpoImage
-              source={images.bugs}
+
+          {watering && (
+            <Animated.View
               style={{
-                width: 30,
-                height: 30,
-                position: "absolute", // <-- This removes it from layout flow
-                top: 120, // Adjust as needed
-                left: 170, // Adjust as needed
-                zIndex: 10, // Make sure it's above the plant
+                position: "absolute",
+                top: SCREEN_HEIGHT / 2,
+                left: SCREEN_WIDTH / 2 - 30,
+                width: 60,
+                height: 100,
+                opacity: waterAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0],
+                }),
+                transform: [
+                  {
+                    translateY: waterAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 100],
+                    }),
+                  },
+                ],
+                backgroundColor: "rgba(100, 180, 200, 0.4)",
+                borderRadius: 20,
               }}
             />
           )}
-          {isTimerActive && !soilVisible && (
-            <Animated.Image
-              source={
-                plantDamaged
-                  ? plantSickImages[getPlantStage()]
-                  : currentSeason === "raining"
-                  ? plantRainImages[getPlantStage()]
-                  : plantImages[getPlantStage()]
-              }
-              className={`w-48 `}
-              resizeMode="contain"
+
+          {fertilizing && (
+            <Animated.View
               style={{
-                height: getPlantSize(),
-                // transform: [{ scale: plantScale }],
+                position: "absolute",
+                top: SCREEN_HEIGHT / 2 - 80,
+                left: SCREEN_WIDTH / 2 - 80,
+                width: 160,
+                height: 160,
+                backgroundColor: "rgba(100,200,100,0.3)",
+                borderRadius: 80,
+                opacity: fertAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.8, 0],
+                }),
+                transform: [
+                  {
+                    scale: fertAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.5, 1.5],
+                    }),
+                  },
+                ],
               }}
             />
           )}
-        </View>
 
-        {/* Tool buttons */}
+          {/* Plant */}
+          <View
+            className={`flex-1 justify-center items-center mt-80`}
+            style={{
+              borderRadius: 100,
+              padding: 2,
+              // backgroundColor: plantDamaged ? "rgba(255,0,0,0.2)" : "transparent",
+            }}
+          >
+            {soilVisible && (
+              <Animated.Image
+                source={images.soil}
+                style={{
+                  width: 100,
+                  height: 130,
+                  bottom: 80,
+                  position: "absolute",
+                }}
+                resizeMode="contain"
+                className={`w-48 `}
+              />
+            )}
+            {activeThreat && !activeThreat.resolved && (
+              <ExpoImage
+                source={images.bugs}
+                style={{
+                  width: 30,
+                  height: 30,
+                  position: "absolute", // <-- This removes it from layout flow
+                  top: 120, // Adjust as needed
+                  left: 170, // Adjust as needed
+                  zIndex: 10, // Make sure it's above the plant
+                }}
+              />
+            )}
+            {isTimerActive && !soilVisible && (
+              <Animated.Image
+                source={
+                  plantDamaged
+                    ? plantSickImages[getPlantStage()]
+                    : currentSeason === "raining"
+                    ? plantRainImages[getPlantStage()]
+                    : plantImages[getPlantStage()]
+                }
+                className={`w-48 `}
+                resizeMode="contain"
+                style={{
+                  height: getPlantSize(),
+                  // transform: [{ scale: plantScale }],
+                }}
+              />
+            )}
+          </View>
 
-        <View className="absolute left-4 top-[18%] gap-y-1 py-80">
-          <ToolIcon
-            icon={images.fertilizer}
-            onPress={throttledTriggerFertilizer}
-            itemQty={userInventory.fertilizerQty}
-            disabled={isThrottledF}
-          />
-          <ToolIcon
-            itemQty={userInventory.pesticideQty}
-            icon={images.pesticied}
-            onPress={throttledTriggerSpray}
-            disabled={isThrottled}
-          />
+          {/* Tool buttons */}
 
-          <ToolIcon
-            itemQty={userInventory.waterQty}
-            icon={images.kettle}
-            onPress={throttledTriggerWater}
-            disabled={isThrottledW}
-          />
-        </View>
+          <View className="absolute left-4 top-[18%] gap-y-1 py-80">
+            <ToolIcon
+              icon={images.fertilizer}
+              onPress={throttledTriggerFertilizer}
+              itemQty={userInventory.fertilizerQty}
+              disabled={isThrottledF}
+            />
+            <ToolIcon
+              itemQty={userInventory.pesticideQty}
+              icon={images.pesticied}
+              onPress={throttledTriggerSpray}
+              disabled={isThrottled}
+            />
 
-        {/* Progress bar */}
-        <View className="px-6 mt-5">
-          <View className="h-3 bg-white/30 rounded-full">
-            <View
-              className="h-3 bg-yellow-400 rounded-full"
-              style={{ width: `${(getPlantStage() / 4) * 100}%` }}
+            <ToolIcon
+              itemQty={userInventory.waterQty}
+              icon={images.kettle}
+              onPress={throttledTriggerWater}
+              disabled={isThrottledW}
             />
           </View>
-          <Text className="text-center text-white mt-1">
-            {getPlantStage() * 25}
-          </Text>
-        </View>
 
-        {/* Timer */}
-        {/* <Text className="text-center text-white text-xl">
+          {/* Progress bar */}
+          <View className="px-6 mt-5">
+            <View className="h-3 bg-white/30 rounded-full">
+              <View
+                className="h-3 bg-yellow-400 rounded-full"
+                style={{ width: `${(getPlantStage() / 4) * 100}%` }}
+              />
+            </View>
+            <Text className="text-center text-white mt-1">
+              {getPlantStage() * 25}
+            </Text>
+          </View>
+
+          {/* Timer */}
+          {/* <Text className="text-center text-white text-xl">
           {formatTime(timeLeft)}
         </Text> */}
 
-        {/* Action buttons */}
-        <View className="flex-row justify-around items-center ">
-          <ActionButton
-            icon={getLevelImage()}
-            // icon={images/levelDoc}
-            label={`LV ${userLevel}`}
-            onPress={() =>
-              handleToolUse(t("game.level_info", { level: userLevel }))
-            }
-          />
-          {isTimerActive && (
+          {/* Action buttons */}
+          <View className="flex-row justify-around items-center ">
             <ActionButton
-              icon={images.pause}
-              label=""
-              onPress={() => {
-                setIsTimerActive(false);
-                playSound(require("@/assets/sounds/pause.mp3"), 0.05);
-                // handleToolUse(
-                //   t("game.growth_cycle", { type: `${t("game.pause")}` })
-                // );
-                setPauseModal(true);
-              }}
+              icon={getLevelImage()}
+              // icon={images/levelDoc}
+              label={`LV ${userLevel}`}
+              onPress={() =>
+                handleToolUse(t("game.level_info", { level: userLevel }))
+              }
             />
-          )}
-          {!isTimerActive && (
-            <ActionButton
-              icon={images.play}
-              label=""
-              onPress={() => {
-                setIsTimerActive(true);
-                playSound(require("@/assets/sounds/play.mp3"), 0.05);
-                handleToolUse(
-                  t("game.growth_cycle", { type: `${t("game.resume")}` })
-                );
-              }}
-            />
-          )}
+            {isTimerActive && (
+              <ActionButton
+                icon={images.pause}
+                label=""
+                onPress={() => {
+                  setIsTimerActive(false);
+                  playSound(require("@/assets/sounds/pause.mp3"), 0.05);
+                  // handleToolUse(
+                  //   t("game.growth_cycle", { type: `${t("game.pause")}` })
+                  // );
+                  setPauseModal(true);
+                }}
+              />
+            )}
+            {!isTimerActive && (
+              <ActionButton
+                icon={images.play}
+                label=""
+                onPress={() => {
+                  setIsTimerActive(true);
+                  playSound(require("@/assets/sounds/play.mp3"), 0.05);
+                  handleToolUse(
+                    t("game.growth_cycle", { type: `${t("game.resume")}` })
+                  );
+                }}
+              />
+            )}
 
-          <ActionButton
-            icon={images.inventory}
-            label=""
-            onPress={() => {
+            <ActionButton
+              icon={images.inventory}
+              label=""
+              onPress={() => {
+                saveGameState();
+                router.push("/(screens)/inventory");
+                setIsTimerActive(false);
+              }}
+            />
+          </View>
+
+          {/* Popup */}
+          <Modal transparent visible={showPopup}>
+            <View className="flex-1 justify-center items-center bg-black/40">
+              <View className="bg-white rounded-xl p-6">
+                <Text className="text-lg font-bold">{popupText}</Text>
+              </View>
+            </View>
+          </Modal>
+
+          <ConfirmModal
+            visible={confirmModal}
+            message={t("comfirmation.close_game")}
+            confirmTitle={t("comfirmation.title")}
+            confirmBtnText={t("buttons.ok")}
+            cancelBtnText={t("buttons.cancel")}
+            onConfirm={() => {
+              resetBackgroundSound();
+              setConfirmModal(false);
               saveGameState();
-              router.push("/(screens)/inventory");
-              setIsTimerActive(false);
+              setTimeout(() => {
+                router.replace("/(tabs)/home");
+              }, 100);
+            }}
+            onCancel={() => {
+              setConfirmModal(false);
             }}
           />
+          <MessageDialog
+            visible={growthModal}
+            onClose={() => setGrowthModal(false)}
+            onPress={() => {
+              setIsTimerActive(true);
+              setGrowthModal(false);
+            }}
+            messageText={growthCycle.message}
+            imageSource={growthCycle.image}
+            buttonText={t("buttons.ok")}
+          />
+          <MessageDialog
+            visible={sickModal}
+            onClose={() => setSickModal(false)}
+            onPress={() => {
+              setSickModal(false);
+            }}
+            messageText={
+              "Oh no! A strange blight has spread through your crops. Take action to heal your plants and protect your farm’s magic before it fades further."
+            }
+            imageSource={images.sickPlant}
+            buttonText={t("buttons.ok")}
+          />
+
+          <CustomConfirmDialog
+            visible={lowItemModal}
+            onClose={() => setLowItemModal(false)}
+            onConfirmPress={() => {
+              setLowItemModal(false);
+              setIsTimerActive(false);
+              saveGameState();
+              router.push("/(screens)/inventory");
+            }}
+            onCancelPress={() => {
+              setIsTimerActive(false);
+              setLowItemModal(false);
+            }}
+            messageText={lowItemText}
+            imageSource={images.inventory}
+            confirmButtonText={"Open Inventory"}
+            concelButtonText={"Pause & Exit"}
+          />
+
+          <CustomPauseDialog
+            visible={pauseModal}
+            onClose={() => setPauseModal(false)}
+            onConfirmPress={() => {
+              setPauseModal(false);
+              setIsTimerActive(true);
+            }}
+            onCancelPress={() => {
+              // setPauseModal(false);
+              setConfirmModal(true);
+            }}
+            messageText={"Game Paused"}
+            imageSource={images.pauseModal}
+            confirmButtonText={"Resume"}
+            concelButtonText={"Exit to menu"}
+            ontoggleMute={toggleMute}
+            isMuted={isMuted}
+          />
         </View>
-
-        {/* Popup */}
-        <Modal transparent visible={showPopup}>
-          <View className="flex-1 justify-center items-center bg-black/40">
-            <View className="bg-white rounded-xl p-6">
-              <Text className="text-lg font-bold">{popupText}</Text>
-            </View>
-          </View>
-        </Modal>
-
-        <ConfirmModal
-          visible={confirmModal}
-          message={t("comfirmation.close_game")}
-          confirmTitle={t("comfirmation.title")}
-          confirmBtnText={t("buttons.ok")}
-          cancelBtnText={t("buttons.cancel")}
-          onConfirm={() => {
-            resetBackgroundSound();
-            setConfirmModal(false);
-            saveGameState();
-            setTimeout(() => {
-              router.replace("/(tabs)/home");
-            }, 100);
+      </TouchableWithoutFeedback>
+      {!isPremiumUser && (
+        <BannerAd
+          unitId={TestIds.BANNER}
+          // unitId={'ca-app-pub-4516568539037938/3383596217'}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
           }}
-          onCancel={() => {
-            setConfirmModal(false);
-          }}
+          onAdFailedToLoad={(error) => console.error(error)}
         />
-        <MessageDialog
-          visible={growthModal}
-          onClose={() => setGrowthModal(false)}
-          onPress={() => {
-            setIsTimerActive(true);
-            setGrowthModal(false);
-          }}
-          messageText={growthCycle.message}
-          imageSource={growthCycle.image}
-          buttonText={t("buttons.ok")}
-        />
-        <MessageDialog
-          visible={sickModal}
-          onClose={() => setSickModal(false)}
-          onPress={() => {
-            setSickModal(false);
-          }}
-          messageText={
-            "Oh no! A strange blight has spread through your crops. Take action to heal your plants and protect your farm’s magic before it fades further."
-          }
-          imageSource={images.sickPlant}
-          buttonText={t("buttons.ok")}
-        />
-
-        <CustomConfirmDialog
-          visible={lowItemModal}
-          onClose={() => setLowItemModal(false)}
-          onConfirmPress={() => {
-            setLowItemModal(false);
-            setIsTimerActive(false);
-            saveGameState();
-            router.push("/(screens)/inventory");
-          }}
-          onCancelPress={() => {
-            setIsTimerActive(false);
-            setLowItemModal(false);
-          }}
-          messageText={lowItemText}
-          imageSource={images.inventory}
-          confirmButtonText={"Open Inventory"}
-          concelButtonText={"Pause & Exit"}
-        />
-
-        <CustomPauseDialog
-          visible={pauseModal}
-          onClose={() => setPauseModal(false)}
-          onConfirmPress={() => {
-            setPauseModal(false);
-            setIsTimerActive(true);
-          }}
-          onCancelPress={() => {
-            // setPauseModal(false);
-            setConfirmModal(true);
-          }}
-          messageText={"Game Paused"}
-          imageSource={images.pauseModal}
-          confirmButtonText={"Resume"}
-          concelButtonText={"Exit to menu"}
-          ontoggleMute={toggleMute}
-          isMuted={isMuted}
-        />
-      </View>
-    </TouchableWithoutFeedback>
+      )}
+    </>
   );
 };
 

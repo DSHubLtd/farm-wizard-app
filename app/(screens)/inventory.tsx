@@ -29,6 +29,11 @@ import checkCurrency from "@/utils/checkCurrency";
 import { useTranslation } from "react-i18next";
 import { API_BASE } from "@/config/client";
 import analytics from "@react-native-firebase/analytics";
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 
 type Inventory = {
   name: string;
@@ -43,6 +48,7 @@ const Inventory = () => {
   if (!user) {
     router.replace("/");
   }
+  const isPremiumUser = user?.isPremium === true;
   const { t } = useTranslation();
   const inventory = {
     items: [
@@ -325,203 +331,207 @@ const Inventory = () => {
     );
 
   return (
-    <View className="flex-1 bg-green-200 pt-12 px-4">
-      {/* Background */}
-      <BackgroundImage
-        source={images.background}
-        style={{ width: "100vw", height: "100vh", position: "absolute" }}
-      />
+    <>
+      <View className="flex-1 bg-green-200 pt-12 px-4">
+        {/* Background */}
+        <BackgroundImage
+          source={images.background}
+          style={{ width: "100vw", height: "100vh", position: "absolute" }}
+        />
 
-      <Text className="text-white text-2xl font-primary text-center my-8">
-        {t("menu.inventory")}
-      </Text>
-
-      <View className="flex-row gap-2 justify-end my-2">
-        <Text className="text-white text-lg font-semibold">
-          {(user?.score).toFixed(2)}
+        <Text className="text-white text-2xl font-primary text-center my-8">
+          {t("menu.inventory")}
         </Text>
-        <View className="bg-yellow-500 p-1 rounded-full">
-          <HomeIcon size={16} color={"#fff"} />
+
+        <View className="flex-row gap-2 justify-end my-2">
+          <Text className="text-white text-lg font-semibold">
+            {(user?.score).toFixed(2)}
+          </Text>
+          <View className="bg-yellow-500 p-1 rounded-full">
+            <HomeIcon size={16} color={"#fff"} />
+          </View>
         </View>
-      </View>
 
-      {/* Tab Buttons */}
-      <View className="flex-row mb-4">
-        {renderTabButton("Items", "items")}
-        {renderTabButton("Seeds", "seeds")}
-      </View>
-
-      <ScrollView className="pb-10">
-        <View className="bg-[#78693952] p-4 rounded-xl">
-          <InventoryGrid
-            data={activeTab === "items" ? inventory.items : seedData}
-            onOpenModal={openModal}
-            userInventory={userInventory}
-          />
+        {/* Tab Buttons */}
+        <View className="flex-row mb-4">
+          {renderTabButton("Items", "items")}
+          {renderTabButton("Seeds", "seeds")}
         </View>
-      </ScrollView>
 
-      {/* Popup Modal */}
-      <Modal transparent visible={modalVisible} animationType="fade">
-        <TouchableWithoutFeedback onPress={closeModal}>
-          <BlurView
-            intensity={50}
-            tint="dark"
-            className="flex-1 items-center justify-center"
-          >
-            <Animated.View
-              style={{
-                opacity: fadeAnim,
-                transform: [
-                  {
-                    translateY: fadeAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [50, 0],
-                    }),
-                  },
-                ],
-              }}
-              className="bg-[#78693985] rounded-3xl w-[80%] p-2 items-center border border-yellow-300"
+        <ScrollView className="pb-10">
+          <View className="bg-[#78693952] p-4 rounded-xl">
+            <InventoryGrid
+              data={activeTab === "items" ? inventory.items : seedData}
+              onOpenModal={openModal}
+              userInventory={userInventory}
+            />
+          </View>
+        </ScrollView>
+
+        {/* Popup Modal */}
+        <Modal transparent visible={modalVisible} animationType="fade">
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <BlurView
+              intensity={50}
+              tint="dark"
+              className="flex-1 items-center justify-center"
+            >
+              <Animated.View
+                style={{
+                  opacity: fadeAnim,
+                  transform: [
+                    {
+                      translateY: fadeAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [50, 0],
+                      }),
+                    },
+                  ],
+                }}
+                className="bg-[#78693985] rounded-3xl w-[80%] p-2 items-center border border-yellow-300"
+              >
+                <TouchableWithoutFeedback onPress={() => {}}>
+                  <View className="bg-white rounded-2xl p-8 flex justify-center items-center">
+                    <Text className="text-[#80784A] font-smibold text-center mb-6">
+                      {t("inventory.select_quantity")}
+                    </Text>
+                    <Image
+                      source={selectedItem?.iconLg}
+                      // source={
+                      //   activeTab === "items"
+                      //     ? selectedItem?.icon
+                      //     : selectedItem?.iconLg
+                      // }
+                      className="w-40 h-40"
+                    />
+                    <Text className="text-md text-[#78693985] font-bold text-center">
+                      {selectedItem?.diplayName}
+                    </Text>
+
+                    <View className="flex-row my-1 gap-14">
+                      <TouchableOpacity onPress={() => handleAmount("sub")}>
+                        <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
+                          <Image
+                            source={icons.leftChevron}
+                            className="w-18 h-14"
+                            resizeMode="contain"
+                          />
+                        </View>
+                      </TouchableOpacity>
+                      <Text className="text-[#80784A] text-lg font-semibold">
+                        X {purchaseQty}
+                      </Text>
+                      <TouchableOpacity onPress={() => handleAmount("add")}>
+                        <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
+                          <Image
+                            source={icons.rightChevron}
+                            className="w-18 h-14"
+                            resizeMode="contain"
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                    <View className="flex-row gap-2">
+                      <View className="bg-yellow-500 p-1 rounded-full">
+                        <HomeIcon size={18} color={"#fff"} />
+                      </View>
+                      <Text className="text-[#80784A] text-2xl font-bold">
+                        {totalAmount.toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableWithoutFeedback>
+              </Animated.View>
+              <CustomButton
+                title="Buy"
+                handlePress={handleBuyItem}
+                containerStyles="w-[150px]"
+                textStyles={"font-pbold text-white"}
+                isLoading={false}
+              />
+            </BlurView>
+          </TouchableWithoutFeedback>
+        </Modal>
+
+        <Modal transparent visible={modalMessage} animationType="fade">
+          <TouchableWithoutFeedback onPress={() => setModalMessage(false)}>
+            <BlurView
+              intensity={50}
+              tint="dark"
+              className="flex-1 items-center justify-center"
             >
               <TouchableWithoutFeedback onPress={() => {}}>
-                <View className="bg-white rounded-2xl p-8 flex justify-center items-center">
-                  <Text className="text-[#80784A] font-smibold text-center mb-6">
-                    {t("inventory.select_quantity")}
-                  </Text>
+                <View className="bg-[#857f6e85] opacity-2 rounded-lg p-2 flex justify-center items-center">
                   <Image
-                    source={selectedItem?.iconLg}
-                    // source={
-                    //   activeTab === "items"
-                    //     ? selectedItem?.icon
-                    //     : selectedItem?.iconLg
-                    // }
+                    source={images.fewCoinsMessage}
                     className="w-40 h-40"
                   />
-                  <Text className="text-md text-[#78693985] font-bold text-center">
-                    {selectedItem?.diplayName}
+                  <Text className="text-md text-white font-bold text-center">
+                    The magic’s eager, but your coins are few! Let’s visit the
+                    shop and fill that pouch.
                   </Text>
-
-                  <View className="flex-row my-1 gap-14">
-                    <TouchableOpacity onPress={() => handleAmount("sub")}>
-                      <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
-                        <Image
-                          source={icons.leftChevron}
-                          className="w-18 h-14"
-                          resizeMode="contain"
-                        />
-                      </View>
-                    </TouchableOpacity>
-                    <Text className="text-[#80784A] text-lg font-semibold">
-                      X {purchaseQty}
-                    </Text>
-                    <TouchableOpacity onPress={() => handleAmount("add")}>
-                      <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
-                        <Image
-                          source={icons.rightChevron}
-                          className="w-18 h-14"
-                          resizeMode="contain"
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                  <View className="flex-row gap-2">
-                    <View className="bg-yellow-500 p-1 rounded-full">
-                      <HomeIcon size={18} color={"#fff"} />
-                    </View>
-                    <Text className="text-[#80784A] text-2xl font-bold">
-                      {totalAmount.toFixed(2)}
-                    </Text>
-                  </View>
                 </View>
               </TouchableWithoutFeedback>
-            </Animated.View>
-            <CustomButton
-              title="Buy"
-              handlePress={handleBuyItem}
-              containerStyles="w-[150px]"
-              textStyles={"font-pbold text-white"}
-              isLoading={false}
-            />
-          </BlurView>
-        </TouchableWithoutFeedback>
-      </Modal>
 
-      <Modal transparent visible={modalMessage} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setModalMessage(false)}>
-          <BlurView
-            intensity={50}
-            tint="dark"
-            className="flex-1 items-center justify-center"
-          >
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <View className="bg-[#857f6e85] opacity-2 rounded-lg p-2 flex justify-center items-center">
-                <Image source={images.fewCoinsMessage} className="w-40 h-40" />
-                <Text className="text-md text-white font-bold text-center">
-                  The magic’s eager, but your coins are few! Let’s visit the
-                  shop and fill that pouch.
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
+              <CustomButton
+                title="Buy more coins "
+                handlePress={() => console.log("me")}
+                containerStyles="w-[200px]"
+                textStyles={"font-pbold text-white"}
+                isLoading={false}
+              />
+            </BlurView>
+          </TouchableWithoutFeedback>
+        </Modal>
 
-            <CustomButton
-              title="Buy more coins "
-              handlePress={() => console.log("me")}
-              containerStyles="w-[200px]"
-              textStyles={"font-pbold text-white"}
-              isLoading={false}
-            />
-          </BlurView>
-        </TouchableWithoutFeedback>
-      </Modal>
-
-      {/* flutterwave modal  */}
-      <Modal transparent visible={showConfirmModal} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setConfirmShowModal(false)}>
-          <BlurView
-            intensity={50}
-            tint="dark"
-            className="flex-1 p-4 items-center justify-center"
-          >
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <View className="bg-white rounded-2xl w-[90%] p-6 ">
-                <Text
-                  className="font-secondary font-bold italic"
-                  style={{ fontSize: 22 }}
-                >
-                  {t("inventory.confirm_payment", {
-                    amount: `${usdEquivalent} ${currency}`,
-                    purchaseQty: `${purchaseQty} qty`,
-                    item: `${selectedItem?.diplayName} `,
-                  })}
-                </Text>
-                <Text style={{ fontSize: 18 }} className="my-4">
-                  {t("inventory.select_currency")}
-                </Text>
-                <Picker
-                  selectedValue={currency}
-                  onValueChange={(itemValue) => setCurrency(itemValue)}
-                  style={{ marginVertical: 20 }}
-                >
-                  <Picker.Item label="🇳🇬 Naira (NGN)" value="NGN" />
-                  <Picker.Item label="🇺🇸 Dollar (USD)" value="USD" />
-                  <Picker.Item label="🇬🇭 Cedi (GHS)" value="GHS" />
-                  <Picker.Item label="🇰🇪 Shilling (KES)" value="KES" />
-                  <Picker.Item label="🇬🇧 Pound Sterling (GBP)" value="GBP" />
-                  <Picker.Item label="🇪🇺 Euro (EUR)" value="EUR" />
-                  <Picker.Item label="🇿🇦 Rand (ZAR)" value="ZAR" />
-                  <Picker.Item label="🇹🇿 Shilling (TZS)" value="TZS" />
-                  <Picker.Item label="🇺🇬 Shilling (UGX)" value="UGX" />
-                  <Picker.Item label="🇲🇼 Kwacha (MWK)" value="MWK" />
-                  <Picker.Item label="🇷🇼 Franc (RWF)" value="RWF" />
-                  <Picker.Item label="🇨🇲 CFA Franc (XAF)" value="XAF" />
-                  <Picker.Item label="🇨🇮 CFA Franc (XOF)" value="XOF" />
-                  <Picker.Item label="🇲🇦 Dirham (MAD)" value="MAD" />
-                  <Picker.Item label="🇿🇲 Kwacha (ZMW)" value="ZMW" />
-                  <Picker.Item label="🇨🇱 Peso (CLP)" value="CLP" />
-                  <Picker.Item label="🇨🇴 Peso (COP)" value="COP" />
-                  <Picker.Item label="🇪🇬 Pound (EGP)" value="EGP" />
-                  <Picker.Item label="🇬🇳 Franc (GNF)" value="GNF" />
-                  {/* <Picker.Item label="🇲🇺 Rupee (MUR)" value="MUR" />
+        {/* flutterwave modal  */}
+        <Modal transparent visible={showConfirmModal} animationType="fade">
+          <TouchableWithoutFeedback onPress={() => setConfirmShowModal(false)}>
+            <BlurView
+              intensity={50}
+              tint="dark"
+              className="flex-1 p-4 items-center justify-center"
+            >
+              <TouchableWithoutFeedback onPress={() => {}}>
+                <View className="bg-white rounded-2xl w-[90%] p-6 ">
+                  <Text
+                    className="font-secondary font-bold italic"
+                    style={{ fontSize: 22 }}
+                  >
+                    {t("inventory.confirm_payment", {
+                      amount: `${usdEquivalent} ${currency}`,
+                      purchaseQty: `${purchaseQty} qty`,
+                      item: `${selectedItem?.diplayName} `,
+                    })}
+                  </Text>
+                  <Text style={{ fontSize: 18 }} className="my-4">
+                    {t("inventory.select_currency")}
+                  </Text>
+                  <Picker
+                    selectedValue={currency}
+                    onValueChange={(itemValue) => setCurrency(itemValue)}
+                    style={{ marginVertical: 20 }}
+                  >
+                    <Picker.Item label="🇳🇬 Naira (NGN)" value="NGN" />
+                    <Picker.Item label="🇺🇸 Dollar (USD)" value="USD" />
+                    <Picker.Item label="🇬🇭 Cedi (GHS)" value="GHS" />
+                    <Picker.Item label="🇰🇪 Shilling (KES)" value="KES" />
+                    <Picker.Item label="🇬🇧 Pound Sterling (GBP)" value="GBP" />
+                    <Picker.Item label="🇪🇺 Euro (EUR)" value="EUR" />
+                    <Picker.Item label="🇿🇦 Rand (ZAR)" value="ZAR" />
+                    <Picker.Item label="🇹🇿 Shilling (TZS)" value="TZS" />
+                    <Picker.Item label="🇺🇬 Shilling (UGX)" value="UGX" />
+                    <Picker.Item label="🇲🇼 Kwacha (MWK)" value="MWK" />
+                    <Picker.Item label="🇷🇼 Franc (RWF)" value="RWF" />
+                    <Picker.Item label="🇨🇲 CFA Franc (XAF)" value="XAF" />
+                    <Picker.Item label="🇨🇮 CFA Franc (XOF)" value="XOF" />
+                    <Picker.Item label="🇲🇦 Dirham (MAD)" value="MAD" />
+                    <Picker.Item label="🇿🇲 Kwacha (ZMW)" value="ZMW" />
+                    <Picker.Item label="🇨🇱 Peso (CLP)" value="CLP" />
+                    <Picker.Item label="🇨🇴 Peso (COP)" value="COP" />
+                    <Picker.Item label="🇪🇬 Pound (EGP)" value="EGP" />
+                    <Picker.Item label="🇬🇳 Franc (GNF)" value="GNF" />
+                    {/* <Picker.Item label="🇲🇺 Rupee (MUR)" value="MUR" />
                   <Picker.Item label="🇲🇾 Ringgit (MYR)" value="MYR" />
                   <Picker.Item label="🇳🇴 Krone (NOK)" value="NOK" />
                   <Picker.Item label="🇳🇿 Dollar (NZD)" value="NZD" />
@@ -530,148 +540,162 @@ const Inventory = () => {
                   <Picker.Item label="🇸🇦 Riyal (SAR)" value="SAR" />
                   <Picker.Item label="🇸🇪 Krona (SEK)" value="SEK" />
                   <Picker.Item label="🇸🇬 Dollar (SGD)" value="SGD" /> */}
-                  <Picker.Item label="🇸🇱 Leone (SLL)" value="SLL" />
-                </Picker>
-              </View>
-            </TouchableWithoutFeedback>
-            {!usdEquivalent || exchangeLoading ? (
-              <Text style={{ marginBottom: 10 }}>Loading...</Text>
-            ) : (
-              <>
-                <CustomButton
-                  title={`${t("inventory.pay")} ${usdEquivalent} ${currency}`}
-                  handlePress={() => setShowFlutterwave(true)}
-                  containerStyles="w-[100%]"
-                  textStyles={"font-pbold text-white"}
-                  isLoading={exchangeLoading}
-                />
-              </>
-            )}
-          </BlurView>
-        </TouchableWithoutFeedback>
-      </Modal>
-
-      {/* in app purchase modal  */}
-      <Modal transparent visible={inAppPurchaseModal} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setInAppPurchaseModal(false)}>
-          <BlurView
-            intensity={50}
-            tint="dark"
-            className="flex-1 p-4 items-center justify-center"
-          >
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <View className="bg-white rounded-2xl w-[90%] p-6 ">
-                <Text
-                  className="font-secondary font-bold italic"
-                  style={{ fontSize: 22 }}
-                >
-                  {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`}
-                </Text>
-                <Text style={{ fontSize: 16 }} className="my-4">
-                  Note! 1000 Wizpoint = 0.0001 USD
-                </Text>
-                <Text style={{ fontSize: 14 }} className="">
-                  your Wiz balance is {user.score} wiz ={" "}
-                  {convertWizpointToUsd(user.score)} USD
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
-            {!usdEquivalent || exchangeLoading ? (
-              <Text style={{ marginBottom: 10 }}>Loading...</Text>
-            ) : (
-              <>
-                {Number(usdEquivalent) >=
-                Number(convertWizpointToUsd(user.score)) ? (
-                  <Text
-                    className="text-red-400 text-xl font-bold"
-                    style={{ marginBottom: 10 }}
-                  >
-                    In Sufficient Balance
-                  </Text>
-                ) : (
+                    <Picker.Item label="🇸🇱 Leone (SLL)" value="SLL" />
+                  </Picker>
+                </View>
+              </TouchableWithoutFeedback>
+              {!usdEquivalent || exchangeLoading ? (
+                <Text style={{ marginBottom: 10 }}>Loading...</Text>
+              ) : (
+                <>
                   <CustomButton
-                    title={`Pay ${usdEquivalent} ${currency}`}
-                    handlePress={handleInAppPurchase}
+                    title={`${t("inventory.pay")} ${usdEquivalent} ${currency}`}
+                    handlePress={() => setShowFlutterwave(true)}
                     containerStyles="w-[100%]"
                     textStyles={"font-pbold text-white"}
                     isLoading={exchangeLoading}
                   />
-                )}
-              </>
-            )}
-          </BlurView>
-        </TouchableWithoutFeedback>
-      </Modal>
+                </>
+              )}
+            </BlurView>
+          </TouchableWithoutFeedback>
+        </Modal>
 
-      <FlutterwaveModal
-        visible={showFlutterwave}
-        onRequestClose={() => setShowFlutterwave(false)}
-        email={user.email}
-        name={user.fullName}
-        amount={usdEquivalent}
-        txRef={txRef}
-        currency={currency}
-        publicKey="FLWPUBK-9bdd51ca22a021ad9d40dd455be36bc8-X"
-        onSuccess={handleSuccess}
-        onCancel={handleCancel}
-      />
-
-      <Modal transparent visible={paymentOptionModal} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setPaymentOptionModl(false)}>
-          <BlurView
-            intensity={50}
-            tint="dark"
-            className="flex-1 items-center justify-center"
+        {/* in app purchase modal  */}
+        <Modal transparent visible={inAppPurchaseModal} animationType="fade">
+          <TouchableWithoutFeedback
+            onPress={() => setInAppPurchaseModal(false)}
           >
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <View className="bg-[#857f6e85] opacity-2 rounded-lg p-2 flex justify-center items-center">
-                <Text className="text-md text-white font-bold text-center">
-                  {t("inventory.select_payment_option")}
-                </Text>
-                <View className="flex-row p-4 my-8">
-                  <TouchableOpacity
-                    onPress={() => setSelectedPaymentOption("Card")}
-                    className={`bg-black/20 m-1 rounded-lg ${
-                      selectedPaymentOption === "Card"
-                        ? "border border-white"
-                        : ""
-                    }`}
+            <BlurView
+              intensity={50}
+              tint="dark"
+              className="flex-1 p-4 items-center justify-center"
+            >
+              <TouchableWithoutFeedback onPress={() => {}}>
+                <View className="bg-white rounded-2xl w-[90%] p-6 ">
+                  <Text
+                    className="font-secondary font-bold italic"
+                    style={{ fontSize: 22 }}
                   >
-                    <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
-                      <Text className="text-white text-md font-bold font-secondary text-center">
-                        CARD / TRANSFER
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setSelectedPaymentOption("In App")}
-                    className={`bg-black/20 m-1 rounded-lg ${
-                      selectedPaymentOption === "In App"
-                        ? "border border-white"
-                        : ""
-                    }`}
-                  >
-                    <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
-                      <Text className="text-white text-md font-bold font-secondary text-center">
-                        IN APP PURCHASE
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
+                    {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`}
+                  </Text>
+                  <Text style={{ fontSize: 16 }} className="my-4">
+                    Note! 1000 Wizpoint = 0.0001 USD
+                  </Text>
+                  <Text style={{ fontSize: 14 }} className="">
+                    your Wiz balance is {user.score} wiz ={" "}
+                    {convertWizpointToUsd(user.score)} USD
+                  </Text>
                 </View>
-              </View>
-            </TouchableWithoutFeedback>
+              </TouchableWithoutFeedback>
+              {!usdEquivalent || exchangeLoading ? (
+                <Text style={{ marginBottom: 10 }}>Loading...</Text>
+              ) : (
+                <>
+                  {Number(usdEquivalent) >=
+                  Number(convertWizpointToUsd(user.score)) ? (
+                    <Text
+                      className="text-red-400 text-xl font-bold"
+                      style={{ marginBottom: 10 }}
+                    >
+                      In Sufficient Balance
+                    </Text>
+                  ) : (
+                    <CustomButton
+                      title={`Pay ${usdEquivalent} ${currency}`}
+                      handlePress={handleInAppPurchase}
+                      containerStyles="w-[100%]"
+                      textStyles={"font-pbold text-white"}
+                      isLoading={exchangeLoading}
+                    />
+                  )}
+                </>
+              )}
+            </BlurView>
+          </TouchableWithoutFeedback>
+        </Modal>
 
-            <CustomButton
-              title="Continue"
-              handlePress={handlePaymentOption}
-              containerStyles="w-[200px]"
-              textStyles={"font-pbold text-white"}
-              isLoading={false}
-            />
-          </BlurView>
-        </TouchableWithoutFeedback>
-      </Modal>
-    </View>
+        <FlutterwaveModal
+          visible={showFlutterwave}
+          onRequestClose={() => setShowFlutterwave(false)}
+          email={user.email}
+          name={user.fullName}
+          amount={usdEquivalent}
+          txRef={txRef}
+          currency={currency}
+          publicKey="FLWPUBK-9bdd51ca22a021ad9d40dd455be36bc8-X"
+          onSuccess={handleSuccess}
+          onCancel={handleCancel}
+        />
+
+        <Modal transparent visible={paymentOptionModal} animationType="fade">
+          <TouchableWithoutFeedback onPress={() => setPaymentOptionModl(false)}>
+            <BlurView
+              intensity={50}
+              tint="dark"
+              className="flex-1 items-center justify-center"
+            >
+              <TouchableWithoutFeedback onPress={() => {}}>
+                <View className="bg-[#857f6e85] opacity-2 rounded-lg p-2 flex justify-center items-center">
+                  <Text className="text-md text-white font-bold text-center">
+                    {t("inventory.select_payment_option")}
+                  </Text>
+                  <View className="flex-row p-4 my-8">
+                    <TouchableOpacity
+                      onPress={() => setSelectedPaymentOption("Card")}
+                      className={`bg-black/20 m-1 rounded-lg ${
+                        selectedPaymentOption === "Card"
+                          ? "border border-white"
+                          : ""
+                      }`}
+                    >
+                      <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
+                        <Text className="text-white text-md font-bold font-secondary text-center">
+                          CARD / TRANSFER
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => setSelectedPaymentOption("In App")}
+                      className={`bg-black/20 m-1 rounded-lg ${
+                        selectedPaymentOption === "In App"
+                          ? "border border-white"
+                          : ""
+                      }`}
+                    >
+                      <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
+                        <Text className="text-white text-md font-bold font-secondary text-center">
+                          IN APP PURCHASE
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+
+              <CustomButton
+                title="Continue"
+                handlePress={handlePaymentOption}
+                containerStyles="w-[200px]"
+                textStyles={"font-pbold text-white"}
+                isLoading={false}
+              />
+            </BlurView>
+          </TouchableWithoutFeedback>
+        </Modal>
+      </View>
+      {!isPremiumUser && (
+        <BannerAd
+          unitId={TestIds.BANNER}
+          // unitId={'ca-app-pub-4516568539037938/3383596217'}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+          onAdFailedToLoad={(error) => console.error(error)}
+        />
+      )}
+    </>
   );
 };
 
