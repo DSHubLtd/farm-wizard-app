@@ -19,8 +19,8 @@ interface Props {
 const RewardedAdComponent = ({
   onRewardEarned,
   onClose,
-  adUnitId = TestIds.REWARDED,
-}: // adUnitId = "ca-app-pub-4516568539037938/1775609882",
+  adUnitId = "ca-app-pub-4516568539037938/1775609882",
+}: // adUnitId = TestIds.REWARDED,
 Props) => {
   useEffect(() => {
     const now = Date.now();

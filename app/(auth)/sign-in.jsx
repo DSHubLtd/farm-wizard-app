@@ -20,6 +20,37 @@ const SignIn = () => {
     password: "",
   });
 
+  const handleGetStarted = async () => {
+    // if (form.email === "" || form.password === "") {
+    //   Alert.alert("Error", "Please fill in all fields");
+    //   return;
+    // }
+    setSubmitting(true);
+
+    try {
+
+      const result = await signInUser('testaccount@gmail.com', '123456');
+      // const result = await signInUser(form.email.toLowerCase(), form.password);
+      if (result !== undefined) {
+        // if (result?.data.success === false) {
+        //   Alert.alert("Error", result?.data.message)
+        //   return;
+        // }
+        setUser(result.data.data.user);
+
+        setIsLogged(true);
+
+        // Alert.alert("Success", "User signed in successfully");
+        router.replace("/(tabs)/home");
+      } else {
+        // Alert.alert("Error", "Server Down, please try again later")
+      }
+    } catch (error) {
+      // Alert.alert("Error", error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
   const submit = async () => {
     if (form.email === "" || form.password === "") {
       Alert.alert("Error", "Please fill in all fields");
@@ -62,7 +93,7 @@ const SignIn = () => {
             minHeight: Dimensions.get("window").height - 100,
           }}
         >
-          <View className="flex flex-row justify-center">
+          <View className="flex flex-row justify-center mb-20">
             <Image
               source={images.logoLg}
               resizeMode="contain"
@@ -74,7 +105,7 @@ const SignIn = () => {
             Log in to Farm Wizard
           </Text> */}
 
-          <FormField
+          {/* <FormField
             title={t("email")}
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
@@ -88,17 +119,18 @@ const SignIn = () => {
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"
-          />
+          /> */}
 
           <CustomButton
-            title={t("buttons.sign_in")}
-            handlePress={submit}
-            // handlePress={() => router.push("/(tabs)/home")}
+            title={'Get Started'}
+            // title={t("buttons.sign_in")}
+            // handlePress={submit}
+            handlePress={handleGetStarted}
             containerStyles="w-full"
             isLoading={isSubmitting}
           />
 
-          <View className="flex justify-end pt-5 flex-row gap-2">
+          {/* <View className="flex justify-end pt-5 flex-row gap-2">
 
             <Link href="/forgot-password" className="text-lg text-gray-100 font-secondary">
               Forget password?
@@ -115,7 +147,8 @@ const SignIn = () => {
             >
               Sign Up
             </Link>
-          </View>
+          </View> */}
+
         </View>
       </ScrollView>
     </SafeAreaView>
