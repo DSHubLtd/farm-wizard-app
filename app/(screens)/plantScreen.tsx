@@ -854,7 +854,7 @@ const PlantScreen = () => {
     const currentQty = userInventory.pesticideQty;
 
     // Gifting logic
-    if (currentQty <= 2 && userLevel === 1) {
+    if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
       await handleGiftInventoryItem("Pesticide", 10);
       setShowGiftMessage("You have received 10 pesticide for free");
       setTimeout(() => setShowGiftMessage(""), 4000);
@@ -903,7 +903,7 @@ const PlantScreen = () => {
     const currentQty = userInventory.fertilizerQty;
 
     // Gifting logic
-    if (currentQty <= 2 && userLevel === 1) {
+    if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
       await handleGiftInventoryItem("Fertilizer", 10);
       setShowGiftMessage("You have received 10 Fertilizer for free");
       setTimeout(() => setShowGiftMessage(""), 4000);
@@ -944,7 +944,7 @@ const PlantScreen = () => {
     const currentQty = userInventory.waterQty;
 
     // Gifting logic
-    if (currentQty <= 2 && userLevel === 1) {
+    if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
       await handleGiftInventoryItem("Water", 10);
       setShowGiftMessage("You have received 10 Water for free");
       setTimeout(() => setShowGiftMessage(""), 4000);
@@ -1478,8 +1478,8 @@ const PlantScreen = () => {
       </TouchableWithoutFeedback>
       {!isPremiumUser && (
         <BannerAd
-          unitId={TestIds.BANNER}
-          // unitId={'ca-app-pub-4516568539037938/3383596217'}
+          // unitId={TestIds.BANNER}
+          unitId={"ca-app-pub-4516568539037938/3383596217"}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
