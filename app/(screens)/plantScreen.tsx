@@ -53,8 +53,11 @@ import {
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
 const PHASE_DURATION = 150; // 2.5 minutes
-//const SEASON_DURATION = 200; // seconds per season
-const SEASON_DURATION = TEN_MINUTES / 3;
+//const SEASON_DURATION = TEN_MINUTES / 3;
+const NORMAL_DURATION = 270000; // 45% of 10 minutes
+const DRY_DURATION = 165000; // 27.5%
+const RAINING_DURATION = 165000; // 27.5%
+const TOTAL_DURATION = NORMAL_DURATION + DRY_DURATION + RAINING_DURATION;
 
 const SEASONS = ["normal", "dry", "raining"] as const;
 type SeasonType = (typeof SEASONS)[number];
@@ -122,8 +125,6 @@ const PlantScreen = () => {
   const fertAnim = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
   const [invloading, setInvLoading] = useState(true);
-  const SEASONS = ["normal", "dry", "raining"];
-
   const [plantHealth, setPlantHealth] = useState(100);
   const [waterLevel, setWaterLevel] = useState(100);
   const [nutrientLevel, setNutrientLevel] = useState(100);
@@ -255,9 +256,21 @@ const PlantScreen = () => {
 
   const getCurrentSeason = (): SeasonType => {
     const elapsed = TEN_MINUTES - timeLeft;
+    const wrappedElapsed = elapsed % TOTAL_DURATION;
+
+    if (wrappedElapsed < NORMAL_DURATION) {
+      return "normal";
+    } else if (wrappedElapsed < NORMAL_DURATION + DRY_DURATION) {
+      return "dry";
+    } else {
+      return "raining";
+    }
+  };
+  /*const getCurrentSeason = (): SeasonType => {
+    const elapsed = TEN_MINUTES - timeLeft;
     const seasonIndex = Math.floor(elapsed / SEASON_DURATION) % SEASONS.length;
     return (SEASONS[seasonIndex] as SeasonType) || "normal";
-  };
+  };*/
 
   const getThreatChance = (season: SeasonType) => {
     if (season === "dry") return 0.2;
