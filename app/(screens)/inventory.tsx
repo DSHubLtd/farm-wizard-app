@@ -707,8 +707,8 @@ const getItemsQty = (item: string, userInventory: any) => {
       return userInventory.fertilizerQty;
     case "Water":
       return userInventory.waterQty;
-    case "Apple":
-      return userInventory.fertilizerQty;
+    // case "Apple":
+    //   return userInventory.fertilizerQty;
     default:
       return 0;
   }

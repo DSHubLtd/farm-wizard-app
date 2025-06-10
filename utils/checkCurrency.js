@@ -1,6 +1,11 @@
+import { API_BASE } from "@/config/client";
+
 export default checkCurrency = async (currencyCode, amount) => {
   try {
-    const response = await fetch("https://www.floatrates.com/daily/usd.json");
+    // const response = await fetch("https://www.floatrates.com/daily/usd.json");
+    const response = await fetch(
+      `${API_BASE}/api/v1/external-apis/exchange-rate`
+    );
     const data = await response.json();
 
     let currentAmount = 0;

@@ -54,15 +54,15 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
 const PHASE_DURATION = 150; // 2.5 minutes
 //const SEASON_DURATION = TEN_MINUTES / 3;
-const NORMAL_DURATION = 270000; // 45% of 10 minutes
-const DRY_DURATION = 165000; // 27.5%
-const RAINING_DURATION = 165000; // 27.5%
-const TOTAL_DURATION = NORMAL_DURATION + DRY_DURATION + RAINING_DURATION;
 
 const SEASONS = ["normal", "dry", "raining"] as const;
 type SeasonType = (typeof SEASONS)[number];
 type InventoryItemType = "Fertilizer" | "Pesticide" | "Water";
 type InventoryKey = "fertilizerQty" | "pesticideQty" | "waterQty";
+// Calculate durations
+const NORMAL_DURATION = TEN_MINUTES * 0.45; // 45% of total time (270 seconds)
+const OTHER_SEASONS_DURATION =
+  (TEN_MINUTES - NORMAL_DURATION) / (SEASONS.length - 1); // 55% split between others (165 seconds each)
 
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
@@ -254,17 +254,22 @@ const PlantScreen = () => {
     return null;
   }
 
-  const getCurrentSeason = (): SeasonType => {
+  const getCurrentSeason = () => {
     const elapsed = TEN_MINUTES - timeLeft;
-    const wrappedElapsed = elapsed % TOTAL_DURATION;
 
-    if (wrappedElapsed < NORMAL_DURATION) {
+    if (elapsed < NORMAL_DURATION) {
       return "normal";
-    } else if (wrappedElapsed < NORMAL_DURATION + DRY_DURATION) {
-      return "dry";
-    } else {
-      return "raining";
     }
+
+    // Calculate which "other" season we're in (dry or raining)
+    const remainingElapsed = elapsed - NORMAL_DURATION;
+    const otherSeasonIndex =
+      Math.floor(remainingElapsed / OTHER_SEASONS_DURATION) %
+      (SEASONS.length - 1);
+
+    // Since index 0 is "dry" and index 1 is "raining" (skip "normal")
+    // return SEASONS[otherSeasonIndex + 1];
+    return (SEASONS[otherSeasonIndex + 1] as SeasonType) || "normal";
   };
   /*const getCurrentSeason = (): SeasonType => {
     const elapsed = TEN_MINUTES - timeLeft;
