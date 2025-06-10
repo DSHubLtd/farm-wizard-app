@@ -12,6 +12,7 @@ import LoginProvider from "@/context/LoginProvider";
 import NetworkProvider from "@/context/NetworkProvider";
 import CutomSplashScreen from "@/components/CutomSplashScreen";
 import NoNetworkModal from "@/components/NoNetworkModal";
+import CheckUpdate from "@/components/CheckUpdate";
 import "../global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import i18n from "@/utils/i18n";
@@ -120,6 +121,7 @@ const RootLayout = () => {
           <Stack.Screen name="(screens)" />
         </Stack>
         <NoNetworkModal />
+        <CheckUpdate />
         {/* <StatusBar backgroundColor="#161622" style="light" /> */}
       </NetworkProvider>
     </LoginProvider>
