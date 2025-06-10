@@ -1,6 +1,6 @@
+import { useState } from 'react';
 import { ArrowDown, ArrowUp } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 
 const SelectField = ({ title, options, selectedValue, handleValueChange, otherStyles }) => {
     const [searchText, setSearchText] = useState('');
@@ -27,7 +27,6 @@ const SelectField = ({ title, options, selectedValue, handleValueChange, otherSt
                 <Text className="text-white font-psemibold text-base">
                     {selectedValue ? options.find(opt => opt.value === selectedValue)?.label : "Select an option"}
                 </Text>
-                {/* <FontAwesome name={dropdownOpen ? "chevron-up" : "chevron-down"} size={20} color="#fff" /> */}
                 {dropdownOpen ? (<ArrowUp size={35} color="#ffffff" />) : (<ArrowDown size={35} color="#ffffff" />)}
 
             </TouchableOpacity>
@@ -81,35 +80,80 @@ const SelectField = ({ title, options, selectedValue, handleValueChange, otherSt
 };
 
 export default SelectField;
-// import { Picker } from '@react-native-picker/picker';
-// import { View, Text } from 'react-native';
 
-// const SelectField = ({
-//     title,
-//     selectedValue,
-//     options,
-//     handleValueChange,
-//     otherStyles,
-//     ...props
-// }) => {
-//     return (
-//         <View className={`space-y-2 ${otherStyles}`}>
-//             <Text className="text-base text-gray-100 font-pmedium">{title}</Text>
+export const CustomSelectField = ({ title, options, selectedValue, handleValueChange, otherStyles }) => {
+    const [searchText, setSearchText] = useState('');
+    const [filteredOptions, setFilteredOptions] = useState(options);
+    const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
 
-//             <View className="w-full h-16 px-4 rounded-2xl border-2 border-dotted border-secondary focus:border-secondary flex flex-row items-center">
-//                 <Picker
-//                     selectedValue={selectedValue}
-//                     style={{ flex: 1, color: '#FFFFFF', fontSize: 16 }}
-//                     onValueChange={handleValueChange}
-//                     {...props}
-//                 >
-//                     {options.map((option, index) => (
-//                         <Picker.Item key={index} label={option.label} value={option.value} />
-//                     ))}
-//                 </Picker>
-//             </View>
-//         </View>
-//     );
-// };
+    const handleSearch = (text) => {
+        setSearchText(text);
+        setFilteredOptions(options.filter(option =>
+            option.label.toLowerCase().includes(text.toLowerCase())
+        ));
+    };
 
-// export default SelectField;
+    return (
+        <View className={`space-y-2 ${otherStyles}`}>
+            <Text className="text-base text-gray-100 font-pmedium">{title}</Text>
+
+            {/* Touchable area for triggering Modal */}
+            <TouchableOpacity
+                onPress={() => setModalVisible(true)}
+                className="w-full px-4 py-2 rounded-2xl border-2 border-dotted border-secondary flex-row justify-between items-center"
+            >
+                <Text className="text-white font-psemibold text-base">
+                    {selectedValue ? options.find(opt => opt.value === selectedValue)?.label : "Select an option"}
+                </Text>
+                <ArrowDown size={35} color="#ffffff" />
+            </TouchableOpacity>
+
+            {/* Modal for displaying the dropdown */}
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View className="flex-1 justify-center items-center bg-white/20 bg-opacity-5">
+                    <View className="w-4/5 bg-gray-600 p-4 rounded-lg">
+                        {/* Search Input */}
+                        <TextInput
+                            className="w-full text-white font-psemibold text-base mb-2"
+                            placeholder="Search..."
+                            placeholderTextColor="#7B7B8B"
+                            value={searchText}
+                            onChangeText={handleSearch}
+                        />
+
+                        {/* Scrollable List of Options */}
+                        <ScrollView className="max-h-[200px]">
+                            {filteredOptions.map((item) => (
+                                <TouchableOpacity
+                                    key={item.value}
+                                    onPress={() => {
+                                        handleValueChange(item.value);
+                                        setSearchText(item.label);
+                                        setModalVisible(false); // Close modal after selection
+                                    }}
+                                    className="py-2 px-4 bg-gray-700 rounded-lg mb-2"
+                                >
+                                    <Text className="text-white font-psemibold">{item.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+
+                        {/* Close Button */}
+                        <TouchableOpacity
+                            onPress={() => setModalVisible(false)}
+                            className="mt-4 bg-red-500 px-4 py-2 rounded-full"
+                        >
+                            <Text className="text-white text-center">Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        </View>
+    );
+};
+

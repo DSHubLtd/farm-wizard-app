@@ -3,27 +3,23 @@ import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Dimensions, Alert, Image, Pressable, TouchableOpacity } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import i18next from "i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import { icons, images } from "../../constants";
 import { CustomButton, FormField } from "../../components";
 import { signUpUser } from "@/services/auth";
 import BackgroundImage from "../../components/BackgroundImage";
-import SelectField from "../../components/SelectField";
+import SelectField, { CustomSelectField } from "../../components/SelectField";
 import { validateForm } from "../../utils/validateForm";
 import { useCountryData } from "../../hooks/useCountryData";
 import { useLanguageData } from "../../hooks/useLanguageData";
 import { avatarsArr } from "../../hooks/useAvatarArray";
 import { useTranslation } from "react-i18next";
-import { Picker } from "@react-native-picker/picker";
 import { languageMap } from "@/utils/languageMap";
 
 const screenHeight = Dimensions.get("window").height;
+const LANGUAGE_KEY = "user-language";
 
 const SignUp = () => {
-  //const { setUser, setIsLogged } = useLoginContext();
-
   const [isSubmitting, setSubmitting] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('')
   const [selectedCountry, setSelectedCountry] = useState('')
@@ -37,6 +33,10 @@ const SignUp = () => {
 
   const { countries, loading: countryLoading } = useCountryData();
   const { languages, loading: langLoading } = useLanguageData();
+
+  function capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
   const submit = async () => {
     // if (form.fullName === "" || form.email === "" || form.password === "") {
@@ -65,6 +65,7 @@ const SignUp = () => {
         setTimeout(() => {
           router.replace("/sign-in");
         }, 2000);
+        await changeLanguage(capitalizeFirstLetter(selectedLanguage))
 
       } catch (error) {
         Alert.alert("Error occured", error.message);
@@ -85,17 +86,23 @@ const SignUp = () => {
     setSelectedIndex((prev) => (prev + 1) % avatarsArr.length);
   };
 
+
+  const filteredLanguages = languages.filter(lang =>
+    Object.keys(languageMap).some(
+      key => key.toLowerCase() === lang.label.toLowerCase()
+    )
+  );
+  const { t, i18n } = useTranslation();
+
   const changeLanguage = async (langName) => {
     const code = languageMap[langName].code;
 
     if (code) {
       await AsyncStorage.setItem(LANGUAGE_KEY, code); // persist
-      await i18next.changeLanguage(code);
+      await i18n.changeLanguage(code);
       setSelectedLanguage(langName);
     }
-
   };
-  const { t } = useTranslation();
   return (
     <SafeAreaView className="bg-primary h-full flex justify-center items-center">
       <BackgroundImage source={images.background} />
@@ -142,7 +149,6 @@ const SignUp = () => {
         contentContainerStyle={{ flexGrow: 1 }}
         // className="px-4 py-6"
         style={{ maxHeight: screenHeight * 0.6 }}
-
       >
         <View className="border-r-4 border-r-[#E1CE67] p-4">
 
@@ -184,7 +190,7 @@ const SignUp = () => {
           {countryLoading ? (
             <Text className="text-sm text-white italic">Loading countries...</Text>
           ) : (
-            <SelectField
+            <CustomSelectField
               title={t("select_country")}
               selectedValue={selectedCountry}
               options={countries}
@@ -197,22 +203,11 @@ const SignUp = () => {
           {langLoading ? (
             <Text className="text-sm text-white italic">Loading languages...</Text>
           ) : (
-            // <Picker
-            //   selectedValue={selectedLanguage}
-            //   onValueChange={(value) => changeLanguage(value)}
-            // >
-            //   {Object.keys(languageMap).map((lang, index) => (
-            //     <Picker.Item
-            //       key={index}
-            //       label={languageMap[lang].nativeName}
-            //       value={lang}
-            //     />
-            //   ))}
-            // </Picker>
-            <SelectField
+
+            <CustomSelectField
               title={t("select_language")}
               selectedValue={selectedLanguage}
-              options={languages}
+              options={filteredLanguages}
               handleValueChange={setSelectedLanguage}
               otherStyles="mt-2"
             />

@@ -63,7 +63,7 @@ const SignIn = () => {
             minHeight: Dimensions.get("window").height - 100,
           }}
         >
-          <View className="flex flex-row justify-center mb-20">
+          <View className="flex flex-row justify-center mb-2">
             <Image
               source={images.logoLg}
               resizeMode="contain"

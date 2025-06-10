@@ -164,7 +164,7 @@ const EditProfile = () => {
             placeholder="Full name"
             value={form.fullName}
             handleChangeText={(e: any) => setForm({ ...form, fullName: e })}
-            otherStyles="mt-2"
+            otherStyles="mt-4"
           />
           {errors.fullName && (
             <Text className="text-red-400 text-sm mt-1">{errors.fullName}</Text>
@@ -175,7 +175,7 @@ const EditProfile = () => {
             placeholder="Password"
             value={form.password}
             handleChangeText={(e: any) => setForm({ ...form, password: e })}
-            otherStyles="mt-2"
+            otherStyles="mt-4"
           />
           {errors.password && (
             <Text className="text-red-400 text-sm mt-1">{errors.password}</Text>
@@ -186,7 +186,7 @@ const EditProfile = () => {
             placeholder="Confirm Password"
             value={form.cpassword}
             handleChangeText={(e: any) => setForm({ ...form, cpassword: e })}
-            otherStyles="mt-2"
+            otherStyles="mt-4"
           />
           {errors.cpassword && (
             <Text className="text-red-400 text-sm mt-1">

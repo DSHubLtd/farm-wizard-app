@@ -1,26 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
-// Add manually missed African languages here
-const extraAfricanLanguages = [
-  "Hausa",
-  "Igbo",
-  "Yoruba",
-  "Amharic",
-  "Oromo",
-  "Tigrinya",
-  "Shona",
-  "Zulu",
-  "Xhosa",
-  "Tswana",
-  "Wolof",
-  "Ewe",
-  "Fula",
-  "Berber",
-  "Lingala",
-  "Kinyarwanda",
-  "Luganda",
-];
+import { API_BASE } from "@/config/client";
 
 export const useLanguageData = () => {
   const [languages, setLanguages] = useState([]);
@@ -29,28 +9,12 @@ export const useLanguageData = () => {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const res = await axios.get("https://restcountries.com/v3.1/all");
+        // Fetch language data from your backend API
+        const res = await axios.get(
+          `${API_BASE}/api/v1/external-apis/languages`
+        );
 
-        const langSet = new Set();
-
-        res.data.forEach((country) => {
-          const langs = country.languages;
-          if (langs) {
-            Object.values(langs).forEach((lang) => langSet.add(lang));
-          }
-        });
-
-        // Add the missing ones manually
-        extraAfricanLanguages.forEach((lang) => langSet.add(lang));
-
-        const formatted = Array.from(langSet)
-          .map((lang) => ({
-            label: lang,
-            value: lang.toLowerCase().replace(/\s+/g, "-"),
-          }))
-          .sort((a, b) => a.label.localeCompare(b.label));
-
-        setLanguages(formatted);
+        setLanguages(res.data); // Set the languages returned from your backend
       } catch (error) {
         console.error("Failed to fetch languages:", error);
       } finally {

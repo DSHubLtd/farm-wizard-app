@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Updates from "expo-updates";
 import { languageMap } from "@/utils/languageMap";
+import { API_BASE } from "@/config/client";
 const LANGUAGE_KEY = "user-language";
 
 export default function LanguageSwitching() {
@@ -65,7 +66,10 @@ export default function LanguageSwitching() {
       "Luganda",
     ];
 
-    fetch("https://restcountries.com/v3.1/all")
+    //  const res = await axios.get(
+    //           `${API_BASE}/api/v1/external-apis/countries`
+    //         );
+    fetch(`${API_BASE}/api/v1/external-apis/languages`)
       .then((res) => res.json())
       .then((data) => {
         const langSet = new Set();
