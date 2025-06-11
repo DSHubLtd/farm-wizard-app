@@ -44,11 +44,7 @@ import { getThreatPanelty } from "@/utils/getThreatPanelty";
 import { playSound } from "@/utils/audio";
 import { API_BASE } from "@/config/client";
 import analytics from "@react-native-firebase/analytics";
-import {
-  BannerAd,
-  BannerAdSize,
-  TestIds,
-} from "react-native-google-mobile-ads";
+import BannerAdComponent from "@/utils/BannerAdComponent";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const TEN_MINUTES = 10 * 60;
@@ -1494,17 +1490,7 @@ const PlantScreen = () => {
           />
         </View>
       </TouchableWithoutFeedback>
-      {!isPremiumUser && (
-        <BannerAd
-          // unitId={TestIds.BANNER}
-          unitId={"ca-app-pub-4516568539037938/3383596217"}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-          onAdFailedToLoad={(error) => console.error(error)}
-        />
-      )}
+      {!isPremiumUser && <BannerAdComponent />}
     </>
   );
 };

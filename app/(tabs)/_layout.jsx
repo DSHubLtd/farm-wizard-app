@@ -1,7 +1,7 @@
 import { Tabs, useRouter } from "expo-router";
-import { icons } from "../../constants";
+// import { icons } from "../../constants";
 import CustomBottomTab from "@/components/CustomBottomTab";
-import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+import BannerAdComponent from "../../utils/BannerAdComponent";
 import { useLoginContext } from "../../context/LoginProvider";
 
 const TabsLayout = () => {
@@ -173,15 +173,7 @@ const TabsLayout = () => {
         />
       </Tabs>  */}
       {!isPremiumUser &&
-        <BannerAd
-          // unitId={TestIds.BANNER}
-          unitId={'ca-app-pub-4516568539037938/3383596217'}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-          onAdFailedToLoad={(error) => console.error(error)}
-        />
+        <BannerAdComponent />
       }
     </>
 

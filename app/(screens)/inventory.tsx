@@ -29,11 +29,7 @@ import checkCurrency from "@/utils/checkCurrency";
 import { useTranslation } from "react-i18next";
 import { API_BASE } from "@/config/client";
 import analytics from "@react-native-firebase/analytics";
-import {
-  BannerAd,
-  BannerAdSize,
-  TestIds,
-} from "react-native-google-mobile-ads";
+import BannerAdComponent from "@/utils/BannerAdComponent";
 
 type Inventory = {
   name: string;
@@ -684,17 +680,7 @@ const Inventory = () => {
           </TouchableWithoutFeedback>
         </Modal>
       </View>
-      {!isPremiumUser && (
-        <BannerAd
-          // unitId={TestIds.BANNER}
-          unitId={"ca-app-pub-4516568539037938/3383596217"}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-          onAdFailedToLoad={(error) => console.error(error)}
-        />
-      )}
+      {!isPremiumUser && <BannerAdComponent />}
     </>
   );
 };

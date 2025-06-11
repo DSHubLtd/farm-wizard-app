@@ -15,12 +15,8 @@ import { useRouter } from "expo-router";
 import { usePlantGrowth as seeds } from "@/constants/plants";
 import { useTranslation } from "react-i18next";
 import { playSound } from "../../utils/audio";
-import {
-  BannerAd,
-  BannerAdSize,
-  TestIds,
-} from "react-native-google-mobile-ads";
 import { useLoginContext } from "@/context/LoginProvider";
+import BannerAdComponent from "@/utils/BannerAdComponent";
 
 const { width, height } = Dimensions.get("window");
 
@@ -267,17 +263,7 @@ const SelectSeed = () => {
           isLoading={false}
         />
       </View>
-      {!isPremiumUser && (
-        <BannerAd
-          // unitId={TestIds.BANNER}
-          unitId={"ca-app-pub-4516568539037938/3383596217"}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-          onAdFailedToLoad={(error) => console.error(error)}
-        />
-      )}
+      {!isPremiumUser && <BannerAdComponent />}
     </>
   );
 };
