@@ -316,7 +316,10 @@ const ClaimScreen = () => {
             USD: {Number(user.usdBalance).toFixed(5)}
           </Text>
           <Text className="text-white/80 text-xs text-center">
-            1000 = 0.0001 USD
+            1000 WizPoints = 0.0001 USD
+          </Text>
+          <Text className="text-white/80 text-xs text-center">
+            Press To Convert Coins To USD
           </Text>
           <Text className="text-white/80 text-xs text-center">
             ({t("messages.withdrawal_eligiblity")} = 0.005 USD)

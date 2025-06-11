@@ -10,6 +10,7 @@ import {
   Animated,
   TouchableWithoutFeedback,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { avatars, icons, images } from "@/constants";
 import BackgroundImage from "@/components/BackgroundImage";
@@ -187,7 +188,12 @@ export default function WithdrawalRequest() {
     }
   };
 
-  if (loading && withdrawals.length === 0) return <Text>Loading...</Text>;
+  if (loading && withdrawals.length === 0)
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   // if (error) return <View>Error fetching users: {error}</View>;
 
   return (
