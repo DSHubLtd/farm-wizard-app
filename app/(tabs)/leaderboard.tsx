@@ -184,7 +184,9 @@ export default function Leaderboard() {
                     className="w-20 h-20 rounded-full"
                   />
                   <Text className="text-white text-sm mt-2 font-primary">
-                    {topUsers.find((p) => p.position === 2)?.fullName}
+                    {topUsers
+                      .find((p) => p.position === 2)
+                      ?.fullName.substring(0, 15)}
                   </Text>
                   <Text className="text-[#FFDF76] text-sm font-primary">
                     {Number(
@@ -214,7 +216,9 @@ export default function Leaderboard() {
                     className="w-28 h-28 rounded-full"
                   />
                   <Text className="text-white text-sm mt-2 font-secondary">
-                    {topUsers.find((p) => p.position === 1)?.fullName}
+                    {topUsers
+                      .find((p) => p.position === 1)
+                      ?.fullName.substring(0, 15)}
                   </Text>
                   <Text className="text-[#FFDF76] text-sm font-primary">
                     {Number(
@@ -244,7 +248,9 @@ export default function Leaderboard() {
                     className="w-20 h-20 rounded-full"
                   />
                   <Text className="text-white text-sm mt-2">
-                    {topUsers.find((p) => p.position === 3)?.fullName}
+                    {topUsers
+                      .find((p) => p.position === 3)
+                      ?.fullName.substring(0, 15)}
                   </Text>
                   <Text className="text-[#FFDF76] text-sm font-primary">
                     {Number(
@@ -278,7 +284,7 @@ export default function Leaderboard() {
                   className="w-16 h-16 rounded-full"
                 />
                 <Text className="text-white text-sm font-primary">
-                  {player.fullName}
+                  {player.fullName.substring(0, 15)}
                 </Text>
               </View>
               <Text className="text-[#FFDF76] text-sm font-primary">
