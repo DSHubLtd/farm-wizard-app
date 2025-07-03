@@ -632,11 +632,11 @@ const Inventory = () => {
               className="flex-1 items-center justify-center"
             >
               <TouchableWithoutFeedback onPress={() => {}}>
-                <View className="bg-[#857f6e85] opacity-2 rounded-lg p-2 flex justify-center items-center">
+                <View className="bg-[#857f6e85] opacity-2 rounded-lg p-8 flex justify-center items-center">
                   <Text className="text-md text-white font-bold text-center">
                     {t("inventory.select_payment_option")}
                   </Text>
-                  <View className="flex-row p-4 my-8">
+                  <View className="flex-col p-4 my-8">
                     <TouchableOpacity
                       onPress={() => setSelectedPaymentOption("Card")}
                       className={`bg-black/20 m-1 rounded-lg ${

@@ -25,6 +25,7 @@ import uuid from "react-native-uuid";
 import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
 import { submitConversion } from "@/services/user";
+import CountryPhoneInput from "@/components/CountryPhoneInput";
 
 const tabs = ["Token", "Airtime", "Data bundle"] as const;
 
@@ -139,6 +140,7 @@ const ClaimScreen = () => {
   const openModal = (provider: Provider) => {
     setSelectedProvider(provider);
     setModalVisible(true);
+    setForm({ ...form, phoneNo: "" });
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 300,
@@ -172,6 +174,7 @@ const ClaimScreen = () => {
   };
   const handleNetworkSelect = (network: string) => {
     setSelectedNetwork(network);
+    setForm({ ...form, phoneNo: "" });
   };
 
   const submitWithdrawal = async () => {
@@ -390,7 +393,7 @@ const ClaimScreen = () => {
               className="min-h-50 p-2"
               style={{ height: height * 0.5 }}
             >
-              <View className="flex-row justify-around space-x-6">
+              <View className="flex-row justify-around gap-4 my-6 ">
                 {providers["Airtime"].map((provider, index) => (
                   <ProviderCard
                     key={provider.name || index}
@@ -401,15 +404,18 @@ const ClaimScreen = () => {
                   />
                 ))}
               </View>
+              <Text className="text-md text-center font-secondary text-white">
+                Enter phone number
+              </Text>
               <FormField
                 type="text"
                 placeholder="Enter phone number"
                 title=""
                 value={form.phoneNo}
                 handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-                otherStyles=""
+                otherStyles="my-4"
               />
-              <Text className="text-white text-base font-primary text-center m-2">
+              {/* <Text className="text-white text-base font-primary text-center m-2">
                 Amount
               </Text>
 
@@ -449,7 +455,7 @@ const ClaimScreen = () => {
                 value={form.amount}
                 handleChangeText={(e: any) => setForm({ ...form, amount: e })}
                 otherStyles=""
-              />
+              /> */}
               <CustomButton
                 title="Submit "
                 handlePress={submitWithdrawal}
@@ -457,15 +463,59 @@ const ClaimScreen = () => {
                 textStyles={"font-pbold text-white"}
                 isLoading={isSubmitting}
               />
-              <Text className="text-md font-secondary text-white my-2">
+              {/* <Text className="text-md font-secondary text-white my-2">
                 {t("messages.available")}
-              </Text>
+              </Text> */}
             </ScrollView>
           </KeyboardAvoidingView>
         ) : (
-          <Text className="text-white text-base font-primary my-40 ">
-            {t("messages.unavailable")}
-          </Text>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"} // or 'position'
+            style={{ flex: 1 }}
+          >
+            <ScrollView
+              className="min-h-50 p-6 my-6"
+              style={{ height: height * 0.5 }}
+            >
+              {/* <FormField
+                type="text"
+                placeholder="Enter phone number"
+                title=""
+                value={form.phoneNo}
+                handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+                otherStyles=""
+              /> */}
+
+              <CountryPhoneInput
+                defaultCountryCode="ng"
+                onChangePhone={(number) =>
+                  setForm({ ...form, phoneNo: number })
+                }
+              />
+
+              {/* <FormField
+                type="text"
+                placeholder="Enter amount"
+                title=""
+                value={form.amount}
+                handleChangeText={(e: any) => setForm({ ...form, amount: e })}
+                otherStyles=""
+              /> */}
+              <CustomButton
+                title="Submit "
+                handlePress={submitWithdrawal}
+                containerStyles="w-full"
+                textStyles={"font-pbold text-white"}
+                isLoading={isSubmitting}
+              />
+              {/* <Text className="text-md font-secondary text-white my-2">
+                {t("messages.available")}
+              </Text> */}
+            </ScrollView>
+          </KeyboardAvoidingView>
+          // <Text className="text-white text-base font-primary my-40 ">
+          //   {t("messages.unavailable")}
+          // </Text>
         ))}
 
       {/* Popup Modal */}
@@ -487,10 +537,10 @@ const ClaimScreen = () => {
                 },
               ],
             }}
-            className="bg-black-200 rounded-2xl w-[80%] p-6 items-center shadow-2xl"
+            className="bg-[#80784A] rounded-2xl w-[80%] p-6 items-center shadow-2xl"
           >
             <Image source={selectedProvider?.icon} className="w-12 h-12 mb-4" />
-            <Text className="text-xl font-bold mb-2 text-center">
+            <Text className="text-xl font-bold mb-2 text-center text-white">
               {selectedProvider?.name}
             </Text>
             <Text className="text-gray-200 text-center mb-6">
