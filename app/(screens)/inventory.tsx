@@ -102,7 +102,7 @@ const Inventory = () => {
   const [exchangeLoading, setExchangeLoading] = useState(false);
   const [paymentOptionModal, setPaymentOptionModl] = useState(false);
   const [inAppPurchaseModal, setInAppPurchaseModal] = useState(false);
-  const [selectedPaymentOption, setSelectedPaymentOption] = useState("Card");
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState("In App");
 
   const txRef = `tx-${uuid.v4().split("-")[0]}`;
   /* const purchaseDetails =
@@ -439,7 +439,7 @@ const Inventory = () => {
                 </TouchableWithoutFeedback>
               </Animated.View>
               <CustomButton
-                title="Buy"
+                title="Get"
                 handlePress={handleBuyItem}
                 containerStyles="w-[150px]"
                 textStyles={"font-pbold text-white"}
@@ -470,8 +470,8 @@ const Inventory = () => {
               </TouchableWithoutFeedback>
 
               <CustomButton
-                title="Buy more coins "
-                handlePress={() => console.log("me")}
+                title="Get more coins "
+                handlePress={() => console.log("get more coins")}
                 containerStyles="w-[200px]"
                 textStyles={"font-pbold text-white"}
                 isLoading={false}
@@ -573,7 +573,8 @@ const Inventory = () => {
                     className="font-secondary font-bold italic"
                     style={{ fontSize: 22 }}
                   >
-                    {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`}
+                    {/* {`Confirm payment of ${usdEquivalent} ${currency} in respect of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`} */}
+                    {`Confirm getting of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`}
                   </Text>
                   <Text style={{ fontSize: 16 }} className="my-4">
                     Note! 1000 Wizpoint = 0.0001 USD
@@ -633,11 +634,14 @@ const Inventory = () => {
             >
               <TouchableWithoutFeedback onPress={() => {}}>
                 <View className="bg-[#857f6e85] opacity-2 rounded-lg p-8 flex justify-center items-center">
-                  <Text className="text-md text-white font-bold text-center">
+                  {/* <Text className="text-md text-white font-bold text-center">
                     {t("inventory.select_payment_option")}
+                  </Text> */}
+                  <Text className="text-md text-white font-bold text-center">
+                    Proceed
                   </Text>
                   <View className="flex-col p-4 my-8">
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       onPress={() => setSelectedPaymentOption("Card")}
                       className={`bg-black/20 m-1 rounded-lg ${
                         selectedPaymentOption === "Card"
@@ -650,7 +654,7 @@ const Inventory = () => {
                           CARD / TRANSFER
                         </Text>
                       </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity
                       onPress={() => setSelectedPaymentOption("In App")}
                       className={`bg-black/20 m-1 rounded-lg ${
@@ -661,7 +665,7 @@ const Inventory = () => {
                     >
                       <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
                         <Text className="text-white text-md font-bold font-secondary text-center">
-                          IN APP PURCHASE
+                          WIZ POINT
                         </Text>
                       </View>
                     </TouchableOpacity>

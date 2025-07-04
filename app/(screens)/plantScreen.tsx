@@ -1,4 +1,4 @@
-// higher level, the higher the score &  Seed purchase - later
+// Seed purchase - later
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -430,20 +430,20 @@ const PlantScreen = () => {
     // Decay logic
     const waterDecay =
       currentSeason === "dry" ? 5 : currentSeason === "normal" ? 3 : 0;
-    const nutrientDecay = currentSeason === "raining" ? 2 : 1;
+    const nutrientDecay = currentSeason === "raining" ? 6 : 4;
 
     setWaterLevel((prev) => Math.max(0, prev - waterDecay));
     setNutrientLevel((prev) => Math.max(0, prev - nutrientDecay));
 
     // Health penalties
     if (waterLevel < 20) {
-      setPlantHealth((h) => Math.max(0, h - 5));
+      setPlantHealth((h) => Math.max(0, h - 8));
       //handleToolUse("⚠️ Your plant is drying out!");
       setPlantDamaged(true);
     }
 
     if (nutrientLevel < 20) {
-      setPlantHealth((h) => Math.max(0, h - 3));
+      setPlantHealth((h) => Math.max(0, h - 5));
       setPlantDamaged(true);
     }
 
@@ -467,7 +467,7 @@ const PlantScreen = () => {
         if (activeThreat.type === "storm" && timeSinceThreat > 5000) {
           // One-time hit
           setPlantHealth((h) =>
-            Math.max(0, h - getThreatPanelty(userLevel) + 5)
+            Math.max(0, h - getThreatPanelty(userLevel) + 10)
           );
           // setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
           setPlantDamaged(true);
@@ -868,7 +868,8 @@ const PlantScreen = () => {
     const currentQty = userInventory.pesticideQty;
 
     // Gifting logic
-    if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
+    // if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
+    if (currentQty <= 2 && (userLevel <= 2 || getPlantStage() >= 2)) {
       await handleGiftInventoryItem("Pesticide", 10);
       setShowGiftMessage("You have received 10 pesticide for free");
       setTimeout(() => setShowGiftMessage(""), 4000);
@@ -917,7 +918,7 @@ const PlantScreen = () => {
     const currentQty = userInventory.fertilizerQty;
 
     // Gifting logic
-    if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
+    if (currentQty <= 2 && (userLevel <= 2 || getPlantStage() >= 2)) {
       await handleGiftInventoryItem("Fertilizer", 10);
       setShowGiftMessage("You have received 10 Fertilizer for free");
       setTimeout(() => setShowGiftMessage(""), 4000);
@@ -958,7 +959,8 @@ const PlantScreen = () => {
     const currentQty = userInventory.waterQty;
 
     // Gifting logic
-    if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
+    // if (currentQty <= 2 && (userLevel === 1 || userLevel === 2)) {
+    if (currentQty <= 2 && (userLevel <= 2 || getPlantStage() >= 2)) {
       await handleGiftInventoryItem("Water", 10);
       setShowGiftMessage("You have received 10 Water for free");
       setTimeout(() => setShowGiftMessage(""), 4000);
@@ -1513,7 +1515,7 @@ const ToolIcon = ({
   >
     <Image source={icon} className="w-20 h-20" resizeMode="contain" />
 
-    <Text className="absolute bottom-2 right-2 bg-[#9D863B] text-white text-sm font-bold w-6 h-6 rounded-full flex text-center items-center justify-center shadow">
+    <Text className="absolute bottom-2 right-2 bg-[#9D863B] text-white text-sm font-bold w-8 h-6 rounded-full flex text-center items-center justify-center shadow">
       {itemQty}
     </Text>
   </TouchableOpacity>

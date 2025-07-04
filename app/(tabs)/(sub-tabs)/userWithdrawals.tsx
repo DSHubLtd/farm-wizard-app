@@ -150,12 +150,12 @@ export default function UserWithdrawals() {
 
       <Text className="text-white text-xl font-primary font-bold text-center mb-6">
         {/* {t("settings.settings")} */}
-        USER WITHDRAWALS REQUEST LIST
+        MY TAKEOUT REQUEST LIST
       </Text>
 
       {withdrawals.length === 0 ? (
         <Text className="text-gray-400 text-center font-semibold">
-          You don't have any withdrawal history
+          You don't have any take out history
         </Text>
       ) : (
         <View className="m-2">

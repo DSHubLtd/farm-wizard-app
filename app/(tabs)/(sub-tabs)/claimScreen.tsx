@@ -135,6 +135,7 @@ const ClaimScreen = () => {
 
   const handleTabChange = (tab: "Token" | "Airtime" | "Data bundle") => {
     setActiveTab(tab);
+    setForm({ ...form, phoneNo: "" });
   };
 
   const openModal = (provider: Provider) => {
@@ -358,29 +359,80 @@ const ClaimScreen = () => {
 
       {/* Provider Buttons */}
       {activeTab === "Token" && (
-        <ScrollView className="w-[85%]" style={{ height: "auto" }}>
-          {providers[activeTab].map((provider, index) => (
-            <View
-              className="bg-black/20 opacity-90 p-2 mt-1 mb-2 rounded-lg"
-              key={index}
-            >
-              <TouchableOpacity
-                key={index}
-                onPress={() => openModal(provider)}
-                className={`flex-row justify-between items-center px-6 py-4 rounded-xl ${provider.bg}`}
-              >
-                <Text className="text-white font-semibold text-base">
-                  {provider.name}
-                </Text>
-                <Image
-                  source={provider.icon}
-                  className="w-16 h-16 tint-white"
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"} // or 'position'
+          style={{ flex: 1 }}
+        >
+          <ScrollView className="w-[85%]" style={{ height: "auto" }}>
+            <View className="flex-row justify-around gap-4 my-2 bg-black/10 opacity-1 p-2 rounded-lg">
+              {providers[activeTab].map((provider, index) => (
+                <View
+                  className={`bg-black/20 opacity-90 p-2 mt-1 mb-2 rounded-lg ${
+                    selectedProvider?.name === provider.name
+                      ? "border border-white"
+                      : ""
+                  }`}
+                  key={index}
+                >
+                  <TouchableOpacity
+                    key={index}
+                    // onPress={() => openModal(provider)}
+                    onPress={() => setSelectedProvider(provider)}
+                    className={`flex-col justify-between items-center px-6 py-2 rounded-xl ${
+                      provider.bg
+                    }
+                ${
+                  selectedProvider?.name === provider.name
+                    ? "border border-white"
+                    : ""
+                }`}
+                  >
+                    <Text className="text-white font-semibold text-base">
+                      {provider.name}
+                    </Text>
+                    <Image
+                      source={provider.icon}
+                      className="w-6 h-6 tint-white"
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))}
             </View>
-          ))}
-        </ScrollView>
+
+            <Text className="text-sm text-white font-bold mb-2 text-center">
+              {t("comfirmation.token_address", {
+                amount: ` ${user.usdBalance} `,
+              })}{" "}
+            </Text>
+            <FormField
+              type="text"
+              placeholder={t("destination_wallet_addres")}
+              title={t("destination_wallet_addres")}
+              value={form.phoneNo}
+              handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
+              otherStyles="my-2"
+            />
+
+            <FormField
+              type="text"
+              placeholder={t("netword_details")}
+              title={t("netword_details")}
+              value={form.network}
+              handleChangeText={(e: any) => setForm({ ...form, network: e })}
+              otherStyles=""
+            />
+
+            <CustomButton
+              title={"Ready to claim"}
+              // title={t("buttons.submit")}
+              handlePress={submitWithdrawal}
+              containerStyles="w-full"
+              textStyles={"font-pbold text-white"}
+              isLoading={isSubmitting}
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
 
       {(activeTab === "Airtime" || activeTab === "Data bundle") &&
@@ -404,13 +456,11 @@ const ClaimScreen = () => {
                   />
                 ))}
               </View>
-              <Text className="text-md text-center font-secondary text-white">
-                Enter phone number
-              </Text>
+
               <FormField
                 type="text"
                 placeholder="Enter phone number"
-                title=""
+                title="Ebter Phone number"
                 value={form.phoneNo}
                 handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
                 otherStyles="my-4"
@@ -457,7 +507,7 @@ const ClaimScreen = () => {
                 otherStyles=""
               /> */}
               <CustomButton
-                title="Submit "
+                title="Ready to claim "
                 handlePress={submitWithdrawal}
                 containerStyles="w-full"
                 textStyles={"font-pbold text-white"}
@@ -487,7 +537,7 @@ const ClaimScreen = () => {
               /> */}
 
               <CountryPhoneInput
-                defaultCountryCode="ng"
+                defaultCountryCode={user?.country || "ng"}
                 onChangePhone={(number) =>
                   setForm({ ...form, phoneNo: number })
                 }
@@ -502,7 +552,7 @@ const ClaimScreen = () => {
                 otherStyles=""
               /> */}
               <CustomButton
-                title="Submit "
+                title="Ready to claim "
                 handlePress={submitWithdrawal}
                 containerStyles="w-full"
                 textStyles={"font-pbold text-white"}

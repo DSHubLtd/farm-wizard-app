@@ -201,7 +201,7 @@ const Profile = () => {
         showRightButton={true}
       />
 
-      <Text className="text-white text-2xl font-primary font-bold mt-4">
+      <Text className="text-white text-2xl font-primary font-bold mt-4 capitalize">
         {t("profile")}
       </Text>
 
@@ -230,11 +230,11 @@ const Profile = () => {
                 Humble Farmstead
               </Text>
             </View>
-            <TouchableOpacity onPress={() => setShowUpgradeModale(true)}>
+            {/* <TouchableOpacity onPress={() => setShowUpgradeModale(true)}>
               <Text className="text-center text-buttonColor underline">
                 {t("messages.upgrade_to_premium")}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
         ) : (
           <>
@@ -254,8 +254,8 @@ const Profile = () => {
           </>
         )}
       </View>
-      <Text className="text-yellow-300 font-secondary text-base my-2">
-        Score: {Number(user?.score).toFixed(2) || 0} || USD:{" "}
+      <Text className="text-yellow-300 font-secondary font-bold my-2">
+        WZP: {Number(user?.score).toFixed(2) || 0} || USD:{" "}
         {Number(user?.usdBalance).toFixed(5) || 0}
       </Text>
 
