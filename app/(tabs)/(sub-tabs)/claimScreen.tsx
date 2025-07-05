@@ -179,10 +179,19 @@ const ClaimScreen = () => {
   };
 
   const submitWithdrawal = async () => {
-    if (Number(user.usdBalance) < 0.005) {
-      Alert.alert(t("messages.warning"), t("messages.withdrawal_warning"));
+    const usdConversion = (Number(user?.score * 0.0001) / 1000).toFixed(8);
+
+    if (Number(usdConversion) < 0.005) {
+      Alert.alert(
+        t("messages.warning"),
+        `You don't have enough WZP point to perform this operation`
+      );
       return;
     }
+    // if (Number(user.usdBalance) < 0.005) {
+    //   Alert.alert(t("messages.warning"), t("messages.withdrawal_warning"));
+    //   return;
+    // }
 
     const type = activeTab;
     const reference = `withdraw-${uuid.v4().split("-")[0]}`;
@@ -214,7 +223,7 @@ const ClaimScreen = () => {
       try {
         const result = await submitWithdrwal(
           // Number(form.amount),
-          Number(user.usdBalance),
+          Number(user?.score),
           form.phoneNo,
           provider,
           type,
@@ -313,10 +322,13 @@ const ClaimScreen = () => {
       {/* Balance Box */}
       <TouchableOpacity
         className="bg-black/20 opacity-90 flex flex-row justify-center items-center p-2 rounded-lg"
-        onPress={openCoversionModal}
+        // onPress={openCoversionModal}
       >
         <View className="px-6 py-2 bg-[#E0C145B8] rounded-xl">
-          <Text className="text-white text-sm text-center">
+          <Text className="text-white text-lg text-center p-4">
+            {Number(user?.score).toFixed(2)}
+          </Text>
+          {/* <Text className="text-white text-sm text-center">
             USD: {Number(user.usdBalance).toFixed(5)}
           </Text>
           <Text className="text-white/80 text-xs text-center">
@@ -327,7 +339,7 @@ const ClaimScreen = () => {
           </Text>
           <Text className="text-white/80 text-xs text-center">
             ({t("messages.withdrawal_eligiblity")} = 0.005 USD)
-          </Text>
+          </Text> */}
         </View>
       </TouchableOpacity>
 
@@ -363,11 +375,11 @@ const ClaimScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"} // or 'position'
           style={{ flex: 1 }}
         >
-          <ScrollView className="w-[85%]" style={{ height: "auto" }}>
-            <View className="flex-row justify-around gap-4 my-2 bg-black/10 opacity-1 p-2 rounded-lg">
+          <ScrollView className="w-[95%]" style={{ height: "auto" }}>
+            <View className="flex-row justify-around gap-x-6 my-2 bg-black/10 opacity-1 p-2 rounded-lg">
               {providers[activeTab].map((provider, index) => (
                 <View
-                  className={`bg-black/20 opacity-90 p-2 mt-1 mb-2 rounded-lg ${
+                  className={`bg-black/20 opacity-90 p-4 mt-1 mb-2 rounded-lg ${
                     selectedProvider?.name === provider.name
                       ? "border border-white"
                       : ""
@@ -378,7 +390,7 @@ const ClaimScreen = () => {
                     key={index}
                     // onPress={() => openModal(provider)}
                     onPress={() => setSelectedProvider(provider)}
-                    className={`flex-col justify-between items-center px-6 py-2 rounded-xl ${
+                    className={`flex-col justify-between items-center p-4 rounded-xl ${
                       provider.bg
                     }
                 ${
@@ -387,9 +399,9 @@ const ClaimScreen = () => {
                     : ""
                 }`}
                   >
-                    <Text className="text-white font-semibold text-base">
+                    {/* <Text className="text-white font-semibold text-base">
                       {provider.name}
-                    </Text>
+                    </Text> */}
                     <Image
                       source={provider.icon}
                       className="w-6 h-6 tint-white"
@@ -400,10 +412,12 @@ const ClaimScreen = () => {
               ))}
             </View>
 
-            <Text className="text-sm text-white font-bold mb-2 text-center">
-              {t("comfirmation.token_address", {
+            <Text className="text-sm text-[#F2DE9F] font-bold mb-2 text-center">
+              Enter wallet address address and select network type to receive
+              your reward
+              {/* {t("comfirmation.token_address", {
                 amount: ` ${user.usdBalance} `,
-              })}{" "}
+              })}{" "} */}
             </Text>
             <FormField
               type="text"
@@ -411,7 +425,7 @@ const ClaimScreen = () => {
               title={t("destination_wallet_addres")}
               value={form.phoneNo}
               handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-              otherStyles="my-2"
+              otherStyles="my-2 "
             />
 
             <FormField
@@ -598,7 +612,8 @@ const ClaimScreen = () => {
             </Text>
             <Text className="text-xl text-white font-bold mb-2 text-center">
               {t("comfirmation.token_address", {
-                amount: ` ${user.usdBalance} `,
+                // amount: ` ${user.usdBalance} `,
+                WZP: ` ${user?.score} `,
               })}{" "}
             </Text>
             <FormField

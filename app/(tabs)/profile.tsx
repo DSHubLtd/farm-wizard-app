@@ -255,8 +255,9 @@ const Profile = () => {
         )}
       </View>
       <Text className="text-yellow-300 font-secondary font-bold my-2">
-        WZP: {Number(user?.score).toFixed(2) || 0} || USD:{" "}
-        {Number(user?.usdBalance).toFixed(5) || 0}
+        WZP: {Number(user?.score).toFixed(2) || 0}
+        {/* || USD:{" "}
+        {Number(user?.usdBalance).toFixed(5) || 0} */}
       </Text>
 
       {/* Tabs */}

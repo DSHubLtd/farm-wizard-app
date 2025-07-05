@@ -40,7 +40,7 @@ const SignIn = () => {
 
         setIsLogged(true);
 
-        Alert.alert("Success", "User signed in successfully");
+        //Alert.alert("Success", "User signed in successfully");
         router.replace("/(tabs)/home");
       } else {
         Alert.alert("Error", "Server Down, please try again later")
