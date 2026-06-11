@@ -7,18 +7,89 @@ import { images } from "../../constants";
 import { CustomButton, FormField } from "../../components";
 
 import { useLoginContext } from "@/context/LoginProvider";
-import { signInUser } from "../../services/auth";
+import { signInUser, signUpUser } from "../../services/auth";
 import BackgroundImage from "../../components/BackgroundImage";
 import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import uuid from "react-native-uuid";
+
+// Stored so the same device always signs back into the same guest account
+const ANON_CREDENTIALS_KEY = "anonymous-credentials";
 
 
 const SignIn = () => {
   const { setUser, setIsLogged } = useLoginContext();
   const [isSubmitting, setSubmitting] = useState(false);
+  const [isAnonSubmitting, setAnonSubmitting] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  // Creates (once per device) and signs into a guest account whose details
+  // are generated from device data — no form filling required.
+  const submitAnonymous = async () => {
+    setAnonSubmitting(true);
+    try {
+      let creds = null;
+      const stored = await AsyncStorage.getItem(ANON_CREDENTIALS_KEY);
+      if (stored) creds = JSON.parse(stored);
+
+      if (!creds) {
+        const deviceId = uuid.v4().replace(/-/g, "").slice(0, 10);
+        const deviceName = (Constants.deviceName || "Wizard")
+          .replace(/[^a-zA-Z0-9 ]/g, "")
+          .trim()
+          .slice(0, 18);
+        creds = {
+          fullName: `${deviceName || "Wizard"} ${deviceId.slice(0, 4)}`,
+          email: `guest-${deviceId}@farmwizard.app`.toLowerCase(),
+          password: String(uuid.v4()),
+        };
+        const reg = await signUpUser(
+          creds.fullName,
+          creds.email,
+          creds.password,
+          "english",
+          "ng",
+          Math.floor(Math.random() * 4) + 1
+        );
+        if (!reg || reg.status !== 200 || reg.data?.success === false) {
+          Alert.alert(
+            "Error",
+            reg?.data?.message ||
+              "Could not create a guest account, please try again."
+          );
+          return;
+        }
+        await AsyncStorage.setItem(ANON_CREDENTIALS_KEY, JSON.stringify(creds));
+      }
+
+      const result = await signInUser(creds.email, creds.password);
+      if (result === undefined) {
+        Alert.alert("Error", "Server Down, please try again later");
+        return;
+      }
+      if (result?.data?.success === false) {
+        // Stored guest account no longer valid (e.g. deleted server-side):
+        // clear it so the next tap creates a fresh one.
+        await AsyncStorage.removeItem(ANON_CREDENTIALS_KEY);
+        Alert.alert(
+          "Error",
+          "Guest session expired, please tap Continue as Guest again."
+        );
+        return;
+      }
+      setUser(result.data.data.user);
+      setIsLogged(true);
+      router.replace("/(tabs)/home");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setAnonSubmitting(false);
+    }
+  };
 
 
   const submit = async () => {
@@ -96,6 +167,14 @@ const SignIn = () => {
             handlePress={submit}
             containerStyles="w-full"
             isLoading={isSubmitting}
+          />
+
+          <CustomButton
+            title="👤 Continue as Guest"
+            handlePress={submitAnonymous}
+            containerStyles="w-full"
+            textStyles="text-[18px]"
+            isLoading={isAnonSubmitting}
           />
 
           <View className="flex justify-end pt-5 flex-row gap-2">
