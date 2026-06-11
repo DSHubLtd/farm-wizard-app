@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import HttpBackend from "i18next-http-backend";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE } from "@/config/client";
+import en from "./translations/en.json";
 
 // Map your translation base URL
 const BASE_URL = `${API_BASE}/translations/`;
@@ -33,6 +34,10 @@ i18n
     ],
     load: "languageOnly", // e.g. 'en-US' becomes 'en'
     lng: "en",
+    // English ships with the app so the UI never shows raw keys,
+    // even when the translations server is unreachable.
+    resources: { en: { translation: en } },
+    partialBundledLanguages: true,
     debug: false, // turn off logs
     missingKeyHandler: false, // disable missing key logs
     backend: {
@@ -66,6 +71,7 @@ i18n.services.backendConnector.backend.read = async function (
     }
 
     const response = await fetch(`${BASE_URL}${language}.json`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     await AsyncStorage.setItem(
       `translations-${language}`,
@@ -73,7 +79,9 @@ i18n.services.backendConnector.backend.read = async function (
     );
     callback(null, data);
   } catch (err) {
-    callback(err, false);
+    // Server unreachable: fall back to the bundled English strings
+    // rather than leaving the language empty (raw keys in the UI).
+    callback(null, en);
   }
 };
 

@@ -21,8 +21,9 @@ const LANGUAGE_KEY = "user-language";
 
 const SignUp = () => {
   const [isSubmitting, setSubmitting] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('')
-  const [selectedCountry, setSelectedCountry] = useState('')
+  // Sensible defaults so the form can be submitted quickly; user can change them.
+  const [selectedLanguage, setSelectedLanguage] = useState('english')
+  const [selectedCountry, setSelectedCountry] = useState('ng')
   const [form, setForm] = useState({
     email: "",
     password: "",
