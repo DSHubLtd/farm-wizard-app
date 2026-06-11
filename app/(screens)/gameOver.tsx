@@ -142,7 +142,7 @@ const GameOver = () => {
       </View>
 
       {/* </View> */}
-      <View className="flex-row justify-between m-3">
+      <View className="flex-row justify-between gap-4 m-3">
         <CustomButton
           title={t("buttons.go_again")}
           handlePress={() => router.push("/(screens)/selectSeed")}

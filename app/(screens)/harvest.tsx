@@ -223,7 +223,7 @@ const Harvest = () => {
           </Text>
         )}
 
-        <View className="flex-row justify-between m-3">
+        <View className="flex-row justify-between gap-4 m-3">
           <CustomButton
             title={t("buttons.keep_going")}
             handlePress={() => router.replace("/(screens)/selectSeed")}

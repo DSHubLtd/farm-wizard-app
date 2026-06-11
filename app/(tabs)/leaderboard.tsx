@@ -295,7 +295,7 @@ export default function Leaderboard() {
         </ScrollView>
         {hasMore && (
           <TouchableOpacity
-            className="btn btn-info"
+            className="bg-buttonColor rounded-xl mx-4 my-2 py-2"
             onPress={handleLoadMore}
             disabled={loading}
           >
