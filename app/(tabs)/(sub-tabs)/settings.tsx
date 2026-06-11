@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   Alert,
+  Modal,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { icons, images } from "../../../constants";
@@ -13,6 +14,7 @@ import BackgroundImage from "@/components/BackgroundImage";
 import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import WebViewModal from "@/components/WebViewModal";
+import TermsContent from "@/components/TermsContent";
 import RewardModal from "@/components/RewardModal";
 import { signOut } from "../../../services/auth";
 import { useLoginContext } from "@/context/LoginProvider";
@@ -35,6 +37,7 @@ const Settings = () => {
   const [url, setUrl] = useState("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
   const [confirmModal, setConfirmModal] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
+  const [termsVisible, setTermsVisible] = useState(false);
   const [showAd, setShowAd] = useState(false);
   const [remainingViews, setRemainingViews] = useState<number | null>(null);
 
@@ -91,9 +94,11 @@ const Settings = () => {
     if (itemLink === "specialReward") {
       setRewardVisible(true);
     }
+    if (itemLink === "terms") {
+      setTermsVisible(true);
+    }
     if (
       itemLink === "privacy" ||
-      itemLink === "terms" ||
       itemLink === "contact-us" ||
       itemLink === "tutorial"
     ) {
@@ -258,6 +263,21 @@ const Settings = () => {
         url={url}
         onClose={() => setModalVisible(false)}
       />
+
+      <Modal
+        visible={termsVisible}
+        animationType="slide"
+        onRequestClose={() => setTermsVisible(false)}
+      >
+        <View className="flex-1 bg-white">
+          <View className="flex-row justify-end p-4 pt-12 border-b border-gray-200">
+            <TouchableOpacity onPress={() => setTermsVisible(false)}>
+              <Text className="text-lg text-blue-500">Close</Text>
+            </TouchableOpacity>
+          </View>
+          <TermsContent />
+        </View>
+      </Modal>
 
       <ConfirmModal
         visible={confirmModal}
