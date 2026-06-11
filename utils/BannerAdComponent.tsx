@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import {
   BannerAd,
@@ -13,10 +13,12 @@ interface Props {
 }
 
 const BannerAdComponent = ({ style = {} }: Props) => {
+  // Collapse the banner slot until an ad actually fills it, so screens
+  // never show an empty strip when AdMob has no ad to serve.
+  const [loaded, setLoaded] = useState(false);
+
   return (
-    <View
-    //style={[styles.container, style]}
-    >
+    <View style={loaded ? [styles.container, style] : styles.hidden}>
       <BannerAd
         // unitId={adUnitId}
         // size={size}
@@ -25,7 +27,11 @@ const BannerAdComponent = ({ style = {} }: Props) => {
         requestOptions={{
           requestNonPersonalizedAdsOnly: true,
         }}
-        onAdFailedToLoad={(error) => console.error(error)}
+        onAdLoaded={() => setLoaded(true)}
+        onAdFailedToLoad={(error) => {
+          setLoaded(false);
+          console.warn("Banner ad failed to load:", error?.message || error);
+        }}
       />
     </View>
   );
@@ -35,6 +41,10 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  hidden: {
+    height: 0,
+    overflow: "hidden",
   },
 });
 

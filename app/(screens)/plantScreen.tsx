@@ -47,18 +47,28 @@ import analytics from "@react-native-firebase/analytics";
 import BannerAdComponent from "@/utils/BannerAdComponent";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-const TEN_MINUTES = 10 * 60;
-const PHASE_DURATION = 150; // 2.5 minutes
-//const SEASON_DURATION = TEN_MINUTES / 3;
+// Total session length. Was 10 minutes (150s per growth stage); shortened
+// to 6 minutes (90s per stage) to keep levels snappy.
+const GAME_DURATION = 6 * 60;
+const TEN_MINUTES = GAME_DURATION; // legacy alias used throughout this file
+const PHASE_DURATION = GAME_DURATION / 4; // one growth stage
 
 const SEASONS = ["normal", "dry", "raining"] as const;
 type SeasonType = (typeof SEASONS)[number];
 type InventoryItemType = "Fertilizer" | "Pesticide" | "Water";
 type InventoryKey = "fertilizerQty" | "pesticideQty" | "waterQty";
 // Calculate durations
-const NORMAL_DURATION = TEN_MINUTES * 0.45; // 45% of total time (270 seconds)
+const NORMAL_DURATION = TEN_MINUTES * 0.45; // 45% of total time
 const OTHER_SEASONS_DURATION =
-  (TEN_MINUTES - NORMAL_DURATION) / (SEASONS.length - 1); // 55% split between others (165 seconds each)
+  (TEN_MINUTES - NORMAL_DURATION) / (SEASONS.length - 1); // 55% split between others
+// per-season time budget; the order they play in is randomized per game
+const SEASON_DURATIONS: Record<SeasonType, number> = {
+  normal: NORMAL_DURATION,
+  dry: OTHER_SEASONS_DURATION,
+  raining: OTHER_SEASONS_DURATION,
+};
+const shuffleSeasons = (): SeasonType[] =>
+  [...SEASONS].sort(() => Math.random() - 0.5);
 
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
@@ -93,6 +103,8 @@ const PlantScreen = () => {
   const [popupText, setPopupText] = useState("");
 
   const [timeLeft, setTimeLeft] = useState(TEN_MINUTES); // in seconds
+  // Random season order for this game session
+  const [seasonSchedule] = useState<SeasonType[]>(shuffleSeasons);
   const [isTimerActive, setIsTimerActive] = useState(true);
   const [score, setScore] = useState(0);
   const [activeThreat, setActiveThreat] = useState<null | {
@@ -252,22 +264,15 @@ const PlantScreen = () => {
     return null;
   }
 
-  const getCurrentSeason = () => {
+  const getCurrentSeason = (): SeasonType => {
+    // Seasons keep their time budgets but play in a random order per game.
     const elapsed = TEN_MINUTES - timeLeft;
-
-    if (elapsed < NORMAL_DURATION) {
-      return "normal";
+    let acc = 0;
+    for (const season of seasonSchedule) {
+      acc += SEASON_DURATIONS[season];
+      if (elapsed < acc) return season;
     }
-
-    // Calculate which "other" season we're in (dry or raining)
-    const remainingElapsed = elapsed - NORMAL_DURATION;
-    const otherSeasonIndex =
-      Math.floor(remainingElapsed / OTHER_SEASONS_DURATION) %
-      (SEASONS.length - 1);
-
-    // Since index 0 is "dry" and index 1 is "raining" (skip "normal")
-    // return SEASONS[otherSeasonIndex + 1];
-    return (SEASONS[otherSeasonIndex + 1] as SeasonType) || "normal";
+    return seasonSchedule[seasonSchedule.length - 1] || "normal";
   };
   /*const getCurrentSeason = (): SeasonType => {
     const elapsed = TEN_MINUTES - timeLeft;
@@ -521,7 +526,7 @@ const PlantScreen = () => {
     }
 
     // initial modal popup
-    if (timeLeft === 595 && getPlantStage() === 0) {
+    if (timeLeft === TEN_MINUTES - 5 && getPlantStage() === 0) {
       setSoilVisible(false);
       setIsTimerActive(false);
       setGrowthModal(true);
@@ -614,14 +619,16 @@ const PlantScreen = () => {
       }
 
       // ✅ Restore the game state
-      setTimeLeft(parsedState.timeLeft);
+      // Clamp in case the save was made when sessions were longer
+      const restoredTime = Math.min(parsedState.timeLeft, TEN_MINUTES);
+      setTimeLeft(restoredTime);
       setPlantHealth(parsedState.plantHealth);
       setWaterLevel(parsedState.waterLevel);
       setNutrientLevel(parsedState.nutrientLevel);
       setActiveThreat(parsedState.activeThreat);
       setScore(parsedState.score);
       setUserLevel(parsedState.userLevel || 1);
-      if (parsedState.timeLeft >= 595) setSoilVisible(false);
+      if (restoredTime >= TEN_MINUTES - 5) setSoilVisible(false);
 
       setIsTimerActive(parsedState.timeLeft > 0);
 
