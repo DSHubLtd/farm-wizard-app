@@ -151,7 +151,7 @@ const CountryPhoneInput: React.FC<Props> = ({
         </Text>
         <TextInput
           placeholder="Enter phone number"
-          placeholderTextColor="#ccc"
+          placeholderTextColor="#ffffff"
           keyboardType="phone-pad"
           className="text-white flex-1 my-1"
           value={phone}

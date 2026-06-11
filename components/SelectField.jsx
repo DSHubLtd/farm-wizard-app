@@ -46,7 +46,7 @@ const SelectField = ({ title, options, selectedValue, handleValueChange, otherSt
                     <TextInput
                         className="w-full text-white font-psemibold text-base mb-2"
                         placeholder="Search..."
-                        placeholderTextColor="#7B7B8B"
+                        placeholderTextColor="#ffffff"
                         value={searchText}
                         onChangeText={handleSearch}
                     />
@@ -139,7 +139,7 @@ export const CustomSelectField = ({ title, options, selectedValue, handleValueCh
                         <TextInput
                             className="w-full text-white font-psemibold text-base mb-2"
                             placeholder="Search..."
-                            placeholderTextColor="#7B7B8B"
+                            placeholderTextColor="#ffffff"
                             value={searchText}
                             onChangeText={handleSearch}
                         />
