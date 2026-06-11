@@ -43,11 +43,6 @@ const providers = {
       bg: "bg-blue-500",
     },
     {
-      name: "Binance",
-      icon: icons.binance,
-      bg: "bg-yellow-500",
-    },
-    {
       name: "Bybit",
       icon: icons.bybit,
       bg: "bg-gray-500",
