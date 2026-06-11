@@ -27,7 +27,7 @@ import { useTranslation } from "react-i18next";
 import { submitConversion } from "@/services/user";
 import CountryPhoneInput from "@/components/CountryPhoneInput";
 
-const tabs = ["Token", "Airtime", "Data bundle"] as const;
+const tabs = ["Token"] as const;
 
 type Provider = {
   name: string;
