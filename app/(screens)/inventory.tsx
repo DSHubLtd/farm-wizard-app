@@ -332,7 +332,7 @@ const Inventory = () => {
         {/* Background */}
         <BackgroundImage
           source={images.background}
-          style={{ width: "100vw", height: "100vh", position: "absolute" }}
+          style={{ width: "100%", height: "100%", position: "absolute" }}
         />
 
         <Text className="text-white text-2xl font-primary text-center my-8">
@@ -400,7 +400,7 @@ const Inventory = () => {
                       // }
                       className="w-40 h-40"
                     />
-                    <Text className="text-md text-[#78693985] font-bold text-center">
+                    <Text className="text-base text-[#78693985] font-bold text-center">
                       {selectedItem?.diplayName}
                     </Text>
 
@@ -462,7 +462,7 @@ const Inventory = () => {
                     source={images.fewCoinsMessage}
                     className="w-40 h-40"
                   />
-                  <Text className="text-md text-white font-bold text-center">
+                  <Text className="text-base text-white font-bold text-center">
                     The magic’s eager, but your coins are few! Let’s visit the
                     shop and fill that pouch.
                   </Text>
@@ -634,10 +634,10 @@ const Inventory = () => {
             >
               <TouchableWithoutFeedback onPress={() => {}}>
                 <View className="bg-[#857f6e85] opacity-2 rounded-lg p-8 flex justify-center items-center">
-                  {/* <Text className="text-md text-white font-bold text-center">
+                  {/* <Text className="text-base text-white font-bold text-center">
                     {t("inventory.select_payment_option")}
                   </Text> */}
-                  <Text className="text-md text-white font-bold text-center">
+                  <Text className="text-base text-white font-bold text-center">
                     Proceed
                   </Text>
                   <View className="flex-col p-4 my-8">
@@ -650,7 +650,7 @@ const Inventory = () => {
                       }`}
                     >
                       <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
-                        <Text className="text-white text-md font-bold font-secondary text-center">
+                        <Text className="text-white text-base font-bold font-secondary text-center">
                           CARD / TRANSFER
                         </Text>
                       </View>
@@ -664,7 +664,7 @@ const Inventory = () => {
                       }`}
                     >
                       <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
-                        <Text className="text-white text-md font-bold font-secondary text-center">
+                        <Text className="text-white text-base font-bold font-secondary text-center">
                           WIZ POINT
                         </Text>
                       </View>

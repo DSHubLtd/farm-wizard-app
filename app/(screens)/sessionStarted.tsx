@@ -22,7 +22,7 @@ const SessionStarted = () => {
         source={images.bgRainfall}
         style={{
           width: "100%",
-          height: "100vh",
+          height: "100%",
           position: "absolute",
         }}
       />

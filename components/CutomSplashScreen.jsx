@@ -35,7 +35,7 @@ export default function CutomSplashScreen() {
         <View style={styles.container}>
             {/* <Image
                 source={images.background}
-                className="w-[100vw] h-[100vh]"
+                className="w-full h-full"
                 resizeMode="cover" 
             /> */}
             <Image

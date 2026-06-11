@@ -344,12 +344,12 @@ const ClaimScreen = () => {
       </TouchableOpacity>
 
       {/* Tabs */}
-      <View className="flex-row justify-around space-x-6">
+      <View className="flex-row justify-around gap-x-6">
         {tabs.map((tab, index) => (
           <TouchableOpacity
             key={index}
             onPress={() => handleTabChange(tab)}
-            className="flex-row items-center justify-between m-30 p-8 "
+            className="flex-row items-center justify-between p-8 "
           >
             <Text
               className={`text-sm ${
@@ -456,7 +456,7 @@ const ClaimScreen = () => {
             style={{ flex: 1 }}
           >
             <ScrollView
-              className="min-h-50 p-2"
+              className="p-2"
               style={{ height: height * 0.5 }}
             >
               <View className="flex-row justify-around gap-4 my-6 ">
@@ -483,7 +483,7 @@ const ClaimScreen = () => {
                 Amount
               </Text>
 
-              <View className="flex-row justify-around space-x-6">
+              <View className="flex-row justify-around gap-x-6">
                 {activeTab === "Airtime" ? (
                   <>
                     {airtimeAmount.map((amount, index) => (
@@ -527,7 +527,7 @@ const ClaimScreen = () => {
                 textStyles={"font-pbold text-white"}
                 isLoading={isSubmitting}
               />
-              {/* <Text className="text-md font-secondary text-white my-2">
+              {/* <Text className="text-base font-secondary text-white my-2">
                 {t("messages.available")}
               </Text> */}
             </ScrollView>
@@ -538,7 +538,7 @@ const ClaimScreen = () => {
             style={{ flex: 1 }}
           >
             <ScrollView
-              className="min-h-50 p-6 my-6"
+              className="p-6 my-6"
               style={{ height: height * 0.5 }}
             >
               {/* <FormField
@@ -572,7 +572,7 @@ const ClaimScreen = () => {
                 textStyles={"font-pbold text-white"}
                 isLoading={isSubmitting}
               />
-              {/* <Text className="text-md font-secondary text-white my-2">
+              {/* <Text className="text-base font-secondary text-white my-2">
                 {t("messages.available")}
               </Text> */}
             </ScrollView>
@@ -634,7 +634,7 @@ const ClaimScreen = () => {
               otherStyles=""
             />
 
-            <View className="flex-row space-x-4">
+            <View className="flex-row gap-x-4">
               <CustomButton
                 title={t("buttons.submit")}
                 handlePress={submitWithdrawal}
@@ -693,7 +693,7 @@ const ClaimScreen = () => {
               otherStyles=""
             /> */}
 
-            <View className="flex-row space-x-4">
+            <View className="flex-row gap-x-4">
               <CustomButton
                 title={t("buttons.click_to_confirm")}
                 handlePress={handleSubmitConvertion}
@@ -769,7 +769,7 @@ const AmountCard = ({
       }`}
     >
       <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
-        <Text className="text-white text-md font-bold font-secondary text-center">
+        <Text className="text-white text-base font-bold font-secondary text-center">
           {type === "airtime" && "N"} {amount.value} {type === "data" && "GB"}
         </Text>
       </View>

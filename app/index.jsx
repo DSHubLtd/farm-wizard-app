@@ -57,7 +57,7 @@ export default function Index() {
       {/* Background Image */}
       <BackgroundImage source={images.background} />
 
-      <View className="w-full flex justify-center items-center min-h-[95vh] px-4">
+      <View className="w-full flex justify-center items-center min-h-[95%] px-4">
 
         <View className="my-20 ">
           <Text className="text-3xl text-white font-primary text-center">

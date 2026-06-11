@@ -83,7 +83,7 @@ const Inventory = () => {
       {/* Background */}
       <BackgroundImage
         source={images.background}
-        style={{ width: "100vw", height: "100vh", position: "absolute" }}
+        style={{ width: "100%", height: "100%", position: "absolute" }}
       />
 
       <Text className="text-white text-3xl font-secondary text-center my-10">

@@ -15,7 +15,7 @@ const SelectField = ({ title, options, selectedValue, handleValueChange, otherSt
     };
 
     return (
-        <View className={`space-y-2 ${otherStyles}`}>
+        <View className={`gap-y-2 ${otherStyles}`}>
             <Text className="text-base text-gray-100 font-pmedium">{title}</Text>
 
             {/* Dropdown Box */}
@@ -94,7 +94,7 @@ export const CustomSelectField = ({ title, options, selectedValue, handleValueCh
     };
 
     return (
-        <View className={`space-y-2 ${otherStyles}`}>
+        <View className={`gap-y-2 ${otherStyles}`}>
             <Text className="text-base text-gray-100 font-pmedium">{title}</Text>
 
             {/* Touchable area for triggering Modal */}

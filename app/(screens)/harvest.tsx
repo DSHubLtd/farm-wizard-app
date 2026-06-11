@@ -172,7 +172,7 @@ const Harvest = () => {
       {/* Background */}
       <BackgroundImage
         source={images.bgRainfall}
-        style={{ width: "100%", height: "100vh", position: "absolute" }}
+        style={{ width: "100%", height: "100%", position: "absolute" }}
       />
 
       {/* Title */}

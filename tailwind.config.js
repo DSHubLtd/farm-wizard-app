@@ -5,6 +5,11 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      // sizes used in markup that are missing from Tailwind's default scale
+      spacing: {
+        18: "4.5rem",
+        22: "5.5rem",
+      },
       colors: {
         primary: "#3E8E41",
         // primary: "#161622",

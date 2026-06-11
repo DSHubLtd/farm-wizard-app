@@ -188,10 +188,10 @@ export default Home = () => {
             />
           </TouchableOpacity>
           <View className="flex my-4">
-            <Text className="text-white text-md">
+            <Text className="text-white text-base">
               {t("hi_user", { name: `${user.fullName}` })}
             </Text>
-            <Text className="text-white text-md">{Number(user.score).toFixed(2)}</Text>
+            <Text className="text-white text-base">{Number(user.score).toFixed(2)}</Text>
           </View>
         </View>
         <TouchableOpacity

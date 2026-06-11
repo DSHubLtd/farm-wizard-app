@@ -35,8 +35,8 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
         //               />
         //             </TouchableOpacity>
         //             <View className="flex my-4">
-        //               <Text className="text-white text-md">Hi, {user.fullName}</Text>
-        //               <Text className="text-white text-md">{user.score}</Text>
+        //               <Text className="text-white text-base">Hi, {user.fullName}</Text>
+        //               <Text className="text-white text-base">{user.score}</Text>
         //             </View>
         //           </View>
       )}

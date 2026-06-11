@@ -1069,10 +1069,10 @@ const PlantScreen = () => {
                 />
               </TouchableOpacity>
               <View className="flex my-4">
-                <Text className="text-white text-md">
+                <Text className="text-white text-base">
                   {t("hi_user", { name: `${user.fullName}` })}
                 </Text>
-                <Text className="text-white text-md">
+                <Text className="text-white text-base">
                   {Number(user.score).toFixed(2)}
                 </Text>
               </View>
@@ -1170,10 +1170,10 @@ const PlantScreen = () => {
               </Text>
             )}
             {waterLevel < 20 && (
-              <Text className="text-red text-md">⚠️ {t("game.low_water")}</Text>
+              <Text className="text-red-500 text-base">⚠️ {t("game.low_water")}</Text>
             )}
             {nutrientLevel < 20 && (
-              <Text className="text-red text-md">
+              <Text className="text-red-500 text-base">
                 ⚠️ {t("game.low_nutrient")}
               </Text>
             )}

@@ -218,16 +218,16 @@ const Settings = () => {
         tint="default"
         className="px-5 py-3 w-[95%] rounded-xl bg-white/10"
       >
-        <ScrollView className="max-h-[70vh]">
+        <ScrollView className="max-h-[70%]">
           {settingsOptions.map((item, index) => (
             <TouchableOpacity
               key={index}
-              className={`flex-row items-center justify-between m-30 p-8 border-b border-white/80 ${
+              className={`flex-row items-center justify-between p-8 border-b border-white/80 ${
                 index === settingsOptions.length - 1 ? "border-b-0" : ""
               }`}
               onPress={() => handleItemClick(item.link, item.url)}
             >
-              <View className="flex-row items-center space-x-2">
+              <View className="flex-row items-center gap-x-2">
                 {item.icon && (
                   <Image
                     source={item.icon}
