@@ -335,11 +335,11 @@ const Inventory = () => {
           style={{ width: "100%", height: "100%", position: "absolute" }}
         />
 
-        <Text className="text-white text-2xl font-primary text-center my-8">
+        <Text className="text-white text-2xl font-primary text-center my-3">
           {t("menu.inventory")}
         </Text>
 
-        <View className="flex-row gap-2 justify-end my-2">
+        <View className="flex-row gap-2 items-center justify-end my-2">
           <Text className="text-white text-lg font-semibold">
             {(user?.score).toFixed(2)}
           </Text>
@@ -354,8 +354,11 @@ const Inventory = () => {
           {renderTabButton("Seeds", "seeds")}
         </View>
 
-        <ScrollView className="pb-10">
-          <View className="bg-[#78693952] p-4 rounded-xl">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 24 }}
+        >
+          <View className="bg-[#78693952] p-3 rounded-xl">
             <InventoryGrid
               data={activeTab === "items" ? inventory.items : seedData}
               onOpenModal={openModal}
@@ -404,12 +407,12 @@ const Inventory = () => {
                       {selectedItem?.diplayName}
                     </Text>
 
-                    <View className="flex-row my-1 gap-14">
+                    <View className="flex-row items-center my-2 gap-8">
                       <TouchableOpacity onPress={() => handleAmount("sub")}>
-                        <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
+                        <View className="w-12 h-12 rounded-full bg-buttonColor justify-center items-center">
                           <Image
                             source={icons.leftChevron}
-                            className="w-18 h-14"
+                            className="w-8 h-8"
                             resizeMode="contain"
                           />
                         </View>
@@ -418,10 +421,10 @@ const Inventory = () => {
                         X {purchaseQty}
                       </Text>
                       <TouchableOpacity onPress={() => handleAmount("add")}>
-                        <View className="w-14 h-14 rounded-full bg-buttonColor justify-center items-center">
+                        <View className="w-12 h-12 rounded-full bg-buttonColor justify-center items-center">
                           <Image
                             source={icons.rightChevron}
-                            className="w-18 h-14"
+                            className="w-8 h-8"
                             resizeMode="contain"
                           />
                         </View>
@@ -719,42 +722,39 @@ const InventoryGrid = ({ data, onOpenModal, userInventory }: any) => {
               key={index}
               className="flex-1 bg-[#9F8851] rounded-xl mx-1 p-3"
             >
-              <Text className="text-white text-right">
+              <Text className="text-white text-right text-xs font-semibold">
                 x{getItemsQty(item.name, userInventory)}
               </Text>
-              <View className="flex-row justify-between">
+              <View className="items-center">
                 <Image
                   source={item.icon}
-                  className="w-30 h-30 p-8"
+                  className="w-20 h-20"
                   resizeMode="contain"
                 />
-                <View className="mt-6">
-                  <Text className="text-[#56411A] font-primary text-2xl">
-                    {/* {item.name} */}
-                    {item.diplayName}
-                  </Text>
-                </View>
+                <Text
+                  numberOfLines={1}
+                  className="text-[#56411A] font-primary text-lg text-center mt-1"
+                >
+                  {item.diplayName}
+                </Text>
               </View>
 
               {/* Actions */}
-              <View className="items-end mt-2">
-                <View className="flex-row gap-1">
-                  <TouchableOpacity
-                    className="px-2 py-1 bg-[#8C6722] rounded-md"
-                    onPress={() => onOpenModal?.(item)}
-                  >
-                    <Image
-                      source={icons.cart}
-                      className="w-30 h-30"
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                </View>
+              <View className="flex-row justify-end mt-2">
+                <TouchableOpacity
+                  className="px-4 py-2 bg-[#8C6722] rounded-lg"
+                  onPress={() => onOpenModal?.(item)}
+                >
+                  <Image
+                    source={icons.cart}
+                    className="w-6 h-6"
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
               </View>
             </View>
           ))}
-          {/* {row.length < 2 && <View className="flex-1 mx-1" />}{" "} */}
-          {row.length < 2 && <Text className="flex-1 mx-1"> </Text>}
+          {row.length < 2 && <View className="flex-1 mx-1" />}
           {/* filler for alignment */}
         </View>
       ))}

@@ -131,7 +131,6 @@ const SECTIONS = [
     paragraphs: [
       "If you have questions or concerns about these Terms, you may contact us at:",
       "dinisoft.dev@gmail.com",
-      "Wizard Apps, No. 3 Maccido Crescent, Malali GRA, Kaduna, Nigeria",
     ],
   },
   {

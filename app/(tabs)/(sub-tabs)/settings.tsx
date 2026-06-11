@@ -207,7 +207,7 @@ const Settings = () => {
       />
 
       {/* Title */}
-      <Text className="text-white text-2xl font-primary font-bold">
+      <Text className="text-white text-2xl font-primary font-bold my-2">
         {t("settings.settings")}
       </Text>
 
@@ -216,28 +216,29 @@ const Settings = () => {
         // intensity={60}
         intensity={0}
         tint="default"
-        className="px-5 py-3 w-[95%] rounded-xl bg-white/10"
+        className="px-4 py-2 w-[92%] rounded-2xl bg-black/20 flex-1 mb-6"
       >
-        <ScrollView className="max-h-[70%]">
+        <ScrollView showsVerticalScrollIndicator={false}>
           {settingsOptions.map((item, index) => (
             <TouchableOpacity
               key={index}
-              className={`flex-row items-center justify-between p-8 border-b border-white/80 ${
+              className={`flex-row items-center justify-between px-3 py-4 border-b border-white/30 ${
                 index === settingsOptions.length - 1 ? "border-b-0" : ""
               }`}
               onPress={() => handleItemClick(item.link, item.url)}
             >
-              <View className="flex-row items-center gap-x-2">
+              <View className="flex-row items-center flex-1 mr-2">
                 {item.icon && (
                   <Image
                     source={item.icon}
-                    className="w-8 h-7 mr-3"
+                    className="w-7 h-7 mr-4"
                     resizeMode="contain"
                   />
                 )}
                 <Text
-                  className={`text-white font-primary mb-1 ${
-                    item.danger ? "text-red-400" : ""
+                  numberOfLines={1}
+                  className={`text-base font-primary flex-1 ${
+                    item.danger ? "text-red-400" : "text-white"
                   }`}
                 >
                   {item.label}
@@ -245,7 +246,7 @@ const Settings = () => {
               </View>
               <Image
                 source={icons.rightChevron}
-                className="w-8 h-4"
+                className="w-6 h-4"
                 resizeMode="contain"
               />
             </TouchableOpacity>
