@@ -4,27 +4,23 @@ import { API_BASE } from "@/config/client";
 import { localLanguages } from "@/constants/fallbackData";
 
 export const useLanguageData = () => {
-  const [languages, setLanguages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Start with the bundled list so the screen renders instantly;
+  // the server list (when reachable) replaces it in the background.
+  const [languages, setLanguages] = useState(localLanguages);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        // Fetch language data from your backend API
         const res = await axios.get(
-          `${API_BASE}/api/v1/external-apis/languages`
+          `${API_BASE}/api/v1/external-apis/languages`,
+          { timeout: 8000 }
         );
-
         if (Array.isArray(res.data) && res.data.length > 0) {
-          setLanguages(res.data); // Set the languages returned from your backend
-        } else {
-          setLanguages(localLanguages);
+          setLanguages(res.data);
         }
       } catch (error) {
-        console.warn("Failed to fetch languages, using local fallback:", error?.message);
-        setLanguages(localLanguages); // fallback to local data
-      } finally {
-        setLoading(false);
+        console.warn("Languages API unreachable, keeping local list.");
       }
     };
 

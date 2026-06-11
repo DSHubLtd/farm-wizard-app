@@ -120,8 +120,8 @@ const SignUp = () => {
       <Text className="text-white text-3xl font-primary mb-2">CREATE ACCOUNT</Text>
 
       {/* Avatar Selector */}
-      <View className="flex-row items-center gap-8 mb-6 p-2">
-        <Image source={avatarsArr[(selectedIndex - 1 + avatarsArr.length) % avatarsArr.length]} className="w-10 h-10 opacity-60" />
+      <View className="flex-row items-center gap-5 mb-6 p-2">
+        <Image source={avatarsArr[(selectedIndex - 1 + avatarsArr.length) % avatarsArr.length]} className="w-14 h-14 opacity-50" />
         <Pressable
           onPress={handlePrev}
         >
@@ -131,7 +131,9 @@ const SignUp = () => {
             resizeMode="contain"
           />
         </Pressable>
-        <Image source={avatarsArr[selectedIndex]} className="w-20 h-20" />
+        <View className="bg-white/20 border-2 border-secondary rounded-3xl p-4 items-center justify-center shadow-lg">
+          <Image source={avatarsArr[selectedIndex]} className="w-28 h-28" resizeMode="contain" />
+        </View>
         <Pressable
           onPress={handleNext}
         >
@@ -141,7 +143,7 @@ const SignUp = () => {
             resizeMode="contain"
           />
         </Pressable>
-        <Image source={avatarsArr[(selectedIndex + 1) % avatarsArr.length]} className="w-12 h-12 opacity-60" />
+        <Image source={avatarsArr[(selectedIndex + 1) % avatarsArr.length]} className="w-14 h-14 opacity-50" />
       </View>
 
       <KeyboardAwareScrollView
@@ -156,6 +158,7 @@ const SignUp = () => {
           <FormField
             title={t("fullname")}
             value={form.fullName}
+            placeholder="e.g. John Doe"
             handleChangeText={(e) => setForm({ ...form, fullName: e })}
             otherStyles="mt-2"
           />
@@ -164,6 +167,7 @@ const SignUp = () => {
           <FormField
             title={t("email")}
             value={form.email}
+            placeholder="e.g. yourname@gmail.com"
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-2"
             keyboardType="email-address"
@@ -188,31 +192,22 @@ const SignUp = () => {
           />
           {errors.cpassword && <Text className="text-red-400 text-sm mt-1">{errors.cpassword}</Text>}
 
-          {countryLoading ? (
-            <Text className="text-sm text-white italic">Loading countries...</Text>
-          ) : (
-            <CustomSelectField
-              title={t("select_country")}
-              selectedValue={selectedCountry}
-              options={countries}
-              handleValueChange={setSelectedCountry}
-              otherStyles="mt-2"
-            />
-          )}
+          <CustomSelectField
+            title={t("select_country")}
+            selectedValue={selectedCountry}
+            options={countries}
+            handleValueChange={setSelectedCountry}
+            otherStyles="mt-2"
+          />
           {errors.country && <Text className="text-red-400 text-sm mt-1">{errors.country}</Text>}
 
-          {langLoading ? (
-            <Text className="text-sm text-white italic">Loading languages...</Text>
-          ) : (
-
-            <CustomSelectField
-              title={t("select_language")}
-              selectedValue={selectedLanguage}
-              options={filteredLanguages}
-              handleValueChange={setSelectedLanguage}
-              otherStyles="mt-2"
-            />
-          )}
+          <CustomSelectField
+            title={t("select_language")}
+            selectedValue={selectedLanguage}
+            options={filteredLanguages}
+            handleValueChange={setSelectedLanguage}
+            otherStyles="mt-2"
+          />
           {errors.language && <Text className="text-red-400 text-sm mt-1">{errors.language}</Text>}
 
         </View>

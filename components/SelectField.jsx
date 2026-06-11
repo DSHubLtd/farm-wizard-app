@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowDown, ArrowUp } from 'lucide-react-native';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 
@@ -6,6 +6,12 @@ const SelectField = ({ title, options, selectedValue, handleValueChange, otherSt
     const [searchText, setSearchText] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(options);
     const [dropdownOpen, setDropdownOpen] = useState(false); // Track dropdown visibility
+
+    // Keep the list in sync when options arrive/refresh after mount
+    useEffect(() => {
+        setFilteredOptions(options);
+        setSearchText('');
+    }, [options]);
 
     const handleSearch = (text) => {
         setSearchText(text);
@@ -25,7 +31,10 @@ const SelectField = ({ title, options, selectedValue, handleValueChange, otherSt
             >
                 {/* <Image source={{ uri: item.flag }} className="w-6 h-4 mr-2 rounded" /> */}
                 <Text className="text-white font-psemibold text-base">
-                    {selectedValue ? options.find(opt => opt.value === selectedValue)?.label : "Select an option"}
+                    {selectedValue
+                        ? options.find(opt => opt.value === selectedValue)?.label ||
+                          selectedValue.charAt(0).toUpperCase() + selectedValue.slice(1)
+                        : "Select an option"}
                 </Text>
                 {dropdownOpen ? (<ArrowUp size={35} color="#ffffff" />) : (<ArrowDown size={35} color="#ffffff" />)}
 
@@ -86,6 +95,12 @@ export const CustomSelectField = ({ title, options, selectedValue, handleValueCh
     const [filteredOptions, setFilteredOptions] = useState(options);
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
 
+    // Keep the list in sync when options arrive/refresh after mount
+    useEffect(() => {
+        setFilteredOptions(options);
+        setSearchText('');
+    }, [options]);
+
     const handleSearch = (text) => {
         setSearchText(text);
         setFilteredOptions(options.filter(option =>
@@ -103,7 +118,10 @@ export const CustomSelectField = ({ title, options, selectedValue, handleValueCh
                 className="w-full px-4 py-2 rounded-2xl border-2 border-dotted border-secondary flex-row justify-between items-center"
             >
                 <Text className="text-white font-psemibold text-base">
-                    {selectedValue ? options.find(opt => opt.value === selectedValue)?.label : "Select an option"}
+                    {selectedValue
+                        ? options.find(opt => opt.value === selectedValue)?.label ||
+                          selectedValue.charAt(0).toUpperCase() + selectedValue.slice(1)
+                        : "Select an option"}
                 </Text>
                 <ArrowDown size={35} color="#ffffff" />
             </TouchableOpacity>
