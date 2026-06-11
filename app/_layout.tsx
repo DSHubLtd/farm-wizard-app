@@ -17,6 +17,10 @@ import "../global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import i18n from "@/utils/i18n";
 import { languageMap } from "@/utils/languageMap";
+import {
+  initNotifications,
+  scheduleComeBackReminder,
+} from "@/utils/notifications";
 import { useKeepAwake } from "expo-keep-awake";
 // import analytics from "@react-native-firebase/analytics";
 
@@ -85,6 +89,7 @@ const RootLayout = () => {
   useEffect(() => {
     // Initialize once at app startup
     loadSavedLanguage();
+    initNotifications().then(() => scheduleComeBackReminder());
     mobileAds()
       .initialize()
       .then(

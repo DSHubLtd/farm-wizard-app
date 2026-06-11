@@ -14,6 +14,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "../../utils/audio";
 import { Audio } from "expo-av";
 import { API_BASE } from "@/config/client";
+import { getUser } from "@/services/user";
+import { notifyNewAppNotifications } from "@/utils/notifications";
 const { height } = Dimensions.get("window");
 import analytics from "@react-native-firebase/analytics";
 
@@ -59,6 +61,7 @@ export default Home = () => {
         );
         const json = await res.json();
         setNotifications(json.notifications);
+        notifyNewAppNotifications(json.notifications);
       } catch (err) {
         console.error("notifcations fetch error:", err);
       } finally {
@@ -124,6 +127,14 @@ export default Home = () => {
     setShowNotification(!showNotifcation);
   };
 
+  // Backend responses nest the user object differently across endpoints;
+  // accept any of the known shapes so the credited score always reaches the UI.
+  const extractUser = (json) =>
+    json?.userDetails ||
+    json?.data?.userDetails ||
+    json?.data?.user ||
+    json?.user;
+
   const handleUserRewardEarn = async () => {
     setLoading(true);
     const token = await AsyncStorage.getItem("token");
@@ -143,9 +154,25 @@ export default Home = () => {
           }
         );
         const json = await res.json();
-        setUser(json.userDetails);
+        if (!res.ok || json.success === false) {
+          Alert.alert("Reward", json.message || "Could not credit the reward, please try again.");
+          return;
+        }
+        const updated = extractUser(json);
+        if (updated) {
+          setUser(updated);
+        } else {
+          // Credited server-side but no user in the response — refresh it
+          const fresh = await getUser(user._id || user.id);
+          const freshUser = extractUser(fresh) || fresh;
+          if (freshUser && (freshUser.score !== undefined || freshUser.email)) {
+            setUser(freshUser);
+          }
+        }
+        Alert.alert("Reward", "🎉 +50 points added to your score!");
       } catch (err) {
-        console.error("reward eran fetch error:", err);
+        console.error("reward earn fetch error:", err);
+        Alert.alert("Reward", "Could not credit the reward, please check your connection.");
       } finally {
         setLoading(false);
       }

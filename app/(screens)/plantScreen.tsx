@@ -45,6 +45,7 @@ import { playSound } from "@/utils/audio";
 import { API_BASE } from "@/config/client";
 import analytics from "@react-native-firebase/analytics";
 import BannerAdComponent from "@/utils/BannerAdComponent";
+import { schedulePausedSessionReminder } from "@/utils/notifications";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 // Total session length. Casual-game best practice keeps a play session
@@ -304,6 +305,19 @@ const PlantScreen = () => {
     return 0.1;
   };
 
+  // Pick a fresh random soundtrack every time the weather returns to
+  // normal, so the music varies within a session instead of looping
+  // the same track picked at the start.
+  useEffect(() => {
+    if (currentSeason !== "normal") return;
+    const next = Math.floor(Math.random() * 3) + 1;
+    setRandomNormalSound(next);
+    const sounds = [normalSound1, normalSound2, normalSound3];
+    sounds.forEach((s, i) => {
+      if (s && i + 1 !== next) s.stopAsync().catch(() => {});
+    });
+  }, [currentSeason]);
+
   const saveGameState = async () => {
     const token = await AsyncStorage.getItem("token");
 
@@ -346,6 +360,8 @@ const PlantScreen = () => {
         body: JSON.stringify(gameState),
       });
 
+      // Remind the player to come back and finish this session
+      schedulePausedSessionReminder(plantName);
       // console.log(`Saved state for ${plantName}`, gameState);
     } catch (err) {
       console.error("Failed to save game state", err);

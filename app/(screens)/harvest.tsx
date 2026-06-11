@@ -13,6 +13,10 @@ import { Audio } from "expo-av";
 import { API_BASE } from "@/config/client";
 import RewardedAdComponent from "@/utils/RewardedAdComponent";
 import { canShowRewardedAd } from "@/utils/adLimit";
+import {
+  cancelPausedSessionReminder,
+  notifySessionComplete,
+} from "@/utils/notifications";
 
 const REWARD_ADS_VIEW_LIMIT = 3;
 const AD_BONUS_POINTS = 50;
@@ -162,6 +166,9 @@ const Harvest = () => {
       updateLevel();
       stopAndPlayNewSound();
       clearGame();
+      // Session is done: clear the paused-session reminder and celebrate
+      cancelPausedSessionReminder();
+      notifySessionComplete(Number(Number(totalSocre).toFixed(2)));
     }, [])
   );
 
