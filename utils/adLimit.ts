@@ -1,20 +1,12 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// Rewarded-ad limiting is disabled: users may watch as many rewarded ads
+// as AdMob will serve. The functions are kept so existing call sites
+// (home, settings, harvest) keep working; restore the date-based logic
+// from git history if a daily cap is ever wanted again.
 
-const STORAGE_KEY = "REWARDED_AD_VIEW_COUNT";
-
-export const getRemainingAdViews = async (limit = 3): Promise<number> => {
-  const now = Date.now();
-  const stored = await AsyncStorage.getItem(STORAGE_KEY);
-
-  if (!stored) return limit;
-
-  const { timestamp, count } = JSON.parse(stored);
-  const expired = now - timestamp >= 24 * 60 * 60 * 1000;
-
-  return expired ? limit : Math.max(0, limit - count);
+export const getRemainingAdViews = async (_limit = 3): Promise<number> => {
+  return Number.POSITIVE_INFINITY;
 };
 
-export const canShowRewardedAd = async (limit = 3): Promise<boolean> => {
-  const remaining = await getRemainingAdViews(limit);
-  return remaining > 0;
+export const canShowRewardedAd = async (_limit = 3): Promise<boolean> => {
+  return true;
 };

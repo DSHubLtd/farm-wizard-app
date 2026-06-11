@@ -39,10 +39,6 @@ const RewardModal = ({ visible, onClose, onShowAd, remainingViews }) => {
                         {t("messages.watch_ads")}
                     </Text>
 
-                    <Text style={{ marginBottom: 10 }} className='text-white'>
-                        Remaining Ad Views: {remainingViews ?? "..."}
-                    </Text>
-
                     <View className="flex-row justify-center items-center">
                         <TouchableOpacity
                             className="bg-buttonColor flex-row rounded-xl items-center justify-center p-4 m-2"
