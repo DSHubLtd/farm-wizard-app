@@ -47,9 +47,9 @@ import analytics from "@react-native-firebase/analytics";
 import BannerAdComponent from "@/utils/BannerAdComponent";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-// Total session length. Was 10 minutes (150s per growth stage); shortened
-// to 6 minutes (90s per stage) to keep levels snappy.
-const GAME_DURATION = 6 * 60;
+// Total session length. Casual-game best practice keeps a play session
+// in the 1-3 minute range; 3 minutes gives 45s per growth stage.
+const GAME_DURATION = 3 * 60;
 const TEN_MINUTES = GAME_DURATION; // legacy alias used throughout this file
 const PHASE_DURATION = GAME_DURATION / 4; // one growth stage
 
@@ -57,18 +57,35 @@ const SEASONS = ["normal", "dry", "raining"] as const;
 type SeasonType = (typeof SEASONS)[number];
 type InventoryItemType = "Fertilizer" | "Pesticide" | "Water";
 type InventoryKey = "fertilizerQty" | "pesticideQty" | "waterQty";
-// Calculate durations
-const NORMAL_DURATION = TEN_MINUTES * 0.45; // 45% of total time
-const OTHER_SEASONS_DURATION =
-  (TEN_MINUTES - NORMAL_DURATION) / (SEASONS.length - 1); // 55% split between others
-// per-season time budget; the order they play in is randomized per game
-const SEASON_DURATIONS: Record<SeasonType, number> = {
-  normal: NORMAL_DURATION,
-  dry: OTHER_SEASONS_DURATION,
-  raining: OTHER_SEASONS_DURATION,
+
+// Seasons change at random moments during the game: the session is split
+// into randomly sized segments (15-30s), each assigned a random season
+// (weighted toward normal, never repeating the previous one back-to-back).
+type SeasonSegment = { season: SeasonType; duration: number };
+const buildSeasonSchedule = (total: number): SeasonSegment[] => {
+  const segments: SeasonSegment[] = [];
+  let elapsed = 0;
+  let prev: SeasonType | null = null;
+  // always open on normal so the player gets their bearings
+  const first: SeasonSegment = {
+    season: "normal",
+    duration: 20 + Math.floor(Math.random() * 11),
+  };
+  segments.push(first);
+  elapsed += first.duration;
+  prev = "normal";
+  while (elapsed < total) {
+    const duration = 15 + Math.floor(Math.random() * 16); // 15-30s
+    const pool: SeasonType[] = (
+      ["normal", "normal", "dry", "raining"] as SeasonType[]
+    ).filter((s) => s !== prev);
+    const season = pool[Math.floor(Math.random() * pool.length)];
+    segments.push({ season, duration });
+    prev = season;
+    elapsed += duration;
+  }
+  return segments;
 };
-const shuffleSeasons = (): SeasonType[] =>
-  [...SEASONS].sort(() => Math.random() - 0.5);
 
 const PlantScreen = () => {
   const { name } = useLocalSearchParams();
@@ -103,8 +120,10 @@ const PlantScreen = () => {
   const [popupText, setPopupText] = useState("");
 
   const [timeLeft, setTimeLeft] = useState(TEN_MINUTES); // in seconds
-  // Random season order for this game session
-  const [seasonSchedule] = useState<SeasonType[]>(shuffleSeasons);
+  // Random season segments for this game session
+  const [seasonSchedule] = useState<SeasonSegment[]>(() =>
+    buildSeasonSchedule(GAME_DURATION)
+  );
   const [isTimerActive, setIsTimerActive] = useState(true);
   const [score, setScore] = useState(0);
   const [activeThreat, setActiveThreat] = useState<null | {
@@ -265,14 +284,13 @@ const PlantScreen = () => {
   }
 
   const getCurrentSeason = (): SeasonType => {
-    // Seasons keep their time budgets but play in a random order per game.
     const elapsed = TEN_MINUTES - timeLeft;
     let acc = 0;
-    for (const season of seasonSchedule) {
-      acc += SEASON_DURATIONS[season];
-      if (elapsed < acc) return season;
+    for (const segment of seasonSchedule) {
+      acc += segment.duration;
+      if (elapsed < acc) return segment.season;
     }
-    return seasonSchedule[seasonSchedule.length - 1] || "normal";
+    return seasonSchedule[seasonSchedule.length - 1]?.season || "normal";
   };
   /*const getCurrentSeason = (): SeasonType => {
     const elapsed = TEN_MINUTES - timeLeft;
