@@ -38,6 +38,13 @@ Props) => {
       () => onClose?.()
     );
 
+    // If the ad fails to load (offline / no fill), report close so the
+    // caller can reset its state instead of waiting forever.
+    const unsubscribeError = rewarded.addAdEventListener(
+      AdEventType.ERROR,
+      () => onClose?.()
+    );
+
     const unsubscribeReward = rewarded.addAdEventListener(
       RewardedAdEventType.EARNED_REWARD,
       async (reward) => {
@@ -63,6 +70,7 @@ Props) => {
     return () => {
       unsubscribeLoaded();
       unsubscribeClosed();
+      unsubscribeError();
       unsubscribeReward();
     };
   }, []);

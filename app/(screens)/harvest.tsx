@@ -11,6 +11,11 @@ import { useLoginContext } from "@/context/LoginProvider";
 import { useTranslation } from "react-i18next";
 import { Audio } from "expo-av";
 import { API_BASE } from "@/config/client";
+import RewardedAdComponent from "@/utils/RewardedAdComponent";
+import { canShowRewardedAd } from "@/utils/adLimit";
+
+const REWARD_ADS_VIEW_LIMIT = 3;
+const AD_BONUS_POINTS = 50;
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,6 +25,9 @@ const Harvest = () => {
     router.replace("/");
   }
   const [isSubmitting, setSubmitting] = useState(false);
+  const [showRewardAd, setShowRewardAd] = useState(false);
+  const [bonusEarned, setBonusEarned] = useState(false);
+  const isPremiumUser = user?.isPremium === true;
   const { name, userLevel, score, plantHealth } = useLocalSearchParams();
   // const plant = plantGrowth.filter((plant) => plant.name === name)[0];
   const plants = usePlantGrowth();
@@ -72,6 +80,37 @@ const Harvest = () => {
       } finally {
         setSubmitting(false);
       }
+    }
+  };
+
+  // Credits the watch-ad bonus through the same backend endpoint the
+  // home screen uses for rewarded ads.
+  const handleAdBonusEarned = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token === null) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/user/reward-earned`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ amount: AD_BONUS_POINTS }),
+      });
+      const json = await res.json();
+      if (json.userDetails) setUser(json.userDetails);
+      setBonusEarned(true);
+    } catch (err) {
+      console.warn("reward earn fetch error:", err);
+    }
+  };
+
+  const handleWatchAdPress = async () => {
+    const allowed = await canShowRewardedAd(REWARD_ADS_VIEW_LIMIT);
+    if (allowed) {
+      setShowRewardAd(true);
+    } else {
+      Alert.alert("Limit reached", "You have reached the daily ad limit.");
     }
   };
 
@@ -169,6 +208,21 @@ const Harvest = () => {
           {t("messages.harvest")}
         </Text>
 
+        {!isPremiumUser && !bonusEarned && (
+          <CustomButton
+            title={`🎁 Watch Ad to Earn +${AD_BONUS_POINTS}`}
+            handlePress={handleWatchAdPress}
+            containerStyles="w-[310px] m-1"
+            textStyles={"font-pbold text-white"}
+            isLoading={showRewardAd}
+          />
+        )}
+        {bonusEarned && (
+          <Text className="text-center text-xl text-[#FEDA42] font-pbold">
+            +{AD_BONUS_POINTS} bonus points added!
+          </Text>
+        )}
+
         <View className="flex-row justify-between m-3">
           <CustomButton
             title={t("buttons.keep_going")}
@@ -194,6 +248,17 @@ const Harvest = () => {
           isLoading={isSubmitting}
         /> */}
       </View>
+
+      {showRewardAd && (
+        <RewardedAdComponent
+          onRewardEarned={() => {
+            handleAdBonusEarned();
+          }}
+          onClose={() => {
+            setShowRewardAd(false);
+          }}
+        />
+      )}
     </View>
   );
 };

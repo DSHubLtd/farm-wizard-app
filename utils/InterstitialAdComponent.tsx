@@ -34,11 +34,21 @@ Props) => {
       }
     );
 
+    // If the ad fails to load (offline / no fill), continue as if it closed
+    // so callers waiting on onClose are never left hanging.
+    const unsubscribeError = interstitial.addAdEventListener(
+      AdEventType.ERROR,
+      () => {
+        if (onClose) onClose();
+      }
+    );
+
     interstitial.load();
 
     return () => {
       unsubscribeLoaded();
       unsubscribeClosed();
+      unsubscribeError();
     };
   }, []);
 

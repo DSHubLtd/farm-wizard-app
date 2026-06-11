@@ -15,6 +15,7 @@ import { router } from "expo-router";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import WebViewModal from "@/components/WebViewModal";
 import TermsContent from "@/components/TermsContent";
+import PrivacyContent from "@/components/PrivacyContent";
 import RewardModal from "@/components/RewardModal";
 import { signOut } from "../../../services/auth";
 import { useLoginContext } from "@/context/LoginProvider";
@@ -38,6 +39,7 @@ const Settings = () => {
   const [confirmModal, setConfirmModal] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
   const [termsVisible, setTermsVisible] = useState(false);
+  const [privacyVisible, setPrivacyVisible] = useState(false);
   const [showAd, setShowAd] = useState(false);
   const [remainingViews, setRemainingViews] = useState<number | null>(null);
 
@@ -97,11 +99,10 @@ const Settings = () => {
     if (itemLink === "terms") {
       setTermsVisible(true);
     }
-    if (
-      itemLink === "privacy" ||
-      itemLink === "contact-us" ||
-      itemLink === "tutorial"
-    ) {
+    if (itemLink === "privacy") {
+      setPrivacyVisible(true);
+    }
+    if (itemLink === "contact-us" || itemLink === "tutorial") {
       openWebView(url);
     }
     if (itemLink === "logout") {
@@ -276,6 +277,21 @@ const Settings = () => {
             </TouchableOpacity>
           </View>
           <TermsContent />
+        </View>
+      </Modal>
+
+      <Modal
+        visible={privacyVisible}
+        animationType="slide"
+        onRequestClose={() => setPrivacyVisible(false)}
+      >
+        <View className="flex-1 bg-white">
+          <View className="flex-row justify-end p-4 pt-12 border-b border-gray-200">
+            <TouchableOpacity onPress={() => setPrivacyVisible(false)}>
+              <Text className="text-lg text-blue-500">Close</Text>
+            </TouchableOpacity>
+          </View>
+          <PrivacyContent />
         </View>
       </Modal>
 

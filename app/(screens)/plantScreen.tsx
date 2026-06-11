@@ -132,6 +132,8 @@ const PlantScreen = () => {
   const [currentSeason, setCurrentSeason] = useState<SeasonType>("normal");
 
   const [showAd, setShowAd] = useState(true);
+  // Full-screen ad shown between growth levels (after the level-up dialog)
+  const [levelAd, setLevelAd] = useState(false);
   const [showGiftMessage, setShowGiftMessage] = useState("");
   const [isThrottled, setIsThrottled] = useState(false);
   const [isThrottledW, setIsThrottledW] = useState(false);
@@ -1433,13 +1435,27 @@ const PlantScreen = () => {
             visible={growthModal}
             onClose={() => setGrowthModal(false)}
             onPress={() => {
-              setIsTimerActive(true);
               setGrowthModal(false);
+              // Show an ad between levels (not on the very first stage),
+              // resuming the game timer only after the ad is dismissed.
+              if (!isPremiumUser && getPlantStage() > 0) {
+                setLevelAd(true);
+              } else {
+                setIsTimerActive(true);
+              }
             }}
             messageText={growthCycle.message}
             imageSource={growthCycle.image}
             buttonText={t("buttons.ok")}
           />
+          {levelAd && !isPremiumUser && (
+            <InterstitialAdComponent
+              onClose={() => {
+                setLevelAd(false);
+                setIsTimerActive(true);
+              }}
+            />
+          )}
           <MessageDialog
             visible={sickModal}
             onClose={() => setSickModal(false)}
