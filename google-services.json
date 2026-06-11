@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:31456730935:android:86bfd779b617fbace204b2",
+        "mobilesdk_app_id": "1:31456730935:android:e62d7fcf13982be2e204b2",
         "android_client_info": {
-          "package_name": "com.dshub.farmwizard"
+          "package_name": "com.dshub.lifegate"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "31456730935-njgullsb64og7ev9b5haaelp2qvojhj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC-V5g7jtyK09gp04UcZaXw6y1N9d-mt48"
@@ -20,10 +25,43 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31456730935-njgullsb64og7ev9b5haaelp2qvojhj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31456730935:android:cf3cbd87e53b4b5be204b2",
+        "android_client_info": {
+          "package_name": "com.grow.farmwizard"
         }
       },
-      "admob_app_id": "ca-app-pub-4516568539037938~8691763214"
+      "oauth_client": [
+        {
+          "client_id": "31456730935-njgullsb64og7ev9b5haaelp2qvojhj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-V5g7jtyK09gp04UcZaXw6y1N9d-mt48"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31456730935-njgullsb64og7ev9b5haaelp2qvojhj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
