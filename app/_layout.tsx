@@ -16,6 +16,7 @@ import CheckUpdate from "@/components/CheckUpdate";
 import "../global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import i18n from "@/utils/i18n";
+import { languageMap } from "@/utils/languageMap";
 import { useKeepAwake } from "expo-keep-awake";
 // import analytics from "@react-native-firebase/analytics";
 
@@ -46,7 +47,10 @@ const RootLayout = () => {
 
   const loadSavedLanguage = async () => {
     const savedLangCode = await AsyncStorage.getItem(LANGUAGE_KEY);
-    if (savedLangCode) {
+    // Only apply a saved language if it is still offered in languageMap;
+    // anything else (or nothing saved) falls back to English.
+    const offeredCodes = Object.values(languageMap).map((l) => l.code);
+    if (savedLangCode && offeredCodes.includes(savedLangCode)) {
       await i18n.changeLanguage(savedLangCode);
     } else {
       await i18n.changeLanguage("en");
