@@ -14,12 +14,10 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CustomButton } from "@/components";
 import BackgroundImage from "@/components/BackgroundImage";
-import FlutterwaveModal from "@/components/FlutterwaveModal";
 import { icons, images } from "@/constants";
 import { getUserPlantLevels } from "@/services/user";
 import { BlurView } from "expo-blur";
 import { HomeIcon } from "lucide-react-native";
-import { Picker } from "@react-native-picker/picker";
 import { usePlantGrowth as seedInventory } from "@/constants/plants";
 import { router } from "expo-router";
 import uuid from "react-native-uuid";
@@ -95,14 +93,10 @@ const Inventory = () => {
     purchaseQty * purchaseAmountPerItem
   );
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const [showFlutterwave, setShowFlutterwave] = useState(false);
-  const [showConfirmModal, setConfirmShowModal] = useState(false);
   const [currency, setCurrency] = useState("USD");
   const [usdEquivalent, setUsdEquivalent] = useState<string | null>(null);
   const [exchangeLoading, setExchangeLoading] = useState(false);
-  const [paymentOptionModal, setPaymentOptionModl] = useState(false);
   const [inAppPurchaseModal, setInAppPurchaseModal] = useState(false);
-  const [selectedPaymentOption, setSelectedPaymentOption] = useState("In App");
 
   const txRef = `tx-${uuid.v4().split("-")[0]}`;
   /* const purchaseDetails =
@@ -238,47 +232,10 @@ const Inventory = () => {
     });
   };
 
-  const handleSuccess = async (data: any) => {
-    const { transaction_id } = data;
-
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/v1/payment/flutterwave/verify-payment/${transaction_id}/${purchaseDetails}`
-      );
-      const json = await res.json();
-
-      if (json.success) {
-        setConfirmShowModal(false);
-        Alert.alert(
-          "Payment Verified",
-          `Transaction Ref: ${json.data.tx_ref} and Transaction Id: ${transaction_id} `
-        );
-        await fetchUserInventotyData(); // fetch updated inventory
-      } else {
-        Alert.alert("Verification Failed", json.message);
-      }
-    } catch (e: any) {
-      Alert.alert("Error", e.message);
-    }
-  };
-
-  const handleCancel = () => {
-    Alert.alert("Cancelled", "Payment process was cancelled.");
-  };
-
+  // Inventory items are bought with earned Wizpoints only.
   const handleBuyItem = () => {
-    setPaymentOptionModl(true);
     setModalVisible(false);
-    // setModalMessage(true);
-  };
-
-  const handlePaymentOption = () => {
-    if (selectedPaymentOption === "Card") {
-      setConfirmShowModal(true); // flutterwave
-    } else {
-      setInAppPurchaseModal(true);
-    }
-    setPaymentOptionModl(false);
+    setInAppPurchaseModal(true);
   };
 
   const convertWizpointToUsd = (userBalance: number) => {
@@ -483,83 +440,6 @@ const Inventory = () => {
           </TouchableWithoutFeedback>
         </Modal>
 
-        {/* flutterwave modal  */}
-        <Modal transparent visible={showConfirmModal} animationType="fade">
-          <TouchableWithoutFeedback onPress={() => setConfirmShowModal(false)}>
-            <BlurView
-              intensity={50}
-              tint="dark"
-              className="flex-1 p-4 items-center justify-center"
-            >
-              <TouchableWithoutFeedback onPress={() => {}}>
-                <View className="bg-white rounded-2xl w-[90%] p-6 ">
-                  <Text
-                    className="font-secondary font-bold italic"
-                    style={{ fontSize: 22 }}
-                  >
-                    {t("inventory.confirm_payment", {
-                      amount: `${usdEquivalent} ${currency}`,
-                      purchaseQty: `${purchaseQty} qty`,
-                      item: `${selectedItem?.diplayName} `,
-                    })}
-                  </Text>
-                  <Text style={{ fontSize: 18 }} className="my-4">
-                    {t("inventory.select_currency")}
-                  </Text>
-                  <Picker
-                    selectedValue={currency}
-                    onValueChange={(itemValue) => setCurrency(itemValue)}
-                    style={{ marginVertical: 20 }}
-                  >
-                    <Picker.Item label="🇳🇬 Naira (NGN)" value="NGN" />
-                    <Picker.Item label="🇺🇸 Dollar (USD)" value="USD" />
-                    <Picker.Item label="🇬🇭 Cedi (GHS)" value="GHS" />
-                    <Picker.Item label="🇰🇪 Shilling (KES)" value="KES" />
-                    <Picker.Item label="🇬🇧 Pound Sterling (GBP)" value="GBP" />
-                    <Picker.Item label="🇪🇺 Euro (EUR)" value="EUR" />
-                    <Picker.Item label="🇿🇦 Rand (ZAR)" value="ZAR" />
-                    <Picker.Item label="🇹🇿 Shilling (TZS)" value="TZS" />
-                    <Picker.Item label="🇺🇬 Shilling (UGX)" value="UGX" />
-                    <Picker.Item label="🇲🇼 Kwacha (MWK)" value="MWK" />
-                    <Picker.Item label="🇷🇼 Franc (RWF)" value="RWF" />
-                    <Picker.Item label="🇨🇲 CFA Franc (XAF)" value="XAF" />
-                    <Picker.Item label="🇨🇮 CFA Franc (XOF)" value="XOF" />
-                    <Picker.Item label="🇲🇦 Dirham (MAD)" value="MAD" />
-                    <Picker.Item label="🇿🇲 Kwacha (ZMW)" value="ZMW" />
-                    <Picker.Item label="🇨🇱 Peso (CLP)" value="CLP" />
-                    <Picker.Item label="🇨🇴 Peso (COP)" value="COP" />
-                    <Picker.Item label="🇪🇬 Pound (EGP)" value="EGP" />
-                    <Picker.Item label="🇬🇳 Franc (GNF)" value="GNF" />
-                    {/* <Picker.Item label="🇲🇺 Rupee (MUR)" value="MUR" />
-                  <Picker.Item label="🇲🇾 Ringgit (MYR)" value="MYR" />
-                  <Picker.Item label="🇳🇴 Krone (NOK)" value="NOK" />
-                  <Picker.Item label="🇳🇿 Dollar (NZD)" value="NZD" />
-                  <Picker.Item label="🇵🇱 Zloty (PLN)" value="PLN" />
-                  <Picker.Item label="🇷🇺 Rouble (RUB)" value="RUB" />
-                  <Picker.Item label="🇸🇦 Riyal (SAR)" value="SAR" />
-                  <Picker.Item label="🇸🇪 Krona (SEK)" value="SEK" />
-                  <Picker.Item label="🇸🇬 Dollar (SGD)" value="SGD" /> */}
-                    <Picker.Item label="🇸🇱 Leone (SLL)" value="SLL" />
-                  </Picker>
-                </View>
-              </TouchableWithoutFeedback>
-              {!usdEquivalent || exchangeLoading ? (
-                <Text style={{ marginBottom: 10 }}>Loading...</Text>
-              ) : (
-                <>
-                  <CustomButton
-                    title={`${t("inventory.pay")} ${usdEquivalent} ${currency}`}
-                    handlePress={() => setShowFlutterwave(true)}
-                    containerStyles="w-[100%]"
-                    textStyles={"font-pbold text-white"}
-                    isLoading={exchangeLoading}
-                  />
-                </>
-              )}
-            </BlurView>
-          </TouchableWithoutFeedback>
-        </Modal>
-
         {/* in app purchase modal  */}
         <Modal transparent visible={inAppPurchaseModal} animationType="fade">
           <TouchableWithoutFeedback
@@ -615,77 +495,6 @@ const Inventory = () => {
           </TouchableWithoutFeedback>
         </Modal>
 
-        <FlutterwaveModal
-          visible={showFlutterwave}
-          onRequestClose={() => setShowFlutterwave(false)}
-          email={user.email}
-          name={user.fullName}
-          amount={usdEquivalent}
-          txRef={txRef}
-          currency={currency}
-          publicKey="FLWPUBK-9bdd51ca22a021ad9d40dd455be36bc8-X"
-          onSuccess={handleSuccess}
-          onCancel={handleCancel}
-        />
-
-        <Modal transparent visible={paymentOptionModal} animationType="fade">
-          <TouchableWithoutFeedback onPress={() => setPaymentOptionModl(false)}>
-            <BlurView
-              intensity={50}
-              tint="dark"
-              className="flex-1 items-center justify-center"
-            >
-              <TouchableWithoutFeedback onPress={() => {}}>
-                <View className="bg-[#857f6e85] opacity-2 rounded-lg p-8 flex justify-center items-center">
-                  {/* <Text className="text-base text-white font-bold text-center">
-                    {t("inventory.select_payment_option")}
-                  </Text> */}
-                  <Text className="text-base text-white font-bold text-center">
-                    Proceed
-                  </Text>
-                  <View className="flex-col p-4 my-8">
-                    {/* <TouchableOpacity
-                      onPress={() => setSelectedPaymentOption("Card")}
-                      className={`bg-black/20 m-1 rounded-lg ${
-                        selectedPaymentOption === "Card"
-                          ? "border border-white"
-                          : ""
-                      }`}
-                    >
-                      <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
-                        <Text className="text-white text-base font-bold font-secondary text-center">
-                          CARD / TRANSFER
-                        </Text>
-                      </View>
-                    </TouchableOpacity> */}
-                    <TouchableOpacity
-                      onPress={() => setSelectedPaymentOption("In App")}
-                      className={`bg-black/20 m-1 rounded-lg ${
-                        selectedPaymentOption === "In App"
-                          ? "border border-white"
-                          : ""
-                      }`}
-                    >
-                      <View className="m-1 p-4 bg-[#E0C145B8] rounded-xl">
-                        <Text className="text-white text-base font-bold font-secondary text-center">
-                          WIZ POINT
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-
-              <CustomButton
-                title="Continue"
-                handlePress={handlePaymentOption}
-                containerStyles="w-[200px]"
-                textStyles={"font-pbold text-white"}
-                isLoading={false}
-              />
-            </BlurView>
-          </TouchableWithoutFeedback>
-        </Modal>
       </View>
       {!isPremiumUser && <BannerAdComponent />}
     </>
