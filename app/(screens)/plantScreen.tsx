@@ -299,11 +299,16 @@ const PlantScreen = () => {
     return (SEASONS[seasonIndex] as SeasonType) || "normal";
   };*/
 
+  // Evaluated every second, so keep these low or threats become relentless.
   const getThreatChance = (season: SeasonType) => {
-    if (season === "dry") return 0.2;
-    if (season === "raining") return 0.25;
-    return 0.1;
+    if (season === "dry") return 0.05;
+    if (season === "raining") return 0.06;
+    return 0.03;
   };
+
+  // A threat left unhandled clears itself after this long so a player who
+  // can't resolve it (e.g. no pesticide) isn't drained to death forever.
+  const MAX_THREAT_DURATION = 12000;
 
   // Pick a fresh random soundtrack every time the weather returns to
   // normal, so the music varies within a session instead of looping
@@ -468,23 +473,24 @@ const PlantScreen = () => {
   const handlePlantLifeCycle = () => {
     const now = Date.now();
 
-    // Decay logic
+    // Decay logic — softened for the shorter (3 min) sessions so tending
+    // stays engaging rather than frantic. Applied once per second.
     const waterDecay =
-      currentSeason === "dry" ? 5 : currentSeason === "normal" ? 3 : 0;
-    const nutrientDecay = currentSeason === "raining" ? 6 : 4;
+      currentSeason === "dry" ? 4 : currentSeason === "normal" ? 2 : 0;
+    const nutrientDecay = currentSeason === "raining" ? 4 : 3;
 
     setWaterLevel((prev) => Math.max(0, prev - waterDecay));
     setNutrientLevel((prev) => Math.max(0, prev - nutrientDecay));
 
-    // Health penalties
+    // Health penalties when a resource runs critically low
     if (waterLevel < 20) {
-      setPlantHealth((h) => Math.max(0, h - 8));
+      setPlantHealth((h) => Math.max(0, h - 5));
       //handleToolUse("⚠️ Your plant is drying out!");
       setPlantDamaged(true);
     }
 
     if (nutrientLevel < 20) {
-      setPlantHealth((h) => Math.max(0, h - 5));
+      setPlantHealth((h) => Math.max(0, h - 4));
       setPlantDamaged(true);
     }
 
@@ -504,26 +510,29 @@ const PlantScreen = () => {
           }
         }
 
-        // if (userLevel > 1) {
+        // Storm: a single hit, then mark resolved so it stops draining
+        // (previously it re-applied every tick because resolved was never set).
         if (activeThreat.type === "storm" && timeSinceThreat > 5000) {
-          // One-time hit
           setPlantHealth((h) =>
             Math.max(0, h - getThreatPanelty(userLevel) + 10)
           );
-          // setActiveThreat({ ...activeThreat, resolved: true }); // Mark as done even if not "handled"
           setPlantDamaged(true);
           if (!sickModalShown) {
             setSickModal(true);
             setSickModalShown(true);
           }
+          setActiveThreat((prev) =>
+            prev ? { ...prev, resolved: true } : prev
+          );
         }
-        // }
 
-        // Remove threat after 15s regardless
-        /*if (timeSinceThreat > 15000) {
+        // Auto-clear any threat the player hasn't handled in time so an
+        // unresolvable disease can't drain the plant to death indefinitely.
+        if (timeSinceThreat > MAX_THREAT_DURATION) {
           setActiveThreat(null);
-          handleToolUse("Threat disappeared...");
-        }*/
+          setPlantDamaged(false);
+          setSickModalShown(false);
+        }
       }
     } else {
       // Maybe spawn new threat

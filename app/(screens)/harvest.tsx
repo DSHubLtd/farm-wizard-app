@@ -44,8 +44,11 @@ const Harvest = () => {
   }
 
   let level = parseInt(userLevel as string) + 1; // next level
-  let bonus = (parseInt(plantHealth as string) / 100).toFixed(2);
-  const totalSocre = Number(score) + bonus + 500 * Number(userLevel);
+  // bonus must stay numeric — it was a string (.toFixed) which forced the
+  // whole total into string concatenation, garbling/inflating payouts.
+  const bonus = Number(plantHealth) / 100;
+  const totalSocre =
+    Number(score) + bonus + 500 * Number(userLevel);
 
   const updateLevel = async () => {
     if (!plant || !level || !score) {
