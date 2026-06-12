@@ -17,10 +17,6 @@ import { CustomButton } from "@/components";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLoginContext } from "@/context/LoginProvider";
 import { BlurView } from "expo-blur";
-import { Picker } from "@react-native-picker/picker";
-import uuid from "react-native-uuid";
-import FlutterwaveModal from "@/components/FlutterwaveModal";
-import checkCurrency from "@/utils/checkCurrency";
 import { useFramedAvatarArray } from "@/hooks/useAvatarArray";
 import { ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
@@ -73,15 +69,6 @@ const Profile = () => {
     labels: [],
   });
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [showFlutterwave, setShowFlutterwave] = useState(false);
-  const [showUpgradeModale, setShowUpgradeModale] = useState(false);
-  const [currency, setCurrency] = useState("USD");
-  const [usdEquivalent, setUsdEquivalent] = useState<string | null>(null);
-  const [exchangeLoading, setExchangeLoading] = useState(false);
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const txRef = `tx-${uuid.v4().split("-")[0]}`;
-  const upgradeAmount = 4.99;
 
   useEffect(() => {
     const logEvent = async () => {
@@ -118,69 +105,6 @@ const Profile = () => {
 
     fetchData();
   }, [activeTab]);
-
-  const openModal = () => {
-    setShowUpgradeModale(false);
-    setModalVisible(true);
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const closeModal = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => {
-      setModalVisible(false);
-    });
-  };
-
-  const handleSuccess = async (data: any) => {
-    const { transaction_id } = data;
-
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/v1/payment/flutterwave/verify-upgrade-payment/${transaction_id}`
-      );
-      const json = await res.json();
-
-      if (json.success) {
-        Alert.alert(
-          "Payment Verified",
-          `Transaction Ref: ${json.data.tx_ref} and Transaction Id: ${transaction_id} Account upgraded successfully`
-        );
-        //refresh here
-        setUser(json.updatedUser);
-        // console.log("updatedUser ", json.updatedUser);
-        setTimeout(() => {
-          router.replace("/(screens)/transactionSuccess");
-        }, 3000);
-      } else {
-        Alert.alert("Verification Failed", json.message);
-      }
-    } catch (e: any) {
-      Alert.alert("Error", e.message);
-    }
-  };
-
-  const handleCancel = () => {
-    Alert.alert("Cancelled", "Payment process was cancelled.");
-  };
-
-  useEffect(() => {
-    if (upgradeAmount) {
-      (async () => {
-        setExchangeLoading(true);
-        const result = await checkCurrency(currency, upgradeAmount);
-        setUsdEquivalent(result.toFixed(2));
-        setExchangeLoading(false);
-      })();
-    }
-  }, [currency, upgradeAmount]);
 
   const { t } = useTranslation();
 
@@ -345,145 +269,6 @@ const Profile = () => {
         isLoading={false}
       />
 
-      {/* Popup Modal */}
-      <Modal transparent visible={modalVisible} animationType="fade">
-        <BlurView
-          intensity={50}
-          tint="dark"
-          className="flex-1 items-center justify-center"
-        >
-          <Animated.View
-            style={{
-              opacity: fadeAnim,
-              transform: [
-                {
-                  translateY: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50, 0],
-                  }),
-                },
-              ],
-            }}
-            className="bg-gray-200 rounded-2xl w-[90%] p-2 items-center shadow-2xl"
-          >
-            <View className="bg-white rounded-2xl w-[90%] p-6 ">
-              <Text className="text-gray-600 text-2xl text-center mb-6">
-                {t("comfirmation.confirm_upgrade", {
-                  amount: ` ${usdEquivalent} ${currency}`,
-                })}
-              </Text>
-
-              <Text style={{ fontSize: 18 }} className="my-4">
-                {t("inventory.select_currency")}
-              </Text>
-              <Picker
-                selectedValue={currency}
-                onValueChange={(itemValue) => setCurrency(itemValue)}
-                style={{ marginVertical: 20 }}
-              >
-                <Picker.Item label="🇳🇬 Naira (NGN)" value="NGN" />
-                <Picker.Item label="🇺🇸 Dollar (USD)" value="USD" />
-                <Picker.Item label="🇬🇭 Cedi (GHS)" value="GHS" />
-                <Picker.Item label="🇰🇪 Shilling (KES)" value="KES" />
-                <Picker.Item label="🇬🇧 Pound Sterling (GBP)" value="GBP" />
-                <Picker.Item label="🇪🇺 Euro (EUR)" value="EUR" />
-                <Picker.Item label="🇿🇦 Rand (ZAR)" value="ZAR" />
-                <Picker.Item label="🇹🇿 Shilling (TZS)" value="TZS" />
-                <Picker.Item label="🇺🇬 Shilling (UGX)" value="UGX" />
-                <Picker.Item label="🇲🇼 Kwacha (MWK)" value="MWK" />
-                <Picker.Item label="🇷🇼 Franc (RWF)" value="RWF" />
-                <Picker.Item label="🇨🇲 CFA Franc (XAF)" value="XAF" />
-                <Picker.Item label="🇨🇮 CFA Franc (XOF)" value="XOF" />
-                <Picker.Item label="🇲🇦 Dirham (MAD)" value="MAD" />
-                <Picker.Item label="🇿🇲 Kwacha (ZMW)" value="ZMW" />
-                <Picker.Item label="🇨🇱 Peso (CLP)" value="CLP" />
-                <Picker.Item label="🇨🇴 Peso (COP)" value="COP" />
-                <Picker.Item label="🇪🇬 Pound (EGP)" value="EGP" />
-                <Picker.Item label="🇬🇳 Franc (GNF)" value="GNF" />
-              </Picker>
-
-              <View>
-                {!usdEquivalent || exchangeLoading ? (
-                  <Text style={{ marginBottom: 10 }}>Loading...</Text>
-                ) : (
-                  <>
-                    <CustomButton
-                      title={`Pay ${usdEquivalent} ${currency}`}
-                      handlePress={() => setShowFlutterwave(true)}
-                      containerStyles="w-full"
-                      textStyles={"font-pbold text-white"}
-                      isLoading={exchangeLoading}
-                    />
-                  </>
-                )}
-              </View>
-            </View>
-            <View className="w-full items-end mt-4">
-              <TouchableOpacity
-                className="p-3 bg-gray-300 rounded"
-                onPress={closeModal}
-              >
-                <Text className="text-black font-semibold">Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </BlurView>
-      </Modal>
-
-      <FlutterwaveModal
-        visible={showFlutterwave}
-        onRequestClose={() => setShowFlutterwave(false)}
-        email={user.email}
-        name={user.fullName}
-        amount={usdEquivalent}
-        txRef={txRef}
-        currency={currency}
-        publicKey="FLWPUBK-9bdd51ca22a021ad9d40dd455be36bc8-X"
-        onSuccess={handleSuccess}
-        onCancel={handleCancel}
-      />
-
-      <Modal transparent visible={showUpgradeModale} animationType="fade">
-        <BlurView
-          intensity={50}
-          tint="dark"
-          className="flex-1 items-center justify-center"
-        >
-          <View className="bg-black/40 rounded-2xl w-[100%] h-[100%] p-2 items-center shadow-2xl">
-            <View className="w-full items-end my-20">
-              <TouchableOpacity
-                className="bg-[#D5B85A] rounded-full items-center justify-center w-14 h-14"
-                onPress={() => setShowUpgradeModale(false)}
-              >
-                <Image source={icons.close} className="w-8 h-8" />
-              </TouchableOpacity>
-            </View>
-            <Image
-              source={images.upgrade}
-              style={{
-                width: width * 0.5,
-                height: width * 0.5,
-              }}
-              resizeMode="contain"
-            />
-
-            <Text className="text-white text-xl text-center mb-6">
-              {t("messages.upgrade_message")}
-            </Text>
-
-            <View className="flex-row justify-center items-center">
-              <TouchableOpacity
-                className="bg-buttonColor flex-row rounded-xl items-center justify-center p-4 m-2"
-                onPress={() => openModal()}
-              >
-                <Text className="text-white text-lg">
-                  {t("buttons.upgrade")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </BlurView>
-      </Modal>
     </View>
   );
 };
