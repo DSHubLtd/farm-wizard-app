@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, Alert, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Dimensions,
+  Alert,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { UserRound } from "lucide-react-native";
 
 import { images } from "../../constants";
 import { CustomButton, FormField } from "../../components";
@@ -93,15 +103,24 @@ const SignIn = () => {
 
 
   const submit = async () => {
-    if (form.email === "" || form.password === "") {
+    const email = form.email.trim().toLowerCase();
+    if (email === "" || form.password === "") {
       Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+    if (form.password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
       return;
     }
     setSubmitting(true);
 
     try {
 
-      const result = await signInUser(form.email.toLowerCase(), form.password);
+      const result = await signInUser(email, form.password);
       if (result !== undefined) {
         if (result?.data.success === false) {
           Alert.alert("Error", result?.data.message)
@@ -149,9 +168,15 @@ const SignIn = () => {
           <FormField
             title={t("email")}
             value={form.email}
+            placeholder="e.g. yourname@gmail.com"
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-7"
             keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
+            maxLength={60}
           />
 
           <FormField
@@ -160,6 +185,10 @@ const SignIn = () => {
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="password"
+            maxLength={64}
           />
 
           <CustomButton
@@ -169,22 +198,45 @@ const SignIn = () => {
             isLoading={isSubmitting}
           />
 
-          <CustomButton
-            title="👤 Continue as Guest"
-            handlePress={submitAnonymous}
-            containerStyles="w-full"
-            textStyles="text-[18px]"
-            isLoading={isAnonSubmitting}
-          />
-
-          <View className="flex justify-end pt-5 flex-row gap-2">
-
-            <Link href="/forgot-password" className="text-lg text-gray-100 font-secondary">
-              Forget password?
+          {/* Forgot password — directly under Sign In */}
+          <View className="flex justify-end pt-3 flex-row">
+            <Link
+              href="/forgot-password"
+              className="text-base text-gray-100 font-secondary"
+            >
+              Forgot password?
             </Link>
           </View>
 
-          <View className="flex justify-center pt-5 flex-row gap-2">
+          {/* Divider */}
+          <View className="flex-row items-center my-4">
+            <View className="flex-1 h-[1px] bg-white/30" />
+            <Text className="text-white/70 mx-3 font-pregular">or</Text>
+            <View className="flex-1 h-[1px] bg-white/30" />
+          </View>
+
+          {/* Guest sign-in — Google-style white button */}
+          <TouchableOpacity
+            onPress={submitAnonymous}
+            disabled={isAnonSubmitting}
+            activeOpacity={0.8}
+            className={`w-full bg-white rounded-xl min-h-[52px] flex-row justify-center items-center shadow-lg shadow-black/40 ${
+              isAnonSubmitting ? "opacity-60" : ""
+            }`}
+          >
+            {isAnonSubmitting ? (
+              <ActivityIndicator color="#3c4043" />
+            ) : (
+              <>
+                <UserRound size={22} color="#4285F4" />
+                <Text className="text-[#3c4043] font-psemibold text-base ml-3">
+                  Continue as Guest
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <View className="flex justify-center pt-6 flex-row gap-2">
             <Text className="text-lg text-gray-100 font-pregular">
               Don't have an account?
             </Text>

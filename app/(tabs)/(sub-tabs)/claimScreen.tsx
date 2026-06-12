@@ -394,14 +394,14 @@ const ClaimScreen = () => {
                     : ""
                 }`}
                   >
-                    {/* <Text className="text-white font-semibold text-base">
-                      {provider.name}
-                    </Text> */}
                     <Image
                       source={provider.icon}
                       className="w-6 h-6 tint-white"
                       resizeMode="contain"
                     />
+                    <Text className="text-white font-psemibold text-xs mt-2">
+                      {provider.name}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               ))}
