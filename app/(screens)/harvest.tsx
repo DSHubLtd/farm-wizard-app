@@ -17,6 +17,7 @@ import {
   cancelPausedSessionReminder,
   notifySessionComplete,
 } from "@/utils/notifications";
+import { recordEvent } from "@/utils/engagement";
 
 const REWARD_ADS_VIEW_LIMIT = 3;
 const AD_BONUS_POINTS = 50;
@@ -172,6 +173,12 @@ const Harvest = () => {
       // Session is done: clear the paused-session reminder and celebrate
       cancelPausedSessionReminder();
       notifySessionComplete(Number(Number(totalSocre).toFixed(2)));
+
+      // Engagement tracking: quests & achievements
+      recordEvent("session_played");
+      recordEvent("harvest");
+      recordEvent("level_up");
+      if (Number(plantHealth) >= 90) recordEvent("perfect_harvest");
     }, [])
   );
 

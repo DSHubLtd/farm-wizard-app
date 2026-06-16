@@ -46,6 +46,7 @@ import { API_BASE } from "@/config/client";
 import analytics from "@react-native-firebase/analytics";
 import BannerAdComponent from "@/utils/BannerAdComponent";
 import { schedulePausedSessionReminder } from "@/utils/notifications";
+import { recordEvent } from "@/utils/engagement";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 // Total session length. Casual-game best practice keeps a play session
@@ -374,6 +375,19 @@ const PlantScreen = () => {
   };
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Combo multiplier: rapid successive care actions stack up to 5x score.
+  const comboRef = useRef({ count: 0, last: 0 });
+  const applyCombo = () => {
+    const now = Date.now();
+    const c = comboRef.current;
+    c.count = now - c.last <= 6000 ? Math.min(c.count + 1, 5) : 1;
+    c.last = now;
+    return c.count;
+  };
+  const gainScore = (mult: number) => {
+    setScore((s) => Math.min(s + 3 * mult, 100000));
+    if (mult > 1) handleToolUse(`🔥 Combo x${mult}!  +${3 * mult}`);
+  };
   const prevPathRef = useRef<string>("");
   const pathname = usePathname();
   // Save previous route
@@ -950,7 +964,9 @@ const PlantScreen = () => {
       spraySound.replayAsync();
     }
 
-    setScore((s) => Math.min(s + 3, 100000));
+    gainScore(applyCombo());
+    recordEvent("pesticide_used");
+    recordEvent("threat_survived");
 
     // Start spray animation
     Animated.timing(sprayAnim, {
@@ -986,7 +1002,8 @@ const PlantScreen = () => {
     }
 
     setNutrientLevel(100);
-    setScore((s) => Math.min(s + 3, 100000));
+    gainScore(applyCombo());
+    recordEvent("fertilizer_used");
     setFertilizing(true);
     fertAnim.setValue(0);
     animatePlantGrowing();
@@ -1028,7 +1045,8 @@ const PlantScreen = () => {
     }
 
     setWaterLevel(100);
-    setScore((s) => Math.min(s + 3, 100000));
+    gainScore(applyCombo());
+    recordEvent("water_used");
     setWatering(true);
     waterAnim.setValue(0);
 

@@ -9,6 +9,7 @@ export default function ScreenLayout() {
       <Stack.Screen name="gameOver" />
       <Stack.Screen name="harvest" />
       <Stack.Screen name="sessionStarted" />
+      <Stack.Screen name="questsAchievements" />
       <Stack.Screen name="transactionSuccess" />
     </Stack>
   );

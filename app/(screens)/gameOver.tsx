@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE } from "@/config/client";
+import { recordEvent } from "@/utils/engagement";
 
 const { width, height } = Dimensions.get("window");
 
@@ -64,6 +65,7 @@ const GameOver = () => {
 
       stopAndPlayNewSound();
       clearGame();
+      recordEvent("session_played");
     }, [])
   );
 

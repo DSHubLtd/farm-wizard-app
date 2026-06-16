@@ -243,6 +243,14 @@ export default Home = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Daily quests & achievements entry */}
+      <TouchableOpacity
+        className="bg-[#E0C145B8] px-5 py-2 rounded-full flex-row items-center mt-4"
+        onPress={() => router.push("/(screens)/questsAchievements")}
+      >
+        <Text className="text-white font-psemibold">🎯 Daily Quests & Badges</Text>
+      </TouchableOpacity>
+
       <View className="flex-1 justify-center items-center">
         {/* Wizard Image */}
         <Image
