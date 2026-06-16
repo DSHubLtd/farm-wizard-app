@@ -58,6 +58,16 @@ const Profile = () => {
   }
   const isPremiumUser = user?.isPremium === true;
 
+  // Equipped avatar frame -> ring color (no frame art assets yet).
+  const FRAME_COLORS: Record<string, string> = {
+    frame_gold: "#FFD700",
+    frame_emerald: "#50C878",
+    frame_royal: "#7B2FBE",
+  };
+  const frameColor = user?.equippedFrame
+    ? FRAME_COLORS[user.equippedFrame]
+    : null;
+
   const [activeTab, setActiveTab] = useState<TabType>("Daily");
   const { data, labels } = datasets[activeTab];
 
@@ -131,11 +141,20 @@ const Profile = () => {
 
       {/* Avatar + Info */}
       <View className="items-center">
-        <Image
-          source={useFramedAvatarArray(user.avatar || 0)}
-          resizeMode="contain"
-          className="w-[80px] h-[80px] md:w-48 md:h-48"
-        />
+        <View
+          style={{
+            borderWidth: frameColor ? 3 : 0,
+            borderColor: frameColor || "transparent",
+            borderRadius: 999,
+            padding: frameColor ? 3 : 0,
+          }}
+        >
+          <Image
+            source={useFramedAvatarArray(user.avatar || 0)}
+            resizeMode="contain"
+            className="w-[80px] h-[80px] md:w-48 md:h-48"
+          />
+        </View>
         <Text className="text-white font-secondary text-xl text-center">
           {user.fullName}
         </Text>

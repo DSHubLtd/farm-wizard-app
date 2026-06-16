@@ -84,6 +84,32 @@ const QuestsAchievements = () => {
         Rewards
       </Text>
 
+      {/* Quick links */}
+      <View className="flex-row flex-wrap justify-center gap-2 mb-2 px-2">
+        <TouchableOpacity
+          onPress={() => router.push("/(screens)/dailyChallenge")}
+          className="bg-black/30 px-4 py-2 rounded-full"
+        >
+          <Text className="text-white font-psemibold text-sm">
+            ⭐ Daily Challenge
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("/(screens)/cosmetics")}
+          className="bg-black/30 px-4 py-2 rounded-full"
+        >
+          <Text className="text-white font-psemibold text-sm">🎨 Customize</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("/(screens)/referral")}
+          className="bg-black/30 px-4 py-2 rounded-full"
+        >
+          <Text className="text-white font-psemibold text-sm">
+            👥 Invite Friends
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Tabs */}
       <View className="flex-row mx-4 mb-2 bg-black/20 rounded-xl p-1">
         {(["quests", "achievements"] as const).map((tb) => (

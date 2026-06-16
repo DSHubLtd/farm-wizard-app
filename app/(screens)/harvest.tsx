@@ -18,6 +18,8 @@ import {
   notifySessionComplete,
 } from "@/utils/notifications";
 import { recordEvent } from "@/utils/engagement";
+import { submitDailyScore } from "@/services/rewardsApi";
+import { dailyCrop } from "@/utils/dailyChallenge";
 
 const REWARD_ADS_VIEW_LIMIT = 3;
 const AD_BONUS_POINTS = 50;
@@ -179,6 +181,12 @@ const Harvest = () => {
       recordEvent("harvest");
       recordEvent("level_up");
       if (Number(plantHealth) >= 90) recordEvent("perfect_harvest");
+
+      // Daily challenge: if you played today's featured crop, submit the
+      // score to the daily leaderboard (best score per day is kept).
+      if (plantName === dailyCrop()) {
+        submitDailyScore(Number(Number(totalSocre).toFixed(2))).catch(() => {});
+      }
     }, [])
   );
 

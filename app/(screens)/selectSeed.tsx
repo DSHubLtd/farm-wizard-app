@@ -17,8 +17,10 @@ import { useTranslation } from "react-i18next";
 import { playSound } from "../../utils/audio";
 import { useLoginContext } from "@/context/LoginProvider";
 import BannerAdComponent from "@/utils/BannerAdComponent";
+import { dailyCrop } from "@/utils/dailyChallenge";
 
 const { width, height } = Dimensions.get("window");
+const TODAY_CROP = dailyCrop();
 
 const SelectSeed = () => {
   const router = useRouter();
@@ -192,6 +194,13 @@ const SelectSeed = () => {
             >
               {selectedSeed.diplayName}
             </Text>
+            {selectedSeed.name === TODAY_CROP && (
+              <View className="bg-[#E0C145] rounded-full px-3 py-1 mb-2">
+                <Text className="text-white text-xs font-pbold">
+                  ⭐ Today's Challenge crop — play it for the daily leaderboard!
+                </Text>
+              </View>
+            )}
             <Image
               source={selectedSeed.iconLg}
               // className="w-40 h-40 mb-6"
