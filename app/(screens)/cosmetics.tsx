@@ -35,7 +35,7 @@ const Cosmetics = () => {
         setCatalog(data.catalog || []);
         setOwned(data.owned || []);
         setEquipped(data.equipped || {});
-        setBalance(data.balance ?? Number(user?.score) || 0);
+        setBalance(data.balance ?? (Number(user?.score) || 0));
         setLoadFailed(false);
       } else {
         setLoadFailed(true);
