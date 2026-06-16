@@ -15,7 +15,7 @@ import { playSound } from "../../utils/audio";
 import { Audio } from "expo-av";
 import { API_BASE } from "@/config/client";
 import { getUser } from "@/services/user";
-import { notifyNewAppNotifications } from "@/utils/notifications";
+import { notifyNewAppNotifications, registerPushToken } from "@/utils/notifications";
 const { height } = Dimensions.get("window");
 import analytics from "@react-native-firebase/analytics";
 
@@ -193,6 +193,11 @@ export default Home = () => {
   useEffect(() => {
     fetchRemainingViews();
   }, [showAd]);
+
+  // Register this device for server-sent push notifications once signed in.
+  useEffect(() => {
+    registerPushToken();
+  }, []);
 
   return (
     <View className="flex-1 relative bg-green-200 items-center justify-start">

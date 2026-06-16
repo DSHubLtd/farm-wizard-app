@@ -1,6 +1,8 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import { API_BASE } from "@/config/client";
 
 // Local push notifications driven by in-app events and game activity.
 
@@ -30,6 +32,43 @@ export const initNotifications = async () => {
     }
   } catch (e) {
     console.warn("Notification init failed:", e);
+  }
+};
+
+// Registers this device's Expo push token with the backend so the server
+// can deliver push notifications (rewards, level-ups, broadcasts, etc.).
+// Safe to call repeatedly; no-ops without permission, a token, or a session.
+export const registerPushToken = async () => {
+  try {
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    let status = existing;
+    if (status !== "granted") {
+      status = (await Notifications.requestPermissionsAsync()).status;
+    }
+    if (status !== "granted") return;
+
+    const projectId =
+      (Constants as any)?.expoConfig?.extra?.eas?.projectId ||
+      (Constants as any)?.easConfig?.projectId;
+
+    const tokenResp = await Notifications.getExpoPushTokenAsync(
+      projectId ? { projectId } : undefined
+    );
+    const pushToken = tokenResp?.data;
+    const authToken = await AsyncStorage.getItem("token");
+    if (!pushToken || !authToken) return;
+
+    await fetch(`${API_BASE}/api/v1/user/push-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `JWT ${authToken}`,
+      },
+      body: JSON.stringify({ token: pushToken }),
+    });
+  } catch (e) {
+    // Push tokens require a physical device; ignore failures silently.
+    console.warn("registerPushToken failed:", (e as any)?.message);
   }
 };
 
