@@ -1,60 +1,99 @@
 import React from "react";
-import { View, Pressable, Image } from "react-native";
-import { icons, images } from "@/constants";
-import Svg, { Path } from "react-native-svg";
-import { router } from "expo-router";
+import { View, Pressable, Image, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { icons } from "@/constants";
+import { router, usePathname } from "expo-router";
 import { playSound } from "@/utils/audio";
 
-export function WavyBackground() {
-  return (
-    <View className="absolute bottom-0 w-full h-24">
-      <Svg height="100%" width="100%" viewBox="0 0 1440 320">
-        <Path
-          fill="#2C6C3B"
-          d="M0,96 C240,160 480,0 720,96 C960,192 1200,96 1440,128 L1440,320 L0,320 Z"
-        />
-      </Svg>
-    </View>
-  );
-}
+const ACTIVE = "#2C6C3B";
+const ACTIVE_BG = "#FCC200";
+const INACTIVE = "#E6F0E0";
+
+const TABS = [
+  { key: "profile", label: "Profile", icon: icons.profile, path: "/(tabs)/profile" },
+  { key: "home", label: "Home", icon: icons.home, path: "/(tabs)/home" },
+  { key: "leaderboard", label: "Ranks", icon: icons.stats, path: "/(tabs)/leaderboard" },
+] as const;
+
 export default function CustomBottomTab() {
+  const pathname = usePathname();
+  const insets = useSafeAreaInsets();
+
+  const go = (path: string) => {
+    router.push(path as any);
+    playSound(require("@/assets/sounds/click.mp3"), 0.05);
+  };
+
   return (
-    <View className="absolute -bottom-2 w-full">
-      {/* <WavyBackground /> */}
-      <Image source={images.bgTabs} className="absolute bottom-2 w-full h-16" />
-      <View className="absolute bottom-2 w-full h-24 flex-row justify-between items-end px-8 pt-6">
-        {/* Left Tab */}
-        <Pressable
-          className="w-16 h-16 rounded-full bg-[#d1a635] items-center justify-center border-2 border-white"
-          onPress={() => {
-            router.push("/(tabs)/profile");
-            playSound(require("@/assets/sounds/click.mp3"), 0.05);
-          }}
-        >
-          <Image source={icons.claim} className="w-12 h-12 tint-white" />
-        </Pressable>
-
-        {/* Center Tab */}
-        <Pressable
-          className="w-20 h-20 rounded-full bg-[#d1a635] items-center justify-center border-4 border-white mb-2 shadow-lg shadow-black"
-          onPress={() => {
-            router.push("/(tabs)/home");
-            playSound(require("@/assets/sounds/click.mp3"), 0.05);
-          }}
-        >
-          <Image source={icons.home} className="w-10 h-10 tint-white" />
-        </Pressable>
-
-        {/* Right Tab */}
-        <Pressable
-          className="w-16 h-16 rounded-full bg-[#d1a635] items-center justify-center border-2 border-white"
-          onPress={() => {
-            router.push("/(tabs)/leaderboard");
-            playSound(require("@/assets/sounds/click.mp3"), 0.05);
-          }}
-        >
-          <Image source={icons.stats} className="w-8 h-8 tint-white" />
-        </Pressable>
+    <View
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingBottom: insets.bottom ? insets.bottom : 8,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-around",
+          marginHorizontal: 16,
+          marginBottom: 8,
+          height: 64,
+          borderRadius: 28,
+          backgroundColor: ACTIVE,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+      >
+        {TABS.map((tab) => {
+          const active = pathname?.endsWith(`/${tab.key}`);
+          return (
+            <Pressable
+              key={tab.key}
+              onPress={() => go(tab.path)}
+              style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  paddingHorizontal: active ? 16 : 0,
+                  paddingVertical: 8,
+                  borderRadius: 999,
+                  backgroundColor: active ? ACTIVE_BG : "transparent",
+                }}
+              >
+                <Image
+                  source={tab.icon}
+                  resizeMode="contain"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    tintColor: active ? ACTIVE : INACTIVE,
+                  }}
+                />
+                {active && (
+                  <Text
+                    style={{
+                      color: ACTIVE,
+                      fontWeight: "700",
+                      fontSize: 13,
+                      marginLeft: 6,
+                    }}
+                  >
+                    {tab.label}
+                  </Text>
+                )}
+              </View>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );

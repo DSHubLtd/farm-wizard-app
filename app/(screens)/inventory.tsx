@@ -107,11 +107,11 @@ const Inventory = () => {
   const renderTabButton = (label: string, value: "items" | "seeds") => (
     <TouchableOpacity
       onPress={() => setActiveTab(value)}
-      className={`flex-1 p-2 rounded-md mx-1 ${
-        activeTab === value ? "bg-[#9F8851]" : "bg-[#564B27]"
+      className={`flex-1 py-2 rounded-full ${
+        activeTab === value ? "bg-[#E0C145B8]" : ""
       }`}
     >
-      <Text className="text-white text-center font-primary">{label}</Text>
+      <Text className="text-white text-center font-psemibold">{label}</Text>
     </TouchableOpacity>
   );
 
@@ -292,21 +292,23 @@ const Inventory = () => {
           style={{ width: "100%", height: "100%", position: "absolute" }}
         />
 
-        <Text className="text-white text-2xl font-primary text-center my-3">
+        <Text className="text-white text-2xl font-primary text-center my-2">
           {t("menu.inventory")}
         </Text>
 
-        <View className="flex-row gap-2 items-center justify-end my-2">
-          <Text className="text-white text-lg font-semibold">
-            {(user?.score).toFixed(2)}
-          </Text>
-          <View className="bg-yellow-500 p-1 rounded-full">
-            <HomeIcon size={16} color={"#fff"} />
+        {/* Balance pill */}
+        <View className="self-center flex-row items-center bg-[#E0C145B8] rounded-full px-4 py-1.5 mb-3">
+          <View className="bg-yellow-500 p-1 rounded-full mr-2">
+            <HomeIcon size={14} color={"#fff"} />
           </View>
+          <Text className="text-white text-base font-pbold">
+            {Number(user?.score).toFixed(0)}{" "}
+            <Text className="text-xs font-pmedium">WZP</Text>
+          </Text>
         </View>
 
-        {/* Tab Buttons */}
-        <View className="flex-row mb-4">
+        {/* Segmented tabs */}
+        <View className="flex-row bg-black/30 rounded-full p-1 mb-4">
           {renderTabButton("Items", "items")}
           {renderTabButton("Seeds", "seeds")}
         </View>
@@ -529,15 +531,19 @@ const InventoryGrid = ({ data, onOpenModal, userInventory }: any) => {
           {row.map((item: any, index: any) => (
             <View
               key={index}
-              className="flex-1 bg-[#9F8851] rounded-xl mx-1 p-3"
+              className="flex-1 bg-[#9F8851] rounded-2xl mx-1 p-3"
             >
-              <Text className="text-white text-right text-xs font-semibold">
-                x{getItemsQty(item.name, userInventory)}
-              </Text>
-              <View className="items-center">
+              {/* Owned quantity badge */}
+              <View className="self-start bg-black/30 rounded-full px-2 py-0.5">
+                <Text className="text-white text-xs font-pbold">
+                  ×{getItemsQty(item.name, userInventory)}
+                </Text>
+              </View>
+
+              <View className="items-center mt-1">
                 <Image
                   source={item.icon}
-                  className="w-20 h-20"
+                  className="w-24 h-24"
                   resizeMode="contain"
                 />
                 <Text
@@ -548,19 +554,18 @@ const InventoryGrid = ({ data, onOpenModal, userInventory }: any) => {
                 </Text>
               </View>
 
-              {/* Actions */}
-              <View className="flex-row justify-end mt-2">
-                <TouchableOpacity
-                  className="px-4 py-2 bg-[#8C6722] rounded-lg"
-                  onPress={() => onOpenModal?.(item)}
-                >
-                  <Image
-                    source={icons.cart}
-                    className="w-6 h-6"
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
-              </View>
+              {/* Get button */}
+              <TouchableOpacity
+                className="flex-row items-center justify-center bg-[#8C6722] rounded-xl py-2 mt-2"
+                onPress={() => onOpenModal?.(item)}
+              >
+                <Image
+                  source={icons.cart}
+                  className="w-5 h-5 mr-2"
+                  resizeMode="contain"
+                />
+                <Text className="text-white font-pbold text-sm">Get</Text>
+              </TouchableOpacity>
             </View>
           ))}
           {row.length < 2 && <View className="flex-1 mx-1" />}

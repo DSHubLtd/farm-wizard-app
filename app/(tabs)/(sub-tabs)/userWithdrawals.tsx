@@ -148,82 +148,86 @@ export default function UserWithdrawals() {
         showRightButton={false}
       />
 
-      <Text className="text-white text-xl font-primary font-bold text-center mb-6">
-        {/* {t("settings.settings")} */}
-        MY TAKEOUT REQUEST LIST
+      <Text className="text-white text-2xl font-primary text-center mb-1">
+        My Takeout Requests
+      </Text>
+      <Text className="text-white/60 text-xs text-center mb-3">
+        Tap a pending request to view its details
       </Text>
 
       {withdrawals.length === 0 ? (
-        <Text className="text-gray-400 text-center font-semibold">
-          You don't have any take out history
-        </Text>
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-5xl mb-3">📭</Text>
+          <Text className="text-white/80 text-center font-psemibold text-base">
+            No takeout requests yet
+          </Text>
+          <Text className="text-white/60 text-center text-sm mt-1">
+            Your claim requests will appear here once you make one.
+          </Text>
+        </View>
       ) : (
-        <View className="m-2">
-          {/* Scrollable List */}
-          <ScrollView style={{ height: height * 0.69 }}>
-            {/* Heading */}
-            <View className="mx-4 px-4 py-2">
-              <View className="flex-row justify-between mt-2">
-                <Text className="text-gray-400 font-semibold">#</Text>
-                <Text className="text-gray-400 font-semibold">Date</Text>
-                <Text className="text-gray-400 font-semibold">Amount</Text>
-                <Text className="text-gray-400 font-semibold">Reference</Text>
-                {/* <Text className="text-gray-400 font-semibold">Destination</Text>
-              <Text className="text-gray-400 font-semibold">Type</Text>
-              <Text className="text-gray-400 font-semibold">Provider</Text>
-               */}
-              </View>
-            </View>
-            {withdrawals.map((withdrawal, index) => (
-              <TouchableOpacity
-                key={index}
-                className={`flex-row items-center justify-between border-b border-white rounded-none mx-4 px-4 py-2 mb-2
-                
-                ${withdrawal.status === "Request" ? "bg-red-500" : ""} `}
-                onPress={() => openWithdrawal(withdrawal)}
-              >
-                <View className="flex-row justify-center items-center gap-x-6">
-                  <Text className="text-white font-bold">{index + 1}</Text>
+        <View className="flex-1 px-4">
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 24 }}
+          >
+            {withdrawals.map((withdrawal, index) => {
+              const pending = withdrawal.status === "Request";
+              return (
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={0.85}
+                  onPress={() => openWithdrawal(withdrawal)}
+                  className="bg-black/30 rounded-2xl p-4 mb-3"
+                >
+                  <View className="flex-row justify-between items-start">
+                    <View className="flex-1 mr-3">
+                      <Text className="text-white font-pbold text-lg">
+                        {withdrawal.amount.toFixed(2)}{" "}
+                        <Text className="text-white/70 text-sm font-pregular">
+                          WZP
+                        </Text>
+                      </Text>
+                      <Text className="text-white/70 text-xs mt-1">
+                        {formatDate(withdrawal.createdAt)}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        className="text-white/50 text-xs mt-0.5"
+                      >
+                        Ref: {withdrawal.reference}
+                      </Text>
+                    </View>
+                    <View
+                      className={`px-3 py-1 rounded-full ${
+                        pending ? "bg-amber-500" : "bg-green-600"
+                      }`}
+                    >
+                      <Text className="text-white text-xs font-pbold">
+                        {pending ? "Pending" : "Completed"}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
 
-                  <Text className="text-white font-bold ml-6">
-                    {formatDate(withdrawal.createdAt)}
-                  </Text>
-                </View>
-                <Text className="text-yellow-300 font-semibold">
-                  {withdrawal.amount.toFixed(2)}
+            {hasMore ? (
+              <TouchableOpacity
+                className="bg-buttonColor rounded-xl py-3 mt-1"
+                onPress={handleLoadMore}
+                disabled={loading}
+              >
+                <Text className="text-white text-center font-pbold">
+                  {loading ? "Loading…" : "Load more"}
                 </Text>
-                <Text className={`text-yellow-300 font-semibold`}>
-                  {withdrawal.reference}
-                </Text>
-                {/* <Text className="text-yellow-300 font-semibold">
-                {withdrawal.destination}
-              </Text>
-              <Text className="text-yellow-300 font-semibold">
-                {withdrawal.withdrawType}
-              </Text>
-              <Text className="text-yellow-300 font-semibold">
-                {withdrawal.provider}
-              </Text>
-              */}
               </TouchableOpacity>
-            ))}
-          </ScrollView>
-          {hasMore && (
-            <TouchableOpacity
-              className="btn btn-info"
-              onPress={handleLoadMore}
-              disabled={loading}
-            >
-              <Text className="my-1 text-white text-center">
-                {loading ? "Loading..." : "Load More"}
+            ) : (
+              <Text className="text-white/50 text-center text-xs mt-2">
+                No more requests to load.
               </Text>
-            </TouchableOpacity>
-          )}
-          {!hasMore && (
-            <Text className="my-1 text-white text-center">
-              No more details to load.
-            </Text>
-          )}
+            )}
+          </ScrollView>
         </View>
       )}
     </View>
