@@ -31,15 +31,6 @@ export default function LanguageSwitching() {
         await i18n.changeLanguage("en");
       }
       setLanguageLoaded(true);
-
-      await AsyncStorage.removeItem("user-language");
-
-      // Remove all translation caches
-      const keys = await AsyncStorage.getAllKeys();
-      const translationKeys = keys.filter((key) =>
-        key.startsWith("translations-")
-      );
-      await AsyncStorage.multiRemove(translationKeys);
     };
     loadSavedLanguage();
   }, []);

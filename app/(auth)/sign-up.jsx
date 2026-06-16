@@ -104,6 +104,17 @@ const SignUp = () => {
       setSelectedLanguage(langName);
     }
   };
+
+  // Apply the chosen language immediately so the form previews in it,
+  // while keeping the lowercase value the dropdown/validation expect.
+  const handleLanguageSelect = async (val) => {
+    setSelectedLanguage(val);
+    const code = languageMap[capitalizeFirstLetter(val)]?.code;
+    if (code) {
+      await AsyncStorage.setItem(LANGUAGE_KEY, code);
+      await i18n.changeLanguage(code);
+    }
+  };
   return (
     <SafeAreaView className="bg-primary h-full flex justify-center items-center">
       <BackgroundImage source={images.background} />
@@ -205,7 +216,7 @@ const SignUp = () => {
             title={t("select_language")}
             selectedValue={selectedLanguage}
             options={filteredLanguages}
-            handleValueChange={setSelectedLanguage}
+            handleValueChange={handleLanguageSelect}
             otherStyles="mt-2"
           />
           {errors.language && <Text className="text-red-400 text-sm mt-1">{errors.language}</Text>}
