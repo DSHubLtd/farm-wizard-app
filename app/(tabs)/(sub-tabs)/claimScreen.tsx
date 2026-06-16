@@ -286,7 +286,7 @@ const ClaimScreen = () => {
   };
 
   const handleWithdrawalHistory = () => {
-    if (isAdmin || user.email === "dinisoft.dev@gmail.com") {
+    if (isAdmin) {
       router.push("/(tabs)/(sub-tabs)/withdrawalRequest");
     } else {
       router.push("/(tabs)/(sub-tabs)/userWithdrawals");
