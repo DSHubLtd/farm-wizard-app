@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.grow.farmwizard",
-      "buildNumber": "5",
+      "buildNumber": "6",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.grow.farmwizard",
-      "versionCode": 5,
+      "versionCode": 6,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
