@@ -108,8 +108,8 @@ const Referral = () => {
         {/* Your code */}
         <View className="bg-black/30 rounded-2xl p-4 mb-4">
           <Text className="text-white/80 text-sm text-center">
-            Share your code. When a friend signs up and redeems it, you get{" "}
-            {rewards.referrer} WizPoints and they get {rewards.referee}.
+            Share your code. When a friend signs up and redeems it, you earn{" "}
+            {rewards.referrer} WizPoints.
           </Text>
           <View className="bg-[#E0C145B8] rounded-xl py-3 my-3">
             <Text className="text-white text-3xl font-pbold text-center tracking-widest">

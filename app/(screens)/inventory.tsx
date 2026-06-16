@@ -239,7 +239,7 @@ const Inventory = () => {
   };
 
   const convertWizpointToUsd = (userBalance: number) => {
-    return (Number(userBalance * 0.0001) / 1000).toFixed(8);
+    return (Number(userBalance * 0.01) / 1000).toFixed(8);
   };
 
   const handleInAppPurchase = async () => {
@@ -460,7 +460,7 @@ const Inventory = () => {
                     {`Confirm getting of ${purchaseQty} qty of ${selectedItem?.diplayName} Using your Wizpoint`}
                   </Text>
                   <Text style={{ fontSize: 16 }} className="my-4">
-                    Note! 1000 Wizpoint = 0.0001 USD
+                    Note! 1000 WizPoints = 0.01 USD
                   </Text>
                   <Text style={{ fontSize: 14 }} className="">
                     your Wiz balance is {user.score} wiz ={" "}

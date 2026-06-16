@@ -50,8 +50,10 @@ const Harvest = () => {
   // bonus must stay numeric — it was a string (.toFixed) which forced the
   // whole total into string concatenation, garbling/inflating payouts.
   const bonus = Number(plantHealth) / 100;
+  // Harvest level bonus reduced (was 500/level) to keep WizPoint minting in
+  // line with the WZP->USD rate and the daily earning cap.
   const totalSocre =
-    Number(score) + bonus + 500 * Number(userLevel);
+    Number(score) + bonus + 100 * Number(userLevel);
 
   const updateLevel = async () => {
     if (!plant || !level || !score) {

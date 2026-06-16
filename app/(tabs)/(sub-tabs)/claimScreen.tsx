@@ -174,9 +174,9 @@ const ClaimScreen = () => {
   };
 
   const submitWithdrawal = async () => {
-    const usdConversion = (Number(user?.score * 0.0001) / 1000).toFixed(8);
+    const usdConversion = (Number(user?.score * 0.01) / 1000).toFixed(8);
 
-    if (Number(usdConversion) < 0.005) {
+    if (Number(usdConversion) < 0.1) {
       Alert.alert(
         t("messages.warning"),
         `You don't have enough WZP point to perform this operation`
@@ -294,11 +294,11 @@ const ClaimScreen = () => {
   };
   const { t } = useTranslation();
 
-  // WizPoints -> USD: score * 0.0001 / 1000 (matches submitWithdrawal check)
+  // WizPoints -> USD: 1000 WZP = $0.01  (score * 0.01 / 1000)
   const wizPoints = Number(user?.score) || 0;
-  const usdValue = (wizPoints * 0.0001) / 1000;
-  const MIN_USD = 0.005;
-  const MIN_WIZ = Math.round((MIN_USD * 1000) / 0.0001); // 50,000
+  const usdValue = (wizPoints * 0.01) / 1000;
+  const MIN_USD = 0.1;
+  const MIN_WIZ = Math.round((MIN_USD * 1000) / 0.01); // 10,000
   const isEligible = usdValue >= MIN_USD;
   const progressPct = Math.min(100, (usdValue / MIN_USD) * 100);
 
