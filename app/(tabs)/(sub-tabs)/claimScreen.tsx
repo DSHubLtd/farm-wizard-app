@@ -294,6 +294,14 @@ const ClaimScreen = () => {
   };
   const { t } = useTranslation();
 
+  // WizPoints -> USD: score * 0.0001 / 1000 (matches submitWithdrawal check)
+  const wizPoints = Number(user?.score) || 0;
+  const usdValue = (wizPoints * 0.0001) / 1000;
+  const MIN_USD = 0.005;
+  const MIN_WIZ = Math.round((MIN_USD * 1000) / 0.0001); // 50,000
+  const isEligible = usdValue >= MIN_USD;
+  const progressPct = Math.min(100, (usdValue / MIN_USD) * 100);
+
   return (
     <View className="flex-1 bg-green-200 items-center justify-start relative">
       <BackgroundImage
@@ -314,127 +322,123 @@ const ClaimScreen = () => {
         {t("menu.claim")}
       </Text>
 
-      {/* Balance Box */}
-      <TouchableOpacity
-        className="bg-black/20 opacity-90 flex flex-row justify-center items-center p-2 rounded-lg"
-        // onPress={openCoversionModal}
-      >
-        <View className="px-6 py-2 bg-[#E0C145B8] rounded-xl">
-          <Text className="text-white text-lg text-center p-4">
-            {Number(user?.score).toFixed(2)}
-          </Text>
-          {/* <Text className="text-white text-sm text-center">
-            USD: {Number(user.usdBalance).toFixed(5)}
-          </Text>
-          <Text className="text-white/80 text-xs text-center">
-            1000 WizPoints = 0.0001 USD
-          </Text>
-          <Text className="text-white/80 text-xs text-center">
-            Press To Convert Coins To USD
-          </Text>
-          <Text className="text-white/80 text-xs text-center">
-            ({t("messages.withdrawal_eligiblity")} = 0.005 USD)
-          </Text> */}
-        </View>
-      </TouchableOpacity>
+      {/* Balance card */}
+      <View className="w-[92%] bg-[#E0C145B8] rounded-2xl p-4 mt-2">
+        <Text className="text-white/90 text-xs font-pmedium text-center">
+          YOUR BALANCE
+        </Text>
+        <Text className="text-white text-3xl font-pbold text-center mt-1">
+          {wizPoints.toFixed(0)}{" "}
+          <Text className="text-base font-pmedium">WizPoints</Text>
+        </Text>
+        <Text className="text-white/90 text-sm text-center">
+          ≈ ${usdValue.toFixed(4)} in crypto token
+        </Text>
 
-      {/* Tabs */}
-      <View className="flex-row justify-around gap-x-6">
-        {tabs.map((tab, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => handleTabChange(tab)}
-            className="flex-row items-center justify-between p-8 "
-          >
-            <Text
-              className={`text-sm ${
-                activeTab === tab
-                  ? "text-white font-bold underline"
-                  : "text-white/60"
-              }`}
-            >
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <View className="h-2 bg-black/25 rounded-full mt-3 overflow-hidden">
+          <View
+            className={`h-2 rounded-full ${
+              isEligible ? "bg-green-400" : "bg-white"
+            }`}
+            style={{ width: `${progressPct}%` }}
+          />
+        </View>
+        <Text className="text-white/90 text-xs text-center mt-1">
+          {isEligible
+            ? "✅ You've reached the minimum to claim!"
+            : `Minimum to claim: ${MIN_WIZ.toLocaleString()} WizPoints ($${MIN_USD})`}
+        </Text>
       </View>
 
-      {/* Choose Provider */}
-      <Text className="text-white text-base font-primary ">
-        {t("messages.choose_provider")}
-      </Text>
-
-      {/* Provider Buttons */}
       {activeTab === "Token" && (
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"} // or 'position'
-          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1, width: "100%" }}
         >
-          <ScrollView className="w-[95%]" style={{ height: "auto" }}>
-            <View className="flex-row justify-around gap-x-6 my-2 bg-black/10 opacity-1 p-2 rounded-lg">
-              {providers[activeTab].map((provider, index) => (
-                <View
-                  className={`bg-black/20 opacity-90 p-4 mt-1 mb-2 rounded-lg ${
-                    selectedProvider?.name === provider.name
-                      ? "border border-white"
-                      : ""
-                  }`}
-                  key={index}
-                >
-                  <TouchableOpacity
-                    key={index}
-                    // onPress={() => openModal(provider)}
-                    onPress={() => setSelectedProvider(provider)}
-                    className={`flex-col justify-between items-center p-4 rounded-xl ${
-                      provider.bg
-                    }
-                ${
-                  selectedProvider?.name === provider.name
-                    ? "border border-white"
-                    : ""
-                }`}
-                  >
-                    <Image
-                      source={provider.icon}
-                      className="w-6 h-6 tint-white"
-                      resizeMode="contain"
-                    />
-                    <Text className="text-white font-psemibold text-xs mt-2">
-                      {provider.name}
+          <ScrollView
+            className="w-full px-4"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 24 }}
+          >
+            {/* How crypto token claims work */}
+            <View className="bg-black/30 rounded-2xl p-4 my-3">
+              <Text className="text-[#F2DE9F] font-pbold text-base mb-2">
+                How crypto token claims work
+              </Text>
+              {[
+                "Play games to earn WizPoints.",
+                `Reach ${MIN_WIZ.toLocaleString()} WizPoints ($${MIN_USD}) to become eligible to claim.`,
+                "Choose where to receive your tokens (Telegram or Bybit).",
+                "Enter your wallet address and the network (e.g. TON, BEP20).",
+                "Submit your claim — our team verifies it, then sends the crypto tokens to your wallet.",
+              ].map((step, i) => (
+                <View key={i} className="flex-row mb-1.5">
+                  <View className="w-5 h-5 rounded-full bg-[#E0C145B8] items-center justify-center mr-2 mt-0.5">
+                    <Text className="text-white text-xs font-pbold">
+                      {i + 1}
                     </Text>
-                  </TouchableOpacity>
+                  </View>
+                  <Text className="text-white/90 text-sm flex-1 leading-5">
+                    {step}
+                  </Text>
                 </View>
+              ))}
+              <Text className="text-white/60 text-xs mt-2 italic">
+                Claims are subject to verification and may take time to process.
+                Track your request using the icon at the top right.
+              </Text>
+            </View>
+
+            {/* Step 1: choose provider */}
+            <Text className="text-white font-pbold text-base mb-2">
+              1. Choose where to receive your tokens
+            </Text>
+            <View className="flex-row justify-around gap-x-4 mb-4">
+              {providers[activeTab].map((provider, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => setSelectedProvider(provider)}
+                  className={`flex-1 items-center p-4 rounded-2xl ${provider.bg} ${
+                    selectedProvider?.name === provider.name
+                      ? "border-2 border-white"
+                      : "opacity-80"
+                  }`}
+                >
+                  <Image
+                    source={provider.icon}
+                    className="w-8 h-8"
+                    resizeMode="contain"
+                  />
+                  <Text className="text-white font-psemibold text-sm mt-2">
+                    {provider.name}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </View>
 
-            <Text className="text-sm text-[#F2DE9F] font-bold mb-2 text-center">
-              Enter wallet address address and select network type to receive
-              your reward
-              {/* {t("comfirmation.token_address", {
-                amount: ` ${user.usdBalance} `,
-              })}{" "} */}
+            {/* Step 2: wallet details */}
+            <Text className="text-white font-pbold text-base mb-1">
+              2. Enter your wallet details
             </Text>
             <FormField
               type="text"
-              placeholder={t("destination_wallet_addres")}
-              title={t("destination_wallet_addres")}
+              placeholder="Paste your wallet address"
+              title="Wallet address"
               value={form.phoneNo}
               handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
-              otherStyles="my-2 "
+              otherStyles="my-2"
             />
-
             <FormField
               type="text"
-              placeholder={t("netword_details")}
-              title={t("netword_details")}
+              placeholder="e.g. TON, BEP20, ERC20"
+              title="Network"
               value={form.network}
               handleChangeText={(e: any) => setForm({ ...form, network: e })}
-              otherStyles=""
+              otherStyles="mb-2"
             />
 
             <CustomButton
-              title={"Ready to claim"}
-              // title={t("buttons.submit")}
+              title={isEligible ? "Claim my tokens" : "Keep playing to unlock"}
               handlePress={submitWithdrawal}
               containerStyles="w-full"
               textStyles={"font-pbold text-white"}
