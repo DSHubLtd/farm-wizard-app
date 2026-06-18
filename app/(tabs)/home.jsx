@@ -16,6 +16,7 @@ import { Audio } from "expo-av";
 import { API_BASE } from "@/config/client";
 import { getUser } from "@/services/user";
 import { notifyNewAppNotifications, registerPushToken } from "@/utils/notifications";
+import { getIdle, collectIdle } from "@/services/rewardsApi";
 const { height } = Dimensions.get("window");
 import analytics from "@react-native-firebase/analytics";
 
@@ -37,8 +38,41 @@ export default Home = () => {
   const [showNotifcation, setShowNotification] = useState(false);
   const [backPressedOnce, setBackPressedOnce] = useState(false);
   const [remainingViews, setRemainingViews] = useState(null);
+  const [idlePending, setIdlePending] = useState(0);
+  const [collectingIdle, setCollectingIdle] = useState(false);
 
   const timeoutRef = useRef(null);
+
+  // Idle/offline earning: how much the farm earned while away
+  const fetchIdle = async () => {
+    try {
+      const data = await getIdle();
+      if (data?.success) setIdlePending(data.pending || 0);
+    } catch (e) {
+      // ignore (offline / not deployed yet)
+    }
+  };
+
+  const handleCollectIdle = async () => {
+    if (collectingIdle) return;
+    setCollectingIdle(true);
+    try {
+      const res = await collectIdle();
+      if (res?.success) {
+        if (res.userDetails) setUser(res.userDetails);
+        setIdlePending(0);
+        if (res.granted > 0) {
+          Alert.alert("Collected", `🌾 +${res.granted} WizPoints from your farm!`);
+        } else if (res.message) {
+          Alert.alert("Idle reward", res.message);
+        }
+      }
+    } catch (e) {
+      // ignore
+    } finally {
+      setCollectingIdle(false);
+    }
+  };
 
   const { t } = useTranslation();
 
@@ -197,6 +231,7 @@ export default Home = () => {
   // Register this device for server-sent push notifications once signed in.
   useEffect(() => {
     registerPushToken();
+    fetchIdle();
   }, []);
 
   return (
@@ -255,6 +290,21 @@ export default Home = () => {
       >
         <Text className="text-white font-psemibold">🎯 Daily Quests & Badges</Text>
       </TouchableOpacity>
+
+      {/* Idle/offline earning */}
+      {idlePending > 0 && (
+        <TouchableOpacity
+          className="bg-green-700/80 px-5 py-2 rounded-full flex-row items-center mt-3"
+          onPress={handleCollectIdle}
+          disabled={collectingIdle}
+        >
+          <Text className="text-white font-psemibold">
+            {collectingIdle
+              ? "Collecting…"
+              : `🌾 Collect ${idlePending} WZP from your farm`}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <View className="flex-1 justify-center items-center">
         {/* Wizard Image */}

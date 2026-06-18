@@ -49,6 +49,17 @@ export const equipCosmetic = async (id: string) => {
   return res.data; // { success, message, userDetails }
 };
 
+// ---- Idle / offline earning ----
+export const getIdle = async () => {
+  const res = await client.get("/user/idle", await authHeaders());
+  return res.data; // { success, pending, ratePerHour, maxHours, full }
+};
+
+export const collectIdle = async () => {
+  const res = await client.post("/user/idle/collect", {}, await authHeaders());
+  return res.data; // { success, granted, message, userDetails }
+};
+
 // ---- Referral ----
 export const getReferral = async () => {
   const res = await client.get("/referral", await authHeaders());
