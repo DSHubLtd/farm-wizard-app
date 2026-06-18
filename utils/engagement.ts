@@ -151,6 +151,69 @@ export const getAchievements = async (): Promise<AchievementState[]> => {
 };
 
 // ---------------------------------------------------------------------------
+// Progression goals (long-term milestones with one-time WizPoint rewards)
+// ---------------------------------------------------------------------------
+export type GoalDef = {
+  id: string;
+  title: string;
+  event: GameEvent;
+  target: number;
+  reward: number;
+};
+
+export const GOALS: GoalDef[] = [
+  { id: "g_harvest_25", title: "Harvest 25 crops", event: "harvest", target: 25, reward: 1000 },
+  { id: "g_harvest_100", title: "Harvest 100 crops", event: "harvest", target: 100, reward: 3000 },
+  { id: "g_sessions_50", title: "Play 50 sessions", event: "session_played", target: 50, reward: 1500 },
+  { id: "g_perfect_10", title: "10 perfect harvests", event: "perfect_harvest", target: 10, reward: 2000 },
+  { id: "g_threats_50", title: "Survive 50 threats", event: "threat_survived", target: 50, reward: 1500 },
+  { id: "g_levels_25", title: "Level up plants 25 times", event: "level_up", target: 25, reward: 2500 },
+];
+
+const CLAIMED_GOALS_KEY = "claimed-goals";
+
+const getClaimedGoals = async (): Promise<string[]> => {
+  try {
+    const raw = await AsyncStorage.getItem(CLAIMED_GOALS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+export type GoalState = GoalDef & {
+  progress: number;
+  completed: boolean;
+  claimed: boolean;
+};
+
+export const getGoals = async (): Promise<GoalState[]> => {
+  const counters = await getCounters();
+  const claimed = await getClaimedGoals();
+  return GOALS.map((g) => {
+    const progress = counters[g.event] || 0;
+    return {
+      ...g,
+      progress: Math.min(progress, g.target),
+      completed: progress >= g.target,
+      claimed: claimed.includes(g.id),
+    };
+  });
+};
+
+export const claimGoal = async (id: string): Promise<void> => {
+  try {
+    const claimed = await getClaimedGoals();
+    if (!claimed.includes(id)) {
+      claimed.push(id);
+      await AsyncStorage.setItem(CLAIMED_GOALS_KEY, JSON.stringify(claimed));
+    }
+  } catch {
+    // ignore
+  }
+};
+
+// ---------------------------------------------------------------------------
 // Event recording (called from gameplay)
 // ---------------------------------------------------------------------------
 export const recordEvent = async (event: GameEvent, count = 1): Promise<void> => {

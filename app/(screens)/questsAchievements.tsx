@@ -15,10 +15,13 @@ import { useLoginContext } from "@/context/LoginProvider";
 import {
   getDailyQuests,
   getAchievements,
+  getGoals,
   claimQuest,
+  claimGoal,
   creditReward,
   QuestState,
   AchievementState,
+  GoalState,
 } from "@/utils/engagement";
 
 const QuestsAchievements = () => {
@@ -26,13 +29,15 @@ const QuestsAchievements = () => {
   if (!user) {
     router.replace("/");
   }
-  const [tab, setTab] = useState<"quests" | "achievements">("quests");
+  const [tab, setTab] = useState<"quests" | "goals" | "achievements">("quests");
   const [quests, setQuests] = useState<QuestState[]>([]);
+  const [goals, setGoals] = useState<GoalState[]>([]);
   const [achievements, setAchievements] = useState<AchievementState[]>([]);
   const [claiming, setClaiming] = useState<string | null>(null);
 
   const load = async () => {
     setQuests(await getDailyQuests());
+    setGoals(await getGoals());
     setAchievements(await getAchievements());
   };
 
@@ -52,6 +57,27 @@ const QuestsAchievements = () => {
         await claimQuest(q.id);
         await load();
         Alert.alert("Reward claimed", `🎉 +${q.reward} WizPoints added!`);
+      } else {
+        Alert.alert(
+          "Couldn't claim",
+          "Please check your connection and try again."
+        );
+      }
+    } finally {
+      setClaiming(null);
+    }
+  };
+
+  const onClaimGoal = async (g: GoalState) => {
+    if (claiming) return;
+    setClaiming(g.id);
+    try {
+      const updated = await creditReward(g.reward);
+      if (updated) {
+        setUser(updated);
+        await claimGoal(g.id);
+        await load();
+        Alert.alert("Goal complete!", `🏅 +${g.reward} WizPoints added!`);
       } else {
         Alert.alert(
           "Couldn't claim",
@@ -108,11 +134,17 @@ const QuestsAchievements = () => {
             👥 Invite Friends
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("/(screens)/farm")}
+          className="bg-black/30 px-4 py-2 rounded-full"
+        >
+          <Text className="text-white font-psemibold text-sm">🚜 My Farm</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Tabs */}
       <View className="flex-row mx-4 mb-2 bg-black/20 rounded-xl p-1">
-        {(["quests", "achievements"] as const).map((tb) => (
+        {(["quests", "goals", "achievements"] as const).map((tb) => (
           <TouchableOpacity
             key={tb}
             onPress={() => setTab(tb)}
@@ -120,8 +152,12 @@ const QuestsAchievements = () => {
               tab === tb ? "bg-[#E0C145B8]" : ""
             }`}
           >
-            <Text className="text-white text-center font-psemibold capitalize">
-              {tb === "quests" ? "Daily Quests" : `Badges (${unlockedCount})`}
+            <Text className="text-white text-center font-psemibold text-xs">
+              {tb === "quests"
+                ? "Quests"
+                : tb === "goals"
+                ? "Goals"
+                : `Badges (${unlockedCount})`}
             </Text>
           </TouchableOpacity>
         ))}
@@ -169,6 +205,54 @@ const QuestsAchievements = () => {
                       >
                         <Text className="text-white font-pbold text-xs">
                           {claiming === q.id ? "Claiming…" : `Claim +${q.reward}`}
+                        </Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <Text className="text-white/50 text-xs">In progress</Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </>
+        )}
+
+        {tab === "goals" && (
+          <>
+            <Text className="text-white/70 text-xs mb-3 text-center">
+              Long-term goals with big one-time WizPoint rewards.
+            </Text>
+            {goals.map((g) => {
+              const pct = Math.min(100, (g.progress / g.target) * 100);
+              return (
+                <View key={g.id} className="bg-black/30 rounded-2xl p-4 mb-3">
+                  <Text className="text-white font-psemibold text-base">
+                    {g.title}
+                  </Text>
+                  <View className="h-2 bg-black/30 rounded-full mt-2 overflow-hidden">
+                    <View
+                      className={`h-2 rounded-full ${
+                        g.completed ? "bg-green-400" : "bg-[#E0C145B8]"
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </View>
+                  <View className="flex-row justify-between items-center mt-2">
+                    <Text className="text-white/80 text-xs">
+                      {g.progress}/{g.target} · Reward: {g.reward} WZP
+                    </Text>
+                    {g.claimed ? (
+                      <Text className="text-green-400 font-pbold text-xs">
+                        ✓ Claimed
+                      </Text>
+                    ) : g.completed ? (
+                      <TouchableOpacity
+                        onPress={() => onClaimGoal(g)}
+                        disabled={claiming === g.id}
+                        className="bg-[#E0C145B8] px-4 py-1.5 rounded-full"
+                      >
+                        <Text className="text-white font-pbold text-xs">
+                          {claiming === g.id ? "Claiming…" : `Claim +${g.reward}`}
                         </Text>
                       </TouchableOpacity>
                     ) : (
