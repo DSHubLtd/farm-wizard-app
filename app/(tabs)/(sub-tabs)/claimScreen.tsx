@@ -49,11 +49,6 @@ const providers = {
       bg: "bg-gray-500",
     },
     {
-      name: "Moniepoint",
-      emoji: "🏦",
-      bg: "bg-blue-700",
-    },
-    {
       name: "Other",
       emoji: "💳",
       bg: "bg-gray-600",
@@ -313,11 +308,10 @@ const ClaimScreen = () => {
   const isEligible = usdValue >= MIN_USD;
   const progressPct = Math.min(100, (usdValue / MIN_USD) * 100);
 
-  // Non-crypto providers (Moniepoint/Other) receive via phone number, with
-  // the network field being optional rather than a crypto chain.
-  const isPhoneProvider =
-    !!selectedProvider && ["Moniepoint", "Other"].includes(selectedProvider.name);
+  // The "Other" provider receives via phone number, with the network field
+  // being an optional bank/app name rather than a crypto chain.
   const isOther = selectedProvider?.name === "Other";
+  const isPhoneProvider = isOther;
 
   return (
     <View className="flex-1 bg-green-200 items-center justify-start relative">
