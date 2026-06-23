@@ -275,9 +275,10 @@ export default Home = () => {
         >
           <Image source={images.inventory} className="w-20 h-20" />
         </TouchableOpacity>
+        {/* Watch & Earn (short videos) */}
         <TouchableOpacity
           className="w-10 h-10 bg-white/30 rounded-full items-center justify-center"
-          onPress={openModal}
+          onPress={() => router.push("/(screens)/shorts")}
         >
           <Image source={images.adsBadge} className="w-20 h-20" />
         </TouchableOpacity>
@@ -291,13 +292,7 @@ export default Home = () => {
         <Text className="text-white font-psemibold">🎯 Daily Quests & Badges</Text>
       </TouchableOpacity>
 
-      {/* Watch short videos & earn */}
-      <TouchableOpacity
-        className="bg-red-600/90 px-5 py-2 rounded-full flex-row items-center mt-3"
-        onPress={() => router.push("/(screens)/shorts")}
-      >
-        <Text className="text-white font-psemibold">📺 Watch & Earn</Text>
-      </TouchableOpacity>
+      {/* Watch & Earn is opened from the top-right icon */}
 
       {/* Idle/offline earning */}
       {idlePending > 0 && (
