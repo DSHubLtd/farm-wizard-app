@@ -14,6 +14,7 @@ export default function ScreenLayout() {
       <Stack.Screen name="referral" />
       <Stack.Screen name="dailyChallenge" />
       <Stack.Screen name="farm" />
+      <Stack.Screen name="shorts" />
       <Stack.Screen name="transactionSuccess" />
     </Stack>
   );

@@ -291,6 +291,14 @@ export default Home = () => {
         <Text className="text-white font-psemibold">🎯 Daily Quests & Badges</Text>
       </TouchableOpacity>
 
+      {/* Watch short videos & earn */}
+      <TouchableOpacity
+        className="bg-red-600/90 px-5 py-2 rounded-full flex-row items-center mt-3"
+        onPress={() => router.push("/(screens)/shorts")}
+      >
+        <Text className="text-white font-psemibold">📺 Watch & Earn</Text>
+      </TouchableOpacity>
+
       {/* Idle/offline earning */}
       {idlePending > 0 && (
         <TouchableOpacity

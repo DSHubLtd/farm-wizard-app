@@ -49,6 +49,12 @@ export const equipCosmetic = async (id: string) => {
   return res.data; // { success, message, userDetails }
 };
 
+// ---- Short videos (watch & earn) ----
+export const getShorts = async () => {
+  const res = await client.get("/shorts");
+  return res.data; // { success, date, videos: [{ videoId, title, channelTitle, thumbnail, subscribers }] }
+};
+
 // ---- Idle / offline earning ----
 export const getIdle = async () => {
   const res = await client.get("/user/idle", await authHeaders());
