@@ -31,7 +31,8 @@ const tabs = ["Token"] as const;
 
 type Provider = {
   name: string;
-  icon: any;
+  icon?: any;
+  emoji?: string;
   bg: string;
 };
 
@@ -46,6 +47,16 @@ const providers = {
       name: "Bybit",
       icon: icons.bybit,
       bg: "bg-gray-500",
+    },
+    {
+      name: "Moniepoint",
+      emoji: "🏦",
+      bg: "bg-blue-700",
+    },
+    {
+      name: "Other",
+      emoji: "💳",
+      bg: "bg-gray-600",
     },
   ],
   Airtime: [
@@ -302,6 +313,11 @@ const ClaimScreen = () => {
   const isEligible = usdValue >= MIN_USD;
   const progressPct = Math.min(100, (usdValue / MIN_USD) * 100);
 
+  // Non-crypto providers (Moniepoint/Other) receive via phone number, with
+  // the network field being optional rather than a crypto chain.
+  const isPhoneProvider =
+    !!selectedProvider && ["Moniepoint", "Other"].includes(selectedProvider.name);
+
   return (
     <View className="flex-1 bg-green-200 items-center justify-start relative">
       <BackgroundImage
@@ -393,22 +409,27 @@ const ClaimScreen = () => {
             <Text className="text-white font-pbold text-base mb-2">
               1. Choose where to receive your tokens
             </Text>
-            <View className="flex-row justify-around gap-x-4 mb-4">
+            <View className="flex-row flex-wrap justify-between mb-4">
               {providers[activeTab].map((provider, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => setSelectedProvider(provider)}
-                  className={`flex-1 items-center p-4 rounded-2xl ${provider.bg} ${
+                  style={{ width: "48%" }}
+                  className={`items-center p-4 mb-3 rounded-2xl ${provider.bg} ${
                     selectedProvider?.name === provider.name
                       ? "border-2 border-white"
                       : "opacity-80"
                   }`}
                 >
-                  <Image
-                    source={provider.icon}
-                    className="w-8 h-8"
-                    resizeMode="contain"
-                  />
+                  {provider.icon ? (
+                    <Image
+                      source={provider.icon}
+                      className="w-8 h-8"
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Text style={{ fontSize: 28 }}>{provider.emoji}</Text>
+                  )}
                   <Text className="text-white font-psemibold text-sm mt-2">
                     {provider.name}
                   </Text>
@@ -416,22 +437,26 @@ const ClaimScreen = () => {
               ))}
             </View>
 
-            {/* Step 2: wallet details */}
+            {/* Step 2: wallet / phone details */}
             <Text className="text-white font-pbold text-base mb-1">
-              2. Enter your wallet details
+              2. Enter your {isPhoneProvider ? "payout details" : "wallet details"}
             </Text>
             <FormField
               type="text"
-              placeholder="Paste your wallet address"
-              title="Wallet address"
+              placeholder={
+                isPhoneProvider
+                  ? "Enter your phone number"
+                  : "Paste your wallet address"
+              }
+              title={isPhoneProvider ? "Phone number" : "Wallet address"}
               value={form.phoneNo}
               handleChangeText={(e: any) => setForm({ ...form, phoneNo: e })}
               otherStyles="my-2"
             />
             <FormField
               type="text"
-              placeholder="e.g. TON, BEP20, ERC20"
-              title="Network"
+              placeholder={isPhoneProvider ? "Optional" : "e.g. TON, BEP20, ERC20"}
+              title={isPhoneProvider ? "Network (Optional)" : "Network"}
               value={form.network}
               handleChangeText={(e: any) => setForm({ ...form, network: e })}
               otherStyles="mb-2"
