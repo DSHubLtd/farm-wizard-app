@@ -16,9 +16,16 @@ import { useLoginContext } from "@/context/LoginProvider";
 import { getShorts } from "@/services/rewardsApi";
 import { creditReward } from "@/utils/engagement";
 import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
+import {
+  canShowInterstitial,
+  markInterstitialShown,
+} from "@/utils/adFrequency";
 
 const REWARD = 25; // WizPoints per short watched
 const WATCH_SECONDS = 15; // must watch this long before claiming
+// Ad-frequency cap (AdMob policy): show an interstitial at most every Nth
+// short AND no more than once per the app-wide minimum interval.
+const AD_EVERY = 3;
 
 type Short = {
   videoId: string;
@@ -50,6 +57,7 @@ const Shorts = () => {
   const videosRef = useRef<Short[]>([]);
   const rewardedRef = useRef<string[]>([]);
   const adShownRef = useRef<string[]>([]); // videos that already showed an ad
+  const viewedCountRef = useRef(0); // how many shorts viewed (for the cap)
 
   useEffect(() => {
     videosRef.current = videos;
@@ -113,15 +121,25 @@ const Shorts = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     const vid = videosRef.current[idx]?.videoId;
     if (!vid) return;
+    viewedCountRef.current += 1;
 
-    if (!isPremiumUser && !adShownRef.current.includes(vid)) {
-      adShownRef.current = [...adShownRef.current, vid];
-      setSecondsLeft(WATCH_SECONDS);
-      setAdKey((k) => k + 1);
-      setShowInterstitial(true); // countdown begins on ad close
-    } else {
-      startCountdown(vid);
-    }
+    const maybeShowAd = async () => {
+      const eligible =
+        !isPremiumUser &&
+        !adShownRef.current.includes(vid) &&
+        viewedCountRef.current % AD_EVERY === 0 &&
+        (await canShowInterstitial());
+      if (eligible) {
+        adShownRef.current = [...adShownRef.current, vid];
+        await markInterstitialShown();
+        setSecondsLeft(WATCH_SECONDS);
+        setAdKey((k) => k + 1);
+        setShowInterstitial(true); // countdown begins on ad close
+      } else {
+        startCountdown(vid);
+      }
+    };
+    maybeShowAd();
   };
 
   // Stable callback for FlatList; reads current values via refs.

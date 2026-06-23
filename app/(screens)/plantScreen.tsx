@@ -47,6 +47,7 @@ import analytics from "@react-native-firebase/analytics";
 import BannerAdComponent from "@/utils/BannerAdComponent";
 import { schedulePausedSessionReminder } from "@/utils/notifications";
 import { recordEvent } from "@/utils/engagement";
+import { canShowInterstitial, markInterstitialShown } from "@/utils/adFrequency";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 // Total session length. Casual-game best practice keeps a play session
@@ -1506,8 +1507,16 @@ const PlantScreen = () => {
               setGrowthModal(false);
               // Show an ad between levels (not on the very first stage),
               // resuming the game timer only after the ad is dismissed.
+              // Respects the app-wide interstitial frequency cap.
               if (!isPremiumUser && getPlantStage() > 0) {
-                setLevelAd(true);
+                canShowInterstitial().then((ok) => {
+                  if (ok) {
+                    markInterstitialShown();
+                    setLevelAd(true);
+                  } else {
+                    setIsTimerActive(true);
+                  }
+                });
               } else {
                 setIsTimerActive(true);
               }
