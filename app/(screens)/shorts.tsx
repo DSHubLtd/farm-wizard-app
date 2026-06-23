@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { icons } from "@/constants";
 import { useLoginContext } from "@/context/LoginProvider";
 import { getShorts } from "@/services/rewardsApi";
 import { creditReward } from "@/utils/engagement";
+import InterstitialAdComponent from "@/utils/InterstitialAdComponent";
 
 const REWARD = 25; // WizPoints per short watched
 const WATCH_SECONDS = 15; // must watch this long before claiming
@@ -32,6 +33,8 @@ const Shorts = () => {
   if (!user) {
     router.replace("/");
   }
+  const isPremiumUser = user?.isPremium === true;
+
   const [videos, setVideos] = useState<Short[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -40,8 +43,20 @@ const Shorts = () => {
   const [rewarded, setRewarded] = useState<string[]>([]);
   const [claiming, setClaiming] = useState(false);
   const [itemHeight, setItemHeight] = useState(Dimensions.get("window").height);
+  const [showInterstitial, setShowInterstitial] = useState(false);
+  const [adKey, setAdKey] = useState(0);
 
   const timerRef = useRef<any>(null);
+  const videosRef = useRef<Short[]>([]);
+  const rewardedRef = useRef<string[]>([]);
+  const adShownRef = useRef<string[]>([]); // videos that already showed an ad
+
+  useEffect(() => {
+    videosRef.current = videos;
+  }, [videos]);
+  useEffect(() => {
+    rewardedRef.current = rewarded;
+  }, [rewarded]);
 
   const load = async () => {
     setLoading(true);
@@ -71,11 +86,10 @@ const Shorts = () => {
 
   const activeVideo = videos[activeIndex];
 
-  // Restart the watch countdown whenever the active video changes (unless
-  // it was already rewarded).
+  // Start the watch countdown for a video (skips if already rewarded).
   const startCountdown = (videoId?: string) => {
     if (timerRef.current) clearInterval(timerRef.current);
-    if (!videoId || rewarded.includes(videoId)) {
+    if (!videoId || rewardedRef.current.includes(videoId)) {
       setSecondsLeft(0);
       return;
     }
@@ -91,11 +105,30 @@ const Shorts = () => {
     }, 1000);
   };
 
+  // Called when a new short scrolls into view: show an interstitial at the
+  // start of each short (once per video, non-premium), then run the
+  // watch-countdown after the ad is dismissed.
+  const activate = (idx: number) => {
+    setActiveIndex(idx);
+    if (timerRef.current) clearInterval(timerRef.current);
+    const vid = videosRef.current[idx]?.videoId;
+    if (!vid) return;
+
+    if (!isPremiumUser && !adShownRef.current.includes(vid)) {
+      adShownRef.current = [...adShownRef.current, vid];
+      setSecondsLeft(WATCH_SECONDS);
+      setAdKey((k) => k + 1);
+      setShowInterstitial(true); // countdown begins on ad close
+    } else {
+      startCountdown(vid);
+    }
+  };
+
+  // Stable callback for FlatList; reads current values via refs.
   const onViewable = useRef(({ viewableItems }: any) => {
     if (viewableItems && viewableItems.length > 0) {
       const idx = viewableItems[0].index ?? 0;
-      setActiveIndex(idx);
-      startCountdown(videos[idx]?.videoId);
+      activate(idx);
     }
   }).current;
 
@@ -190,12 +223,27 @@ const Shorts = () => {
       className="flex-1 bg-black"
       onLayout={(e) => setItemHeight(e.nativeEvent.layout.height)}
     >
+      {/* Interstitial at the start of each short */}
+      {showInterstitial && !isPremiumUser && (
+        <InterstitialAdComponent
+          key={adKey}
+          onClose={() => {
+            setShowInterstitial(false);
+            startCountdown(videos[activeIndex]?.videoId);
+          }}
+        />
+      )}
+
       {/* Back button */}
       <TouchableOpacity
         onPress={() => router.back()}
         className="absolute top-12 left-4 z-10 w-10 h-10 rounded-full bg-black/40 items-center justify-center"
       >
-        <Image source={icons.back} className="w-6 h-6" style={{ tintColor: "#fff" }} />
+        <Image
+          source={icons.back}
+          className="w-6 h-6"
+          style={{ tintColor: "#fff" }}
+        />
       </TouchableOpacity>
 
       {loading ? (
