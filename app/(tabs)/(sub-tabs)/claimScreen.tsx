@@ -317,6 +317,7 @@ const ClaimScreen = () => {
   // the network field being optional rather than a crypto chain.
   const isPhoneProvider =
     !!selectedProvider && ["Moniepoint", "Other"].includes(selectedProvider.name);
+  const isOther = selectedProvider?.name === "Other";
 
   return (
     <View className="flex-1 bg-green-200 items-center justify-start relative">
@@ -455,8 +456,20 @@ const ClaimScreen = () => {
             />
             <FormField
               type="text"
-              placeholder={isPhoneProvider ? "Optional" : "e.g. TON, BEP20, ERC20"}
-              title={isPhoneProvider ? "Network (Optional)" : "Network"}
+              placeholder={
+                isOther
+                  ? "e.g. your bank or app name (Optional)"
+                  : isPhoneProvider
+                  ? "Optional"
+                  : "e.g. TON, BEP20, ERC20"
+              }
+              title={
+                isOther
+                  ? "Bank / App name (Optional)"
+                  : isPhoneProvider
+                  ? "Network (Optional)"
+                  : "Network"
+              }
               value={form.network}
               handleChangeText={(e: any) => setForm({ ...form, network: e })}
               otherStyles="mb-2"
