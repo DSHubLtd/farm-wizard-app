@@ -102,7 +102,7 @@ const Settings = () => {
     if (itemLink === "privacy") {
       setPrivacyVisible(true);
     }
-    if (itemLink === "contact-us" || itemLink === "tutorial") {
+    if (itemLink === "contact-us") {
       openWebView(url);
     }
     if (itemLink === "logout") {
@@ -151,12 +151,6 @@ const Settings = () => {
       icon: icons.contact,
       link: "contact-us",
       url: "https://play.google.com/store/apps/details?id=com.dshub.farmwizard",
-    },
-    {
-      label: t("settings.tutorial"),
-      icon: icons.tutorial,
-      link: "tutorial",
-      url: "https://www.youtube.com/watch?v=5-D_gvdUXMs",
     },
     {
       label: t("settings.logout"),
